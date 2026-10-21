@@ -22,7 +22,8 @@
 - [ ] Hanya menyentuh path milik saya (lihat `CODEOWNERS`)
 - [ ] `npx tsc --noEmit` hijau
 - [ ] `npx expo lint` hijau
-- [ ] Ada empty state / loading state bila relevan
+- [ ] Memakai `{ ok, pesan }` dari store untuk semua feedback; tidak menebak hasil aksi.
+- [ ] Tidak ada state loading palsu pada operasi sinkron.
 - [ ] Tidak ada warna hardcode (pakai token di `src/constants/theme.ts`)
 - [ ] Layout pakai flexbox + safe area
 - [ ] Tidak menambah dependency tanpa approval PM

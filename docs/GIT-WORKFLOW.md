@@ -14,7 +14,7 @@ Format:
 
 | Segmen | Nilai | Contoh |
 |---|---|---|
-| `type` | `feat`, `fix`, `docs`, `chore` | `feat` |
+| `type` | `feat`, `fix`, `refactor`, `style`, `docs`, `chore` | `feat` |
 | `owner` | `p1`, `p2`, `p3`, `pm` | `p1` |
 | `area` | `shell`, `praktikan`, `asisten`, `ui`, `data`, `docs`, `config` | `praktikan` |
 | `slug` | kebab-case, 3–40 char, `a-z0-9-` | `jadwal-list` |
@@ -22,7 +22,7 @@ Format:
 Regex validasi:
 
 ```
-^(feat|fix|docs|chore)\/(p1|p2|p3|pm)-(shell|praktikan|asisten|ui|data|docs|config)-[a-z0-9-]{3,40}$
+^(feat|fix|refactor|style|docs|chore)\/(p1|p2|p3|pm)-(shell|praktikan|asisten|ui|data|docs|config)-[a-z0-9-]{3,40}$
 ```
 
 Benar: `feat/p1-praktikan-jadwal-list`, `feat/p2-asisten-sesi-control`, `feat/p3-ui-empty-state`, `docs/pm-sprint-1`, `fix/p2-asisten-rekap-crash`.
@@ -89,6 +89,8 @@ npx expo lint
 
 Keduanya harus hijau. PR yang gagal typecheck/lint tidak direview.
 
+> CI otomatis belum tersedia pada Sprint 1 (tidak ada workflow). Syarat kelulusan memakai hasil cek lokal di atas; reviewer mengecek bukti di deskripsi PR.
+
 ### Ukuran
 
 - Maksimal **400 baris berubah** dan **10 file** (di luar lockfile).
@@ -98,7 +100,7 @@ Keduanya harus hijau. PR yang gagal typecheck/lint tidak direview.
 
 ### Judul
 
-Judul PR = commit message utama, misalnya `feat(p2): kelola buka tutup sesi`.
+Judul PR = commit message utama, misalnya `feat(asisten): kelola buka tutup sesi`.
 
 ### Body
 
@@ -124,10 +126,11 @@ Wajib memakai `.github/pull_request_template.md`:
 - [ ] Hanya menyentuh path milik saya (lihat CODEOWNERS)
 - [ ] `npx tsc --noEmit` hijau
 - [ ] `npx expo lint` hijau
-- [ ] Ada empty state / loading state bila relevan
+- [ ] Ada empty state bila relevan; tidak ada loading state palsu
 - [ ] Tidak ada warna hardcode (pakai token)
 - [ ] Layout pakai flexbox + safe area
 - [ ] Tidak menambah dependency tanpa approval PM
+- [ ] Semua feedback diambil dari hasil `{ ok, pesan }` store; tidak ada loading palsu
 
 Refs #<issue>
 ```
@@ -142,7 +145,7 @@ Refs #<issue>
 ## 4. Merge
 
 - Hanya **squash merge**. Pesan squash = judul PR.
-- Syarat: CI hijau, 1 approval, branch up-to-date dengan `main`, tanpa konflik.
+- Syarat: cek lokal `npx tsc --noEmit` + `npx expo lint` hijau (dilaporkan di deskripsi PR), 1 approval, branch up-to-date dengan `main`, tanpa konflik.
 - Branch sumber dihapus otomatis.
 - Dilarang force push ke `main` dan dilarang merge PR milik sendiri tanpa reviewer.
 

@@ -1,6 +1,6 @@
 # AntarMuka
 
-**Antar Praktikum** — aplikasi catatan kehadiran praktikum untuk praktikan dan asisten.
+**AntarPraktikum** — aplikasi catatan kehadiran praktikum untuk praktikan dan asisten.
 
 Sprint 1 berfokus pada **UI** dengan data dummy dan state lokal (belum ada database). Dua sudut pandang pengguna:
 
@@ -9,11 +9,15 @@ Sprint 1 berfokus pada **UI** dengan data dummy dan state lokal (belum ada datab
 
 ## Demo sprint 1
 
-1. Pilih peran **Asisten** → buka salah satu sesi berstatus *Belum dibuka*.
-2. Pindah ke peran **Praktikan** → sesi tampil *Dibuka* → tekan **Presensi** → konfirmasi di bottom sheet.
-3. Presensi berhasil (waktu tercatat, tombol berubah jadi *Sudah presensi*). Coba lagi → ditolak.
-4. Pindah ke **Asisten** → buka rekap sesi → peserta + waktu kehadiran tampil.
-5. Asisten menutup sesi → status berubah di kedua sisi.
+1. Pilih peran **Asisten** → buka salah satu sesi berstatus *Belum dibuka*. Status berubah menjadi *Dibuka* dengan waktu buka.
+2. Berpindah ke peran **Praktikan** tanpa reload → sesi tampil *Dibuka* → tekan **Presensi** → konfirmasi di bottom sheet. Jam kehadiran tercatat.
+3. Berpindah kembali ke **Asisten** tanpa reload → buka rekap sesi → peserta beserta waktu kehadiran tampil.
+4. Asisten menutup sesi → status menjadi *Ditutup* dengan waktu tutup.
+5. Berpindah ke **Praktikan** tanpa reload → coba presensi pada sesi yang sudah ditutup → ditolak dengan feedback jelas.
+
+Penolakan presensi ganda pada sesi yang sama diuji terpisah pada **AC-05** (lihat `docs/PRD.md`).
+
+Konsistensi data lintas peran wajib saat berpindah peran dalam satu instance aplikasi (AC-11, AC-12). Backend dan sinkronisasi lintas perangkat di luar scope Sprint 1.
 
 ## Menjalankan
 
