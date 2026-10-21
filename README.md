@@ -45,6 +45,7 @@ Menambah library wajib lewat `npx expo install <paket>` dan **harus disetujui PM
 - Expo SDK 58 + React Native 0.88, React 19
 - Expo Router (file-based routing, typed routes)
 - TypeScript strict
+- NativeWind 4 (Tailwind CSS 3) untuk styling, token terpusat di `src/constants/tokens.js`
 - Tanpa database, tanpa auth, tanpa state library eksternal — data dummy + React state/context
 
 ## Struktur folder
@@ -68,6 +69,20 @@ src/
 ```
 
 Non-route code tidak boleh ditaruh di `src/app/`.
+
+## Styling
+
+Styling memakai **NativeWind 4** (Tailwind CSS 3). Komponen JSX memakai `className`:
+
+```tsx
+<View className="flex-1 bg-background p-three">
+  <Text className="text-body font-semibold text-primary">Jadwal</Text>
+</View>
+```
+
+- Token desain: [`src/constants/tokens.js`](src/constants/tokens.js) — sumber tunggal, dibaca `tailwind.config.js` dan di-re-export oleh `src/constants/theme.ts`.
+- `src/global.css` diimpor sekali di `src/app/_layout.tsx`; berisi directive Tailwind + CSS variable warna untuk dark mode.
+- Dilarang hardcode warna dan dilarang arbitrary value (`p-[13px]`, `text-[#123456]`).
 
 ## Peran dalam tim
 

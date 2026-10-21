@@ -9,12 +9,18 @@
 /src/features/praktikan/        @username-p1
 /src/components/app-tabs.tsx     @username-p1
 /src/components/app-tabs.web.tsx @username-p1
+/tailwind.config.js              @username-p1
+/src/global.css                  @username-p1
+/babel.config.js                 @username-p1
+/metro.config.js                 @username-p1
+/nativewind-env.d.ts             @username-p1
 
 # P2 — asisten
 /src/app/(asisten)/             @username-p2
 /src/features/asisten/          @username-p2
 
 # P3 — design system + data
+/src/constants/tokens.js         @username-p3
 /src/constants/theme.ts         @username-p3
 /src/types/                     @username-p3
 /src/data/                      @username-p3

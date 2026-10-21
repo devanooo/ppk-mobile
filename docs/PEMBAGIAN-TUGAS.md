@@ -21,7 +21,9 @@ Tujuan dokumen: setiap file punya **tepat satu pemilik**. Tidak ada dua orang me
 | `src/features/praktikan/**` | P1 | komponen/hook khusus praktikan |
 | `src/app/(asisten)/**` | P2 | tab, jadwal, detail, rekap |
 | `src/features/asisten/**` | P2 | komponen/hook khusus asisten |
-| `src/constants/theme.ts` | P3 | token warna/font/spacing. **Beku setelah D1** |
+| `src/constants/tokens.js` | P3 | token desain (sumber tunggal) — warna, spacing, radius, tipografi. **Beku setelah D1** |
+| `src/constants/theme.ts` | P3 | re-export bertipe dari `tokens.js` untuk kode non-JSX. **Beku setelah D1** |
+| `tailwind.config.js`, `src/global.css`, `babel.config.js`, `metro.config.js` | P1 | konfigurasi styling. Perubahan wajib approval PM |
 | `src/types/**` | P3 | tipe domain. **Beku setelah D1** |
 | `src/data/**` | P3 | data dummy |
 | `src/store/**` | P3 | context sesi & presensi |
@@ -69,7 +71,7 @@ type Store = {
 
 Aturan: mutasi sesi dan presensi (`bukaSesi`, `tutupSesi`, `catatPresensi`) mengembalikan `{ ok, pesan }`; `setUser` tidak memakai jalur hasil aksi karena pergantian identitas tidak punya kegagalan yang perlu dilaporkan. `bukaSesi` hanya valid dari `belum-dibuka`; `tutupSesi` hanya valid dari `dibuka`; `catatPresensi` menolak bila sesi tidak `dibuka`, praktikan tidak ada di `pesertaIds`, atau presensi untuk pasangan `sesiId + praktikanId` sudah ada. Pesan penolakan memakai teks pada PRD bagian 10. Semua mutasi hanya lewat store — tidak ada state lokal duplikat di layar.
 
-`src/components/ui/` minimal: `Screen`, `AppButton`, `Card`, `StatusBadge`, `EmptyState`, `BottomSheet`, `Field` (picker/teks), `Banner` (feedback). Diekspor lewat `index.ts`.
+`src/components/ui/` minimal: `Screen`, `AppButton`, `Card`, `StatusBadge`, `EmptyState`, `BottomSheet`, `Field` (picker/teks), `Banner` (feedback). Diekspor lewat `index.ts`. Semua komponen memakai NativeWind (`className`) dengan token dari `tokens.js`; jangan hardcode warna atau memakai arbitrary value.
 
 ## 5. Timeline
 

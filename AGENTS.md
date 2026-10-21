@@ -30,7 +30,7 @@ Baca sebelum mengubah kode:
 - **Layar:** pisahkan presentational component (menerima props) dari route file (memanggil hook store). Route file harus tipis.
 - **State:** satu sumber kebenaran di `src/store/session-store.tsx`. Dilarang menduplikasi state sesi/presensi secara lokal di layar. Mutasi hanya lewat aksi store (`bukaSesi`, `tutupSesi`, `catatPresensi`).
 - **Data:** dummy di `src/data/`, tipe di `src/types/`. Jangan invent field baru di layar; kontrak dibekukan setelah D1.
-- **Styling:** token dari `src/constants/theme.ts`. Dilarang hardcode warna/ukuran font. Layout wajib flexbox + safe area; target sentuh minimal 44×44 pt.
+- **Styling:** NativeWind (Tailwind CSS) untuk komponen JSX. Token desain ada di `src/constants/tokens.js` — satu-satunya sumber nilai, dibaca oleh `tailwind.config.js` dan di-re-export bertipe oleh `src/constants/theme.ts`. Dilarang hardcode warna/ukuran font dan dilarang arbitrary value (`p-[13px]`, `text-[#123456]`). Layout wajib flexbox + safe area; target sentuh minimal 44×44 pt.
 - **Interaksi:** konfirmasi perubahan status/presensi lewat modal atau bottom sheet; setiap aksi memberi feedback sukses/gagal; tombol nonaktif harus punya alasan yang terlihat.
 - **Empty state:** wajib untuk daftar kosong, rekap kosong, dan riwayat kehadiran kosong.
 - **Aksesibilitas:** semua tombol punya `accessibilityLabel`; teks status tidak hanya dibedakan lewat warna.
@@ -59,7 +59,7 @@ Install sekali dari skills.sh (butuh `npx`), lalu gunakan sesuai area:
 | `resolving-merge-conflicts` | `npx skills add https://github.com/mattpocock/skills --skill resolving-merge-conflicts` | konflik merge |
 | `find-skills` | `npx skills add https://github.com/vercel-labs/skills --skill find-skills` | mencari skill baru |
 
-Jangan install `expo-tailwind-setup` (proyek memakai StyleSheet + token), `native-data-fetching` (data dummy), atau `git-guardrails-claude-code` (hook khusus Claude Code).
+Jangan install `native-data-fetching` (data dummy) atau `git-guardrails-claude-code` (hook khusus Claude Code). `expo-tailwind-setup` tidak diperlukan karena proyek sudah memakai NativeWind secara manual (lihat `tailwind.config.js`, `babel.config.js`, `metro.config.js`).
 
 ## Expo has changed — do not trust your training data
 
@@ -83,6 +83,15 @@ npx expo install --fix      # fix incompatible package versions
 ```
 
 Run lint and typecheck before declaring any task done.
+
+## Styling dengan NativeWind
+
+- Semua komponen JSX memakai prop `className` berisi utility Tailwind. `StyleSheet.create` hanya untuk nilai dinamis yang tidak bisa jadi class (mis. `tintColor` dari store) atau animasi.
+- `src/global.css` **wajib** diimpor sekali di `src/app/_layout.tsx`. Tanpa import ini tidak ada utility class yang dihasilkan.
+- Token desain: `src/constants/tokens.js` (sumber tunggal) → `tailwind.config.js` (utility) dan `src/constants/theme.ts` (re-export bertipe). Jangan menulis nilai desain di tempat lain.
+- Token warna memakai CSS variable `--color-<nama>` di `src/global.css`; dark mode mengikuti `prefers-color-scheme` (`darkMode: 'media'`). Bila mengubah nilai warna di `tokens.js`, ubah channel RGB di `global.css` juga.
+- Dilarang arbitrary value: `p-[13px]`, `text-[#123456]`, `bg-[#fff]`. Tambahkan token baru ke `tokens.js` bila memang perlu.
+- Konfigurasi terkait: `babel.config.js` (`jsxImportSource: 'nativewind'`), `metro.config.js` (`withNativeWind`), `nativewind-env.d.ts` (tipe `className`). Jangan mengubah ketiganya tanpa persetujuan PM.
 
 ## Navigation & Routing
 

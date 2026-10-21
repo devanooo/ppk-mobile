@@ -127,7 +127,7 @@ Wajib memakai `.github/pull_request_template.md`:
 - [ ] `npx tsc --noEmit` hijau
 - [ ] `npx expo lint` hijau
 - [ ] Ada empty state bila relevan; tidak ada loading state palsu
-- [ ] Tidak ada warna hardcode (pakai token)
+- [ ] Tidak ada warna hardcode atau arbitrary value (pakai token NativeWind)
 - [ ] Layout pakai flexbox + safe area
 - [ ] Tidak menambah dependency tanpa approval PM
 - [ ] Semua feedback diambil dari hasil `{ ok, pesan }` store; tidak ada loading palsu

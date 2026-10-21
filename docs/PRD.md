@@ -338,7 +338,7 @@ Seluruh langkah berjalan tanpa reload (AC-12). Penolakan presensi ganda diuji pa
 4. Mutasi sesi dan presensi (`bukaSesi`, `tutupSesi`, `catatPresensi`) mengembalikan `{ ok, pesan }` sehingga feedback UI seragam dan validasi tidak bergantung pada disabled tombol. `setUser` hanya mengganti identitas aktif dan tidak memakai jalur hasil aksi tersebut.
 5. Satu store context sebagai sumber kebenaran lintas peran; layar menerima props dari route tipis.
 6. Navigasi memakai Expo Router: root stack → tab per peran → stack detail.
-7. Token warna/spacing/font terpusat; badge status selalu menyertakan label teks, bukan hanya warna.
+7. Token warna/spacing/radius/tipografi terpusat di `src/constants/tokens.js` sebagai sumber tunggal; `tailwind.config.js` mengubahnya menjadi utility class dan `src/constants/theme.ts` me-re-export versi bertipe. Komponen JSX memakai NativeWind (`className`). Badge status selalu menyertakan label teks, bukan hanya warna.
 8. Flexbox + safe area; target sentuh minimal 44×44 pt.
 
 **Asumsi (perlu persetujuan tim)**
