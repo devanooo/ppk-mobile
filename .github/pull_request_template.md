@@ -13,7 +13,7 @@
 
 ## Screenshot
 
-| iOS | Android/Web |
+| iOS | Android |
 |---|---|
 |  |  |
 
@@ -27,6 +27,8 @@
 - [ ] Tidak ada warna hardcode atau arbitrary value (`p-[13px]`, `text-[#123456]`); semua dari token NativeWind
 - [ ] Layout pakai flexbox + safe area
 - [ ] Tidak menambah dependency tanpa approval PM
-- [ ] Perubahan file beku (`_layout.tsx`, `theme.ts`, `types`, `ui/index.ts`) sudah disetujui owner
+- [ ] Perubahan file beku (`_layout.tsx`, `tokens.js`, `theme.ts`, `types`, `ui/index.ts`, `credentials.ts`) sudah disetujui owner
+- [ ] Auth memakai `Stack.Protected`; route publik dan route peran tidak saling bocor
+- [ ] Logout tidak menghapus `sesi` atau `presensi`
 
 Refs #

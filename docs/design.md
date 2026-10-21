@@ -1,591 +1,625 @@
-# Design System — AntarMuka (AntarPraktikum)
+---
+version: alpha
+name: Apple-design-analysis
+description: A photography-first interface that turns marketing into a museum gallery. Edge-to-edge product tiles alternate light and dark canvases, framed by SF Pro Display headlines with negative letter-spacing and a single Action Blue (#0066cc) interactive color. UI chrome recedes so the product can speak — no decorative gradients, no shadows on chrome, only the one signature drop-shadow under product imagery resting on a surface.
 
-Sumber kebenaran desain untuk Sprint 1. Dibaca bersama `docs/PRD.md` (kebutuhan & acceptance criteria) dan `docs/PEMBAGIAN-TUGAS.md` (kontrak komponen).
+colors:
+  primary: "#0066cc"
+  primary-focus: "#0071e3"
+  primary-on-dark: "#2997ff"
+  ink: "#1d1d1f"
+  body: "#1d1d1f"
+  body-on-dark: "#ffffff"
+  body-muted: "#cccccc"
+  ink-muted-80: "#333333"
+  ink-muted-48: "#7a7a7a"
+  divider-soft: "#f0f0f0"
+  hairline: "#e0e0e0"
+  canvas: "#ffffff"
+  canvas-parchment: "#f5f5f7"
+  surface-pearl: "#fafafc"
+  surface-tile-1: "#272729"
+  surface-tile-2: "#2a2a2c"
+  surface-tile-3: "#252527"
+  surface-black: "#000000"
+  surface-chip-translucent: "#d2d2d7"
+  on-primary: "#ffffff"
+  on-dark: "#ffffff"
 
-> **Urutan otoritas.** Nilai token yang mengikat ada di `src/constants/tokens.js` (dan channel RGB di `src/global.css`). Dokumen ini **mencerminkan** nilai tersebut dan menetapkan **aturan pemakaian**. Bila ada perbedaan angka, `tokens.js` menang dan dokumen ini harus diperbaiki lewat PR ke PM.
->
-> **Ini bukan duplikasi PRD.** Teks empty state, alur per peran, dan acceptance criteria tetap di PRD. Dokumen ini hanya mengatur tampilan, token, komponen, dan konsistensi visual.
+typography:
+  hero-display:
+    fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif"
+    fontSize: 56px
+    fontWeight: 600
+    lineHeight: 1.07
+    letterSpacing: -0.28px
+  display-lg:
+    fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif"
+    fontSize: 40px
+    fontWeight: 600
+    lineHeight: 1.1
+    letterSpacing: 0
+  display-md:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 34px
+    fontWeight: 600
+    lineHeight: 1.47
+    letterSpacing: -0.374px
+  lead:
+    fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif"
+    fontSize: 28px
+    fontWeight: 400
+    lineHeight: 1.14
+    letterSpacing: 0.196px
+  lead-airy:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 24px
+    fontWeight: 300
+    lineHeight: 1.5
+    letterSpacing: 0
+  tagline:
+    fontFamily: "SF Pro Display, system-ui, -apple-system, sans-serif"
+    fontSize: 21px
+    fontWeight: 600
+    lineHeight: 1.19
+    letterSpacing: 0.231px
+  body-strong:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 17px
+    fontWeight: 600
+    lineHeight: 1.24
+    letterSpacing: -0.374px
+  body:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 17px
+    fontWeight: 400
+    lineHeight: 1.47
+    letterSpacing: -0.374px
+  dense-link:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 17px
+    fontWeight: 400
+    lineHeight: 2.41
+    letterSpacing: 0
+  caption:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.43
+    letterSpacing: -0.224px
+  caption-strong:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 14px
+    fontWeight: 600
+    lineHeight: 1.29
+    letterSpacing: -0.224px
+  button-large:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 18px
+    fontWeight: 300
+    lineHeight: 1.0
+    letterSpacing: 0
+  button-utility:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 14px
+    fontWeight: 400
+    lineHeight: 1.29
+    letterSpacing: -0.224px
+  fine-print:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 12px
+    fontWeight: 400
+    lineHeight: 1.0
+    letterSpacing: -0.12px
+  micro-legal:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 10px
+    fontWeight: 400
+    lineHeight: 1.3
+    letterSpacing: -0.08px
+  nav-link:
+    fontFamily: "SF Pro Text, system-ui, -apple-system, sans-serif"
+    fontSize: 12px
+    fontWeight: 400
+    lineHeight: 1.0
+    letterSpacing: -0.12px
 
-**Inspirasi:** `material-clean.md` (Material Design 3 ringkas). Yang diadopsi: struktur semantic color roles, disiplin skala tipografi, spacing 4-based, hierarki lewat permukaan. Yang **ditolak**: palet ungu Material, elevation/shadow berlapis, ripple sebagai satu-satunya feedback, dan state loading. Bagian yang merupakan adaptasi ditandai **[Adaptasi]**.
+rounded:
+  none: 0px
+  xs: 5px
+  sm: 8px
+  md: 11px
+  lg: 18px
+  pill: 9999px
+  full: 9999px
 
+spacing:
+  xxs: 4px
+  xs: 8px
+  sm: 12px
+  md: 17px
+  lg: 24px
+  xl: 32px
+  xxl: 48px
+  section: 80px
+
+components:
+  button-primary:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: 11px 22px
+  button-primary-focus:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.pill}"
+  button-primary-active:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    rounded: "{rounded.pill}"
+  button-secondary-pill:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.primary}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: 11px 22px
+  button-dark-utility:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.button-utility}"
+    rounded: "{rounded.sm}"
+    padding: 8px 15px
+  button-pearl-capsule:
+    backgroundColor: "{colors.surface-pearl}"
+    textColor: "{colors.ink-muted-80}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.md}"
+    padding: 8px 14px
+  button-store-hero:
+    backgroundColor: "{colors.primary}"
+    textColor: "{colors.on-primary}"
+    typography: "{typography.button-large}"
+    rounded: "{rounded.pill}"
+    padding: 14px 28px
+  button-icon-circular:
+    backgroundColor: "{colors.surface-chip-translucent}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.full}"
+    size: 44px
+  text-link:
+    backgroundColor: transparent
+    textColor: "{colors.primary}"
+    typography: "{typography.body}"
+  text-link-on-dark:
+    backgroundColor: transparent
+    textColor: "{colors.primary-on-dark}"
+    typography: "{typography.body}"
+  global-nav:
+    backgroundColor: "{colors.surface-black}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.nav-link}"
+    height: 44px
+  sub-nav-frosted:
+    backgroundColor: "{colors.canvas-parchment}"
+    textColor: "{colors.ink}"
+    typography: "{typography.tagline}"
+    height: 52px
+  product-tile-light:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.display-lg}"
+    rounded: "{rounded.none}"
+    padding: 80px
+  product-tile-parchment:
+    backgroundColor: "{colors.canvas-parchment}"
+    textColor: "{colors.ink}"
+    typography: "{typography.display-lg}"
+    rounded: "{rounded.none}"
+    padding: 80px
+  product-tile-dark:
+    backgroundColor: "{colors.surface-tile-1}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.display-lg}"
+    rounded: "{rounded.none}"
+    padding: 80px
+  product-tile-dark-2:
+    backgroundColor: "{colors.surface-tile-2}"
+    textColor: "{colors.on-dark}"
+    rounded: "{rounded.none}"
+  product-tile-dark-3:
+    backgroundColor: "{colors.surface-tile-3}"
+    textColor: "{colors.on-dark}"
+    rounded: "{rounded.none}"
+  store-utility-card:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body-strong}"
+    rounded: "{rounded.lg}"
+    padding: 24px
+  configurator-option-chip:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.caption}"
+    rounded: "{rounded.pill}"
+    padding: 12px 16px
+  configurator-option-chip-selected:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+  search-input:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.pill}"
+    padding: 12px 20px
+    height: 44px
+  floating-sticky-bar:
+    backgroundColor: "{colors.canvas-parchment}"
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    height: 64px
+    padding: 12px 32px
+  environment-quote-card:
+    backgroundColor: "{colors.surface-tile-1}"
+    textColor: "{colors.on-dark}"
+    typography: "{typography.display-lg}"
+    rounded: "{rounded.none}"
+    padding: 80px
+  footer:
+    backgroundColor: "{colors.canvas-parchment}"
+    textColor: "{colors.ink-muted-80}"
+    typography: "{typography.fine-print}"
+    padding: 64px
 ---
 
-## 1. Design principles
+## Platform scope
 
-1. **Task-first.** Layar utama langsung menampilkan jadwal dan status sesi. Tidak ada onboarding, splash marketing, atau dekorasi yang menunda aksi presensi.
-2. **Satu sumber kebenaran.** Status sesi yang tampil di kartu, detail, dan rekap berasal dari store yang sama. Desain tidak boleh menampilkan status yang dihitung ulang di layar.
-3. **Status tidak boleh bergantung pada warna saja.** Setiap badge wajib punya label teks. Badge tanpa teks dilarang.
-4. **Tenang, bukan ramai.** Satu aksen biru, sisanya netral. Warna jenuh hanya untuk status dan feedback.
-5. **Umpan balik jujur.** Tidak ada spinner, skeleton, atau progress palsu. Operasi sinkron → hasil langsung terlihat (PRD §9).
-6. **Konsisten di dua peran.** Praktikan dan asisten memakai komponen yang sama; perbedaan hanya pada aksi yang tersedia, bukan pada gaya.
+PraktikumKU adalah aplikasi mobile untuk iOS dan Android. Analisis web Apple di dokumen ini dipakai sebagai referensi bahasa visual, bukan target platform. Layout, breakpoint, dan komponen HTML web tidak diterapkan. Adaptasi mobile ada di bagian akhir dokumen.
 
----
+## Overview
 
-## 2. Visual direction
+Apple's digital presence is a masterclass in **reverent product photography framed by near-invisible UI**. Every page is a stack of edge-to-edge product "tiles" — alternating light and dark canvases, each centered on a hero headline, a one-line tagline, two tiny blue pill CTAs, and an impossibly crisp product render. Nothing competes with the product. Typography is confident but quiet; color is either pure white, an off-white parchment, or a near-black tile; interactive elements are a single, quiet blue.
 
-**Karakter:** *campus-clean* — bersih, tenang, mudah dipindai, terasa administratif tanpa terasa kaku.
+Density is unusually low even by contemporary SaaS standards. Each tile occupies roughly one viewport, and there is no decorative chrome — no borders, no gradients, no decorative frames, no shadows on headlines. Elevation appears only when a product image rests on a surface (a single soft `rgba(0, 0, 0, 0.22) 3px 5px 30px` drop for visual weight). The result is a catalog that feels more like a museum gallery: the wall disappears and the artifact takes over.
 
-| Aspek | Arah |
-|---|---|
-| Palet | Netral putih/hitam dengan satu aksen biru (`primary`). Hijau/merah/kuning hanya untuk status. |
-| Permukaan | Hierarki lewat **perbedaan permukaan + border**, bukan shadow. Kartu memakai `bg-backgroundElement`, layar memakai `bg-background`. |
-| Sudut | Membulat sedang: kartu `rounded-lg` (16), input & tombol `rounded-md` (12), chip/badge `rounded-pill`. |
-| Tipografi | System font. Bobot `semibold` untuk judul, `medium` untuk label, `regular` untuk isi. |
-| Kepadatan | Lega. Padding layar 16–24. Baris daftar minimal 56pt. |
-| Ikon | `expo-symbols` (`SymbolView`), ukuran 18/24/32. Tidak menambah icon library. |
-| Gerak | Minimal. Hanya transisi bottom sheet (150–250 ms) dan feedback pressed. |
+Store and shop surfaces retain the same chassis but switch modes. The product configurator (iPhone 17 Pro, accessories grid) introduces a tight grid of white utility cards at `{rounded.lg}` (18px) radius with a thin border, paired with a persistent thin sub-nav strip. The environment page leans darker and more editorial. Across all five surfaces the typographic system, spacing rhythm, and the single blue accent are consistent — this is one design language expressed at different volumes.
 
-**Yang tidak dipakai:** gradien, ilustrasi besar, glassmorphism (walaupun `expo-glass-effect` terpasang), bayangan berlapis, border wireframe 1px di setiap container.
+**Key Characteristics:**
+- Photography-first presentation; UI recedes so the product can speak.
+- Alternating full-bleed tile sections: white/parchment ↔ near-black, with the color change itself acting as the section divider.
+- Single blue accent (`{colors.primary}` — #0066cc) carries every interactive element. No second brand color exists.
+- Two button grammars: tiny blue pill CTAs (`{rounded.pill}`) and compact utility rects (`{rounded.sm}`).
+- SF Pro Display + SF Pro Text — negative letter-spacing at display sizes for the signature "Apple tight" headline feel.
+- Whisper-soft elevation used only when a product image needs to breathe — exactly one drop-shadow in the entire system.
+- Tight two-row nav: slim `{component.global-nav}` + product-specific `{component.sub-nav-frosted}` with persistent right-aligned primary CTA.
+- Section rhythm across multiple pages: light hero → dark product tile → light utility tile → dark tile → parchment footer — a predictable pulse.
 
----
+## Colors
 
-## 3. Design tokens
+> **Source pages analyzed:** homepage, environment, store, iPhone 17 Pro buy page, accessories index. The color system is identical across all five surfaces; only the surface-mode mix differs.
 
-Semua di bawah ini berlaku otomatis sebagai utility NativeWind (`bg-primary`, `p-three`, `text-body`, dst.) karena `tailwind.config.js` memetakan `tokens.js` ke `theme.extend`.
+### Brand & Accent
+- **Action Blue** (`{colors.primary}` — #0066cc): The single brand-level interactive color. All text links, all blue pill CTAs ("Learn more", "Buy"), and the focus ring root. This is Apple's quiet but universal "click me" signal. Press state shifts to a slightly darker variant via the active scale transform rather than a hex change.
+- **Focus Blue** (`{colors.primary-focus}` — #0071e3): A marginally brighter sibling of Action Blue, reserved for the keyboard focus ring on buttons (`outline: 2px solid`).
+- **Sky Link Blue** (`{colors.primary-on-dark}` — #2997ff): A brighter blue used on dark surfaces for in-copy links and inline callouts, where Action Blue would disappear against the tile background.
 
-### 3.1 Warna (semantic roles)
+### Surface
+- **Pure White** (`{colors.canvas}` — #ffffff): The dominant canvas. Content, utility cards, store tiles, configurator grids.
+- **Parchment** (`{colors.canvas-parchment}` — #f5f5f7): The signature Apple off-white. Used for alternating light tiles, footer region, and the default page canvas in store utility sections. Just different enough from white to create rhythm.
+- **Pearl Button** (`{colors.surface-pearl}` — #fafafc): A near-white used as the fill for secondary "ghost" buttons — lighter than the parchment canvas so the button still reads as a button against `{colors.canvas-parchment}`.
+- **Near-Black Tile 1** (`{colors.surface-tile-1}` — #272729): The primary dark-tile surface on the homepage product grid.
+- **Near-Black Tile 2** (`{colors.surface-tile-2}` — #2a2a2c): A micro-step lighter — used where a dark tile sits directly above or below Tile 1 to create the faintest separation.
+- **Near-Black Tile 3** (`{colors.surface-tile-3}` — #252527): A micro-step darker — used at the bottom of the stack and in embedded video/player frames.
+- **Pure Black** (`{colors.surface-black}` — #000000): Reserved for true void — video player backgrounds, edge-to-edge photographic overlays, the global nav bar background.
+- **Translucent Chip Gray** (`{colors.surface-chip-translucent}` — #d2d2d7): The base hex of the translucent gray chip used over photography for circular control buttons. In production, applied at ~64% alpha as `rgba(210, 210, 215, 0.64)`.
 
-Nama token dipakai sebagai class: `bg-<nama>`, `text-<nama>`, `border-<nama>`.
+### Text
+- **Near-Black Ink** (`{colors.ink}` — #1d1d1f): The voice of every headline, every body paragraph, and the dark utility button's fill. Chosen instead of pure black to keep the page feeling photographic rather than printed.
+- **Body** (`{colors.body}` — #1d1d1f): Same hex as ink — Apple uses one near-black tone for all text on light surfaces.
+- **Body On Dark** (`{colors.body-on-dark}` — #ffffff): All text on dark tiles and on the global nav bar.
+- **Body Muted** (`{colors.body-muted}` — #cccccc): Secondary copy on dark tiles where pure white would be too loud.
+- **Ink Muted 80** (`{colors.ink-muted-80}` — #333333): Body text on the white Pearl Button surface — slightly softer than pure black.
+- **Ink Muted 48** (`{colors.ink-muted-48}` — #7a7a7a): Disabled button text and legal fine-print.
 
-| Token | Peran | Light | Dark |
-|---|---|---|---|
-| `background` | Latar layar | `#FFFFFF` | `#000000` |
-| `backgroundElement` | Kartu, input filled, chip | `#F0F0F3` | `#212225` |
-| `backgroundSelected` | Baris/opsi terpilih | `#E0E1E6` | `#2E3135` |
-| `text` | Teks utama | `#000000` | `#FFFFFF` |
-| `textSecondary` | Teks pendukung, helper | `#60646C` | `#B0B4BA` |
-| `textInverse` | Teks di atas permukaan gelap/terang terbalik | `#FFFFFF` | `#000000` |
-| `border` | Garis pemisah, outline | `#D9DBE0` | `#3A3D42` |
-| `primary` | Aksen, CTA, focus ring | `#1470C8` | `#5CA8F5` |
-| `primaryText` | Teks/ikon di atas `primary` | `#FFFFFF` | `#00131F` |
-| `success` | Teks status berhasil/dibuka | `#147D4F` | `#5FD39B` |
-| `successSurface` | Latar banner/badge sukses | `#E4F5EC` | `#10291E` |
-| `danger` | Teks galat/ditolak | `#B42318` | `#FF8B80` |
-| `dangerSurface` | Latar banner/badge gagal | `#FDECEA` | `#2E1715` |
-| `warning` | Teks status menunggu | `#8A5A00` | `#F0C070` |
-| `warningSurface` | Latar badge menunggu | `#FFF4E0` | `#2B2213` |
+### Hairlines & Borders
+- **Divider Soft** (`{colors.divider-soft}` — #f0f0f0): The "border" tone on secondary buttons — functions as a ring shadow rather than a hard line. In production, often applied as `rgba(0, 0, 0, 0.04)`.
+- **Hairline** (`{colors.hairline}` — #e0e0e0): The 1px hairline border on store utility cards and configurator chips.
 
-**Aturan:**
-- Dilarang memakai palet default Tailwind (`bg-blue-500`, `text-gray-700`).
-- Dilarang hex/`rgb()` literal di komponen.
-- `primary` selalu berpasangan dengan `primaryText`. Jangan menaruh `text` di atas `primary`.
-- Warna status **hanya** dari pasangan `success/successSurface`, `danger/dangerSurface`, `warning/warningSurface`.
+### Brand Gradient
+**No decorative gradients.** Atmospheric depth on product photography (the iPhone 17 Pro camera plate, the Apple Watch bands, AirPods reflections) is inherent to the imagery, not a CSS gradient overlay. The environment page's hero uses photographic atmosphere (mountain vista at dawn) but no gradient tokens are defined. Apple is the rare luxury-brand site with zero gradient-based design tokens.
 
-### 3.2 Spacing
+## Typography
 
-| Token | Nilai (pt) | Class | Pemakaian umum |
-|---|---|---|---|
-| `half` | 2 | `p-half` | Hairline offset |
-| `one` | 4 | `p-one` | Jarak ikon–teks kecil |
-| `two` | 8 | `p-two` / `gap-two` | Jarak antar elemen dalam komponen |
-| `three` | 16 | `p-three` / `gap-three` | **Padding default** kartu, layar, bottom sheet |
-| `four` | 24 | `p-four` | Padding layar lebar, jarak antar section |
-| `five` | 32 | `p-five` | Jarak section besar, padding empty state |
-| `six` | 64 | `p-six` | Ruang ikon empty state |
+### Font Family
+- **Display**: `SF Pro Display, system-ui, -apple-system, sans-serif` — Apple's proprietary display face, optimized for sizes ≥ 19px. Defines the voice of every headline.
+- **Body / UI**: `SF Pro Text, system-ui, -apple-system, sans-serif` — the text-optimized variant used for body copy, captions, buttons, and links below 20px.
+- **OpenType features**: `font-variant-numeric: numerator` is enabled on numeric links (pricing tables, spec sheets). Display sizes rely on tight tracking rather than contextual ligatures.
 
-**Tidak ada token 12.** Jarak 12pt tidak tersedia; gunakan `two` (rapat) atau `three` (normal). `12` hanya muncul sebagai nilai `rounded-md`.
+### Hierarchy
 
-### 3.3 Radius
+| Token | Size | Weight | Line Height | Letter Spacing | Use |
+|---|---|---|---|---|---|
+| `{typography.hero-display}` | 56px | 600 | 1.07 | -0.28px | Hero headline; the signature "Apple tight" tracking |
+| `{typography.display-lg}` | 40px | 600 | 1.10 | 0 | Tile headlines atop every product tile |
+| `{typography.display-md}` | 34px | 600 | 1.47 | -0.374px | Section heads (SF Pro Text at display proportions) |
+| `{typography.lead}` | 28px | 400 | 1.14 | 0.196px | Product tile subcopy |
+| `{typography.lead-airy}` | 24px | 300 | 1.5 | 0 | Environment-page lead paragraphs (the rare weight 300) |
+| `{typography.tagline}` | 21px | 600 | 1.19 | 0.231px | Sub-tile tagline; sub-nav category name |
+| `{typography.body-strong}` | 17px | 600 | 1.24 | -0.374px | Inline strong emphasis |
+| `{typography.body}` | 17px | 400 | 1.47 | -0.374px | Default paragraph |
+| `{typography.dense-link}` | 17px | 400 | 2.41 | 0 | Footer / store utility link lists (relaxed leading) |
+| `{typography.caption}` | 14px | 400 | 1.43 | -0.224px | Secondary captions, button text |
+| `{typography.caption-strong}` | 14px | 600 | 1.29 | -0.224px | Emphasized captions |
+| `{typography.button-large}` | 18px | 300 | 1.0 | 0 | Store hero CTAs (the rare weight 300) |
+| `{typography.button-utility}` | 14px | 400 | 1.29 | -0.224px | Utility/nav button labels |
+| `{typography.fine-print}` | 12px | 400 | 1.0 | -0.12px | Fine-print, footer body |
+| `{typography.micro-legal}` | 10px | 400 | 1.3 | -0.08px | Micro legal disclaimers |
+| `{typography.nav-link}` | 12px | 400 | 1.0 | -0.12px | Global nav menu items |
 
-| Token | Nilai | Class | Dipakai untuk |
-|---|---|---|---|
-| `sm` | 8 | `rounded-sm` | Chip kecil, badge inner |
-| `md` | 12 | `rounded-md` | Tombol, input, banner |
-| `lg` | 16 | `rounded-lg` | Kartu, bottom sheet (atas) |
-| `pill` | 999 | `rounded-pill` | Badge status, avatar |
+### Principles
 
-### 3.4 Tipografi
+- **Negative letter-spacing at display sizes.** Every headline at 17px and up carries a slight tracking tighten (`-0.12 → -0.374px`). This produces the iconic "Apple tight" headline cadence. Never used at 12px or below.
+- **Body copy at 17px, not 16px.** Apple breaks the SaaS convention and runs paragraph text at 17px. The extra pixel gives the page an unmistakable "reading, not scanning" pace.
+- **Weight 300 is real and rare.** Used deliberately on a handful of large-size reads (`{typography.button-large}` at 18px/300 and `{typography.lead-airy}` at 24px/300). It's not an accident — it's a light-atmosphere cue reserved for moments where the content should feel airy.
+- **Weight 600, not 700, for headlines.** Apple's headlines sit at weight 600. Weight 700 is used sparingly for `{typography.tagline}` (21px) when a touch more assertion is needed.
+- **Line-height is context-specific.** Display sizes use 1.07–1.19 (tight). Body uses 1.47. Utility link stacks in the footer/store use an unusually relaxed 2.41 (`{typography.dense-link}`). The 2.41 is not a bug — it's how the footer's dense link columns breathe.
+- **Weight 500 is deliberately absent.** The ladder is 300 / 400 / 600 / 700. Mid-weight readings always use 600.
 
-| Token | Size / lineHeight | Class | Weight default | Peran |
-|---|---|---|---|---|
-| `caption` | 12 / 16 | `text-caption` | `medium` | Helper, meta, timestamp |
-| `small` | 14 / 20 | `text-small` | `regular` | Isi sekunder, label form |
-| `body` | 16 / 24 | `text-body` | `regular` | Isi utama |
-| `subtitle` | 20 / 28 | `text-subtitle` | `semibold` | Judul layar, judul section |
-| `title` | 28 / 36 | `text-title` | `semibold` | Judul halaman utama |
-| `display` | 34 / 42 | `text-display` | `bold` | Angka besar (jumlah hadir) |
+### Note on Font Substitutes
+SF Pro is Apple's proprietary system font. When building off-system:
 
-Weight: `font-regular` 400, `font-medium` 500, `font-semibold` 600, `font-bold` 700.
+- Use `system-ui, -apple-system, BlinkMacSystemFont` as the first stack entry — on macOS/iOS/Safari this resolves to the real SF Pro.
+- For non-Apple platforms, **Inter** (Google Fonts, variable) is the closest open-source equivalent. Inter at weight 600 with `font-feature-settings: "ss03"` approximates SF Pro's rounded "a" character.
+- Nudge `letter-spacing` down by `-0.01em` on display sizes to re-create the Apple tight feel; Inter's default tracking runs slightly wider than SF Pro.
+- For body text, tighten line-height by `0.03` (from 1.47 → 1.44) when substituting Inter — Inter's taller x-height needs less leading.
 
-### 3.5 Elevation — **[Adaptasi: tidak ada token shadow]**
+## Layout
 
-Referensi Material memakai elevation 0–3. Project ini **tidak punya token shadow** dan **tidak akan memakainya**.
+### Spacing System
+- **Base unit:** 8px. Sub-base values (2, 4, 5, 6, 7) are used for tight typographic adjustments; structural layout snaps to 8/12/16/20/24.
+- **Tokens:** `{spacing.xxs}` 4px · `{spacing.xs}` 8px · `{spacing.sm}` 12px · `{spacing.md}` 17px · `{spacing.lg}` 24px · `{spacing.xl}` 32px · `{spacing.xxl}` 48px · `{spacing.section}` 80px.
+- **Section vertical padding:** `{spacing.section}` (80px) inside a product tile; tiles stack edge-to-edge with 0 gap (the color change provides the break).
+- **Card padding:** `{spacing.lg}` (24px) inside utility grid cards.
+- **Button padding:** 8–11px vertical, 15–22px horizontal.
+- **Universal rhythm constants:** the 17px body line-height multiplier (~25px line) and 21px tagline size show up on every analyzed page.
 
-| Lapisan | Representasi |
-|---|---|
-| 0 — layar | `bg-background` |
-| 1 — kartu/section | `bg-backgroundElement` + `rounded-lg` |
-| 2 — terpilih/aktif | `bg-backgroundSelected` |
-| 3 — overlay (bottom sheet) | scrim overlay gelap (lihat §5.6) + panel `bg-background` `rounded-t-lg` |
+### Grid & Container
+- **Max content width:** ~980px on text-heavy sections (environment), ~1440px on product grids (store, accessories), full-bleed for product tiles (homepage).
+- **Column patterns:** 3 to 5 column utility card grid on store/accessories; 2-column side-by-side tiles on homepage occasional sections; single-column centered stack on product tile heroes.
+- **Gutters:** 20–24px between cards in a utility grid.
 
-Dilarang: `shadow-*`, `elevation-*`, border tebal dekoratif. Pemisah daftar memakai `border-b border-border` setipis `border` bawaan, hanya di antara baris yang memang perlu.
+### Whitespace Philosophy
+Apple's whitespace is the product's pedestal. Every tile begins with at least 64px of air above its headline and 48–64px below. Product renders are never crowded; the nearest content to a product image is at least 40px away. The footer is the only area that breaks this — there, Apple goes deliberately dense to make the full information architecture visible at a glance.
 
----
+## Elevation & Depth
 
-## 4. Typography
-
-**Hierarki wajib per layar:**
-
-1. Satu `text-title` **atau** `text-subtitle` sebagai judul utama. Tidak boleh dua judul selevel.
-2. Judul section memakai `text-subtitle` + `font-semibold`; jarak ke isi `gap-two`.
-3. Isi `text-body`. Jangan menurunkan isi ke `text-small` hanya agar "muat".
-4. Meta (waktu, jumlah, NIM/NIP) memakai `text-small text-textSecondary`.
-5. Label tombol: `text-body font-semibold` untuk `size="lg"`, `text-small font-semibold` untuk `size="md"`.
-
-**Aturan:**
-- Tidak ada `text-2xl`, `text-xl`, `text-lg`, `text-sm`, `text-xs` — pakai skala token.
-- `lineHeight` selalu ikut token; jangan menambah `leading-*` manual.
-- Jangan memakai `uppercase` pada isi. Hanya boleh untuk label badge pendek (`text-caption font-semibold uppercase`).
-- Maksimal **dua** ukuran font per komponen (mis. judul + isi). Lebih dari itu tanda komponen terlalu ramai.
-- Angka penting (jumlah hadir) boleh `text-display`; jangan pakai `display` untuk teks biasa.
-
----
-
-## 5. Component specifications
-
-Semua komponen di `src/components/ui/`, diekspor lewat `index.ts`, **dimiliki P3**. Prop di bawah adalah kontrak beku setelah D1.
-
-### 5.1 `Screen`
-
-Wrapper tiap layar.
-
-```ts
-type ScreenProps = {
-  children: React.ReactNode;
-  scroll?: boolean;      // default true
-  padded?: boolean;      // default true → px-three + py-three
-  edges?: ('top' | 'bottom' | 'left' | 'right')[]; // default ['top','left','right']
-};
-```
-
-- Root: `flex-1 bg-background`.
-- Safe area lewat `SafeAreaView` dari `react-native-safe-area-context`.
-- `scroll` → `ScrollView` dengan `contentContainerStyle` yang memakai padding token, bukan `style`.
-- Konten dibatasi `maxWidth` (`MaxContentWidth` 800) dan `self-center` di tablet/web.
-
-### 5.2 `AppButton`
-
-```ts
-type AppButtonProps = {
-  label: string;
-  onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'; // default 'primary'
-  size?: 'md' | 'lg';   // md = 44 tinggi, lg = 48
-  disabled?: boolean;
-  disabledReason?: string; // dirender sebagai teks di bawah tombol
-  fullWidth?: boolean;     // default false
-  icon?: React.ReactNode;
-  testID?: string;
-};
-```
-
-| Variant | Class | Kapan |
+| Level | Treatment | Use |
 |---|---|---|
-| `primary` | `bg-primary text-primaryText` | Aksi utama layar (Presensi, Buka sesi, Masuk) |
-| `secondary` | `bg-backgroundElement text-text border border-border` | Aksi alternatif (Batal, Lihat rekap) |
-| `ghost` | `bg-transparent text-primary` | Aksi tersier (Ganti peran, tautan) |
-| `danger` | `bg-dangerSurface text-danger border border-danger` | Tutup sesi (destruktif, tidak bisa dibuka ulang) |
+| Flat | No shadow, no border | Full-bleed tiles, global nav, footer, body sections |
+| Soft hairline | 1px `rgba(0, 0, 0, 0.08)` border | Utility cards, sub-nav frosted-glass separator |
+| Backdrop blur | `backdrop-filter: blur(N)` on Parchment 80% | Sub-nav and the iPhone buy floating sticky bar |
+| Product shadow | `rgba(0, 0, 0, 0.22) 3px 5px 30px 0` | Product renders resting on a surface (the only true "shadow" in the system) |
 
-- Tinggi `md` 44, `lg` 48 → memenuhi target sentuh PRD (44pt) **dan** Material (48dp).
-- Radius `rounded-md`, padding horizontal `p-three`, label `font-semibold`.
-- **Satu** `primary` per layar. Bila butuh dua aksi setara, salah satunya `secondary`.
-- `disabled` → `opacity-40` + `disabledReason` wajib ditampilkan (`text-caption text-textSecondary`).
-- `android_ripple` aktif; iOS memakai `active:opacity-80` lewat `Pressable` style function.
+**Shadow philosophy.** Apple uses **exactly one** drop-shadow, and it is applied to photographic product imagery — never to cards, never to buttons, never to text. Elevation in the UI comes from (a) surface-color change (light tile ↔ dark tile) and (b) backdrop-blur on sticky bars. The single shadow is about giving the product weight, not about UI hierarchy.
 
-### 5.3 `Card`
+### Decorative Depth
+- **Atmospheric imagery** on the environment page (photographic vista) supplies mood; no CSS gradient involved.
+- **Edge-to-edge tile alternation** creates rhythm without borders or shadows — the color change itself is the divider.
+- **Backdrop-filter blur** on `{component.sub-nav-frosted}` and `{component.floating-sticky-bar}` creates a "floating over content" effect that's functional, not decorative.
 
-```ts
-type CardProps = {
-  children: React.ReactNode;
-  onPress?: () => void;
-  selected?: boolean;
-};
-```
+## Shapes
 
-- `bg-backgroundElement rounded-lg p-three gap-two`.
-- `selected` → `bg-backgroundSelected`.
-- Bila `onPress`: `Pressable` dengan `accessibilityRole="button"`, riak Android, `active:opacity-80`.
-- Kartu jadwal **wajib** memuat: nama praktikum, kelas, lab, hari & tanggal, jam, `StatusBadge` (PRD FR-02).
-- Jarak antar kartu `gap-two` (8) di dalam daftar.
+### Border Radius Scale
 
-### 5.4 `StatusBadge`
-
-```ts
-type StatusBadgeProps = {
-  tone: 'neutral' | 'success' | 'warning' | 'danger';
-  label: string;   // WAJIB — badge tanpa teks dilarang
-};
-```
-
-| Tone | Class | Status sesi |
+| Token | Value | Use |
 |---|---|---|
-| `neutral` | `bg-backgroundElement text-textSecondary` | `belum-dibuka` → "Belum dibuka" |
-| `success` | `bg-successSurface text-success` | `dibuka` → "Dibuka" |
-| `danger` | `bg-dangerSurface text-danger` | `ditutup` → "Ditutup" |
-| `warning` | `bg-warningSurface text-warning` | cadangan (belum dipakai di Sprint 1) |
-
-- `rounded-pill`, padding `px-two py-one`, `text-caption font-semibold uppercase`.
-- **Pemetaan status → tone adalah satu fungsi** (`statusTone()`), jangan diulang di layar.
-
-### 5.5 `EmptyState`
-
-```ts
-type EmptyStateProps = {
-  title: string;
-  description?: string;
-  icon?: React.ReactNode;      // SymbolView 32
-  action?: React.ReactNode;    // biasanya AppButton secondary
-};
-```
-
-- Layout: `flex-1 items-center justify-center gap-three p-five`.
-- Ikon dalam lingkaran `bg-backgroundElement rounded-pill p-four`.
-- Teks: `title` → `text-subtitle font-semibold text-center`; `description` → `text-body text-textSecondary text-center`.
-- Teks wajib dari PRD §10 — jangan mengarang teks baru.
-
-### 5.6 `BottomSheet`
-
-```ts
-type BottomSheetProps = {
-  visible: boolean;
-  title: string;
-  description?: string;
-  confirmLabel: string;
-  cancelLabel?: string;   // default 'Batal'
-  onConfirm: () => void;
-  onCancel: () => void;
-  destructive?: boolean;  // confirm memakai variant danger
-};
-```
-
-- Implementasi **`Modal` React Native** (`transparent`, `animationType="fade"`), bukan library. Dilarang menambah `@gorhom/bottom-sheet`.
-- Struktur: scrim overlay (lihat catatan di bawah) → panel `bg-background rounded-t-lg p-four gap-three`.
-- **Scrim [Adaptasi]:** `border` dan palet default tidak dipakai. Scrim memakai `<Pressable>` dengan `style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}` karena Tailwind tanpa token opacity tidak bisa menyatakan overlay. Ini satu-satunya pengecualian warna literal yang diizinkan, dan **hanya** di dalam `BottomSheet` — jangan ditiru di komponen lain.
-- `accessibilityViewIsModal`, `onRequestClose={onCancel}` (tombol back Android).
-- Tombol: `cancelLabel` = `secondary`, `confirmLabel` = `primary` (atau `danger` bila `destructive`). Urut vertikal, konfirmasi di atas.
-- Wajib untuk **buka sesi, tutup sesi, presensi** (PRD §9). Bukan opsional.
-
-### 5.7 `Field`
-
-```ts
-type FieldProps = {
-  label: string;
-  value: string | null;
-  onChange: (value: string) => void;
-  type?: 'text' | 'picker';   // default 'text'
-  placeholder?: string;
-  options?: { label: string; value: string }[]; // wajib untuk picker
-  helper?: string;
-  error?: string;
-  disabled?: boolean;
-};
-```
-
-- Gaya **filled**, bukan outlined: `bg-backgroundElement rounded-md p-three` + tinggi minimum 44pt (lihat §5.2).
-- Label di atas (`text-small font-medium text-textSecondary`), helper/error di bawah (`text-caption`).
-- `error` → `border border-danger` + teks `text-danger`.
-- Focus → `border-2 border-primary`.
-- Karena `border` hanya 1.39:1, **jangan** mengandalkan outline sebagai satu-satunya penanda field. Latar filled wajib.
-- Picker dirender sebagai `Pressable` yang membuka `BottomSheet` berisi daftar opsi.
-
-### 5.8 `Banner`
-
-```ts
-type BannerProps = {
-  tone: 'success' | 'danger' | 'info';
-  message: string;
-  onDismiss?: () => void;
-};
-```
-
-| Tone | Class |
-|---|---|
-| `success` | `bg-successSurface text-success` |
-| `danger` | `bg-dangerSurface text-danger` |
-| `info` | `bg-backgroundElement text-textSecondary` |
-
-- `rounded-md p-three flex-row gap-two items-start`.
-- Inline di layar, **bukan** `Alert` (PRD §9).
-- Pesan berasal dari `{ ok, pesan }` store. Layar tidak menulis ulang teks penolakan.
-- Auto-dismiss tidak wajib; bila ada, sediakan `onDismiss` sebagai tombol tutup dengan `accessibilityLabel`.
-
-### 5.9 `GantiPeranButton`
-
-```ts
-type GantiPeranButtonProps = { onPress: () => void; label?: string }; // default 'Ganti peran'
-```
-
-- Varian `ghost`, ukuran `md`, dipakai sebagai `headerRight` di **kedua** tab layout.
-- Alasan dibuat komponen: header dimiliki P1 (`(praktikan)`) dan P2 (`(asisten)`); tanpa komponen bersama akan ada dua implementasi berbeda.
-- Tidak ada di PRD §9 sebelumnya → **sudah diamendemen**: PRD §9 kini menyebut `GantiPeranButton` sebagai komponen reusable di header kedua tab.
-
----
+| `{rounded.none}` | 0px | Full-bleed product tiles (no corner rounding) |
+| `{rounded.xs}` | 5px | Inline links when styled as subtle chips (rare) |
+| `{rounded.sm}` | 8px | Dark utility buttons (Sign In, Bag), inline card imagery |
+| `{rounded.md}` | 11px | White Pearl Button capsules |
+| `{rounded.lg}` | 18px | Store utility cards, accessories grid cards |
+| `{rounded.pill}` | 9999px | Primary blue pill CTAs, sub-nav buy button, configurator option chips, search input — the signature Apple pill |
+| `{rounded.full}` | 9999px / 50% | Circular control chips floating over photography |
 
-## 6. Interaction states
+### Photography Geometry
+- **Hero imagery**: full-bleed, 21:9 or taller on the homepage; 16:9 on environment and shop pages. Product renders are photographic-realistic, often shot on a tinted surface that becomes the tile background.
+- **Product renders**: PNG/WebP with transparency; rest on a surface tile and pick up the system shadow.
+- **Accessory grid**: square 1:1 crops at `{rounded.lg}` (18px) radius, light neutral backgrounds, product centered with 20–40px internal padding.
+- **No rounded imagery in hero tiles** — images are full-bleed rectangular. Rounding (`{rounded.sm}`, `{rounded.lg}`) appears only on inline card imagery.
+- Lazy-loading via responsive `srcset` and `sizes` across all breakpoints; CDN-optimized WebP.
 
-| State | Representasi | Catatan |
-|---|---|---|
-| Default | token normal | — |
-| Pressed | `active:opacity-80` + `android_ripple` | Wajib untuk semua `Pressable` |
-| Selected | `bg-backgroundSelected` | Untuk opsi picker |
-| Disabled | `opacity-40` + **alasan teks** | Alasan wajib; tanpa alasan dilarang |
-| Focus | `border-2 border-primary` | Hanya untuk input |
-| Success | `Banner tone="success"` + perubahan state nyata | — |
-| Error | `Banner tone="danger"` berisi `pesan` dari store | — |
-| **Loading** | **tidak ada** | PRD §9: operasi sinkron. Spinner/skeleton palsu dilarang |
+## Components
 
-**Aturan feedback:** setiap aksi yang mengubah status sesi atau presensi harus menghasilkan (a) perubahan data yang terlihat, **dan** (b) `Banner` berisi pesan hasil. Tombol yang hanya "berubah warna" tanpa perubahan data dianggap gagal desain.
+### Top Navigation
 
-**Kontras (terukur):**
+**`global-nav`** — Persistent, ultra-thin black nav bar pinned to the top of every page. Background `{colors.surface-black}`, height 44px, text `{colors.on-dark}` in `{typography.nav-link}` (12px / 400 / -0.12px tracking). Links are quiet, spaced ~20px apart, running edge-to-edge across the top. Right-aligned cluster: Search, Bag icons — always visible. On mobile, collapses to hamburger at ~834px and the Apple logo centers.
 
-| Pasangan | Rasio | Status |
-|---|---|---|
-| `primaryText` di atas `primary` (light) | **5.02:1** | Lulus AA teks normal |
-| `primaryText` di atas `primary` (dark) | 7.52:1 | Lulus |
-| `success` di `successSurface` (light) | 4.56:1 | Lulus |
-| `danger` di `dangerSurface` (light) | 5.75:1 | Lulus |
-| `warning` di `warningSurface` (light) | 5.44:1 | Lulus |
-| `textSecondary` di `background` (light) | 5.94:1 | Lulus |
-| `border` di `background` (light) | **1.39:1** | Gagal 1.4.11 — border bukan pembatas tunggal |
+**`sub-nav-frosted`** — Surface-specific nav that sticks below the global nav. Background `{colors.canvas-parchment}` at 80% opacity with backdrop-filter blur, creating a frosted-glass effect. Height 52px. Content on left: product category name ("iPhone", "Store", "Accessories") in `{typography.tagline}` (21px / 600). Content right: inline nav links in `{typography.button-utility}` (14px), ending in a persistent `{component.button-primary}` ("Buy") or a utility link.
 
----
+### Buttons
 
-## 7. Domain-specific UI
+**`button-primary`** — The signature Apple action. Background `{colors.primary}` (Action Blue #0066cc), text `{colors.on-primary}` in `{typography.body}` (SF Pro Text 17px / 400), rounded `{rounded.pill}` (full pill — capsule-shaped), padding 11px × 22px. The full-pill radius IS the brand action signal.
+- Active state: `{component.button-primary-active}` — `transform: scale(0.95)` (the system-wide micro-interaction).
+- Focus state: `{component.button-primary-focus}` — 2px solid `{colors.primary-focus}` outline.
 
-### 7.1 Status sesi
+**`button-secondary-pill`** — Used as the second CTA when two blue pills appear together ("Learn more" / "Buy"). Background transparent, text `{colors.primary}`, 1px solid `{colors.primary}` border, rounded `{rounded.pill}`, padding 11px × 22px. Reads as a "ghost pill."
 
-State machine `belum-dibuka → dibuka → ditutup` (PRD §7). Tampilan **selalu** badge + label:
+**`button-dark-utility`** — Global nav actions (Sign In, Bag, language selector). Background `{colors.ink}` (#1d1d1f), text `{colors.on-dark}` in `{typography.button-utility}` (14px / 400 / -0.224px tracking), rounded `{rounded.sm}` (8px), padding 8px × 15px. Active state shrinks via `transform: scale(0.95)`.
 
-| Status | Badge | Aksi asisten | Aksi praktikan |
-|---|---|---|---|
-| `belum-dibuka` | `neutral` "Belum dibuka" | `AppButton primary` "Buka sesi" | Tombol presensi disabled + "Sesi belum dibuka" |
-| `dibuka` | `success` "Dibuka" | `AppButton danger` "Tutup sesi" | `AppButton primary` "Presensi" atau disabled "Sudah presensi" |
-| `ditutup` | `danger` "Ditutup" | Tidak ada tombol aksi | Tombol disabled + "Sesi sudah ditutup" |
+**`button-pearl-capsule`** — Product-card secondary button. Background `{colors.surface-pearl}` (#fafafc), text `{colors.ink-muted-80}` in `{typography.caption}` (14px), 3px solid `{colors.divider-soft}` border (functions as a soft ring rather than a visible line), rounded `{rounded.md}` (11px), padding 8px × 14px.
 
-- Aksi yang tidak valid **tidak dirender** atau dirender `disabled` dengan alasan. Jangan merender tombol aktif yang pasti gagal.
-- Tombol buka/tutup **selalu** lewat `BottomSheet` konfirmasi.
+**`button-store-hero`** — A larger primary CTA used on store hero surfaces. Same Action Blue + Paper White as `{component.button-primary}`, but with `{typography.button-large}` (18px / 300 — note the rare weight 300) and slightly more padding (14px × 28px). Used sparingly on the store landing.
 
-### 7.2 Tombol buka/tutup sesi
+**`button-icon-circular`** — Floats over photography. 44 × 44px, background `{colors.surface-chip-translucent}` at ~64% alpha, icon in `{colors.ink}`, rounded `{rounded.full}`. Used for carousel controls, close buttons, and in-image controls (product image thumbnails on the iPhone buy page).
 
-- Buka: `variant="primary"`, label "Buka sesi", konfirmasi "Lanjutkan".
-- Tutup: `variant="danger"`, label "Tutup sesi", konfirmasi "Tutup sesi", `destructive`. Deskripsi sheet menyebut sesi tidak dapat dibuka kembali.
-- Setelah sukses: badge berubah + waktu buka/tutup tampil (`text-small text-textSecondary`) + banner sukses.
+**`text-link`** — Inline body links in `{colors.primary}` (Action Blue). Underlined or non-underlined per context.
 
-### 7.3 Presensi praktikan
+**`text-link-on-dark`** — Inline body links on dark tiles in `{colors.primary-on-dark}` (Sky Link Blue #2997ff) — Action Blue would disappear against `{colors.surface-tile-1}`.
 
-- Alur: tombol "Presensi" → `BottomSheet` berisi **nama sesi + nama praktikan** → "Konfirmasi".
-- Setelah sukses: banner "Presensi tercatat pukul HH:mm", jam tampil di detail, tombol jadi "Sudah presensi" + `disabled` **tanpa** alasan tambahan (statusnya sudah jelas dari label).
-- Penolakan ganda: banner `danger` dari store, tombol kembali `disabled`, jam awal tidak berubah.
+### Cards & Containers
 
-### 7.4 Waktu presensi
+**`product-tile-light`** — Full-bleed light tile. Background `{colors.canvas}` (white), text `{colors.ink}`, rounded `{rounded.none}` (0 — tiles touch edges), vertical padding `{spacing.section}` (80px). Centered stack: product name in `{typography.display-lg}` (40px / 600) → one-line tagline in `{typography.lead}` (28px / 400) → two `{component.button-primary}` CTAs ("Learn more" / "Buy") → product render resting on the surface with the system shadow.
 
-- Disimpan ISO 8601, ditampilkan `HH:mm` (PRD §8.3).
-- Tidak ada label "terlambat"/"tepat waktu" di Sprint 1.
-- Selalu `text-small text-textSecondary` saat jadi meta; `text-body` saat jadi bukti utama (setelah presensi).
+**`product-tile-parchment`** — Same as `{component.product-tile-light}` but on `{colors.canvas-parchment}` (#f5f5f7). Used to break two consecutive white tiles.
 
-### 7.5 Rekap kehadiran
+**`product-tile-dark`** — Full-bleed dark tile. Background `{colors.surface-tile-1}` (#272729), text `{colors.on-dark}`, rounded `{rounded.none}`, vertical padding `{spacing.section}` (80px). Same content stack as the light tile but with `{component.text-link-on-dark}` for inline copy and `{component.button-primary}` (Action Blue still works on the dark surface). Used on the homepage product grid as the alternating dark band.
 
-- Ringkasan "N hadir dari M peserta" → `text-body`, dengan N memakai `font-semibold`.
-- Daftar peserta: baris `flex-row justify-between py-two border-b border-border`, nama `text-body`, jam `text-small text-textSecondary`.
-- Urut naik berdasarkan waktu.
-- Kosong → `EmptyState` dengan teks PRD §10.
+**`product-tile-dark-2`** — Variant on `{colors.surface-tile-2}` (#2a2a2c). Used where a dark tile sits directly above or below `{component.product-tile-dark}` to create the faintest separation through micro-step lightness change.
 
-### 7.6 Pencegahan presensi ganda di UI
+**`product-tile-dark-3`** — Variant on `{colors.surface-tile-3}` (#252527). Used at the bottom of the stack and in embedded video/player frames.
 
-- Sumber kebenaran tetap store (`{ ok, pesan }`). UI hanya mencerminkan `sudahPresensi(sesiId, praktikanId)`.
-- Dilarang menyimpan flag lokal "sudah presensi" di state layar.
-- Tombol tidak boleh hilang setelah presensi — ubah ke `disabled` + label "Sudah presensi" agar pengguna tahu alasannya.
+**`store-utility-card`** — Used in store grid and accessories grid. Background `{colors.canvas}` (white), 1px solid `{colors.hairline}` border, rounded `{rounded.lg}` (18px), padding `{spacing.lg}` (24px). Top: product image (1:1 crop with `{rounded.sm}` (8px) inner image radius). Below: product name in `{typography.body-strong}` (17px / 600), price in `{typography.body}` (17px / 400), and a `{component.text-link}` ("Buy" or "Learn more"). No shadow by default; product render itself carries the system product-shadow.
 
----
+**`configurator-option-chip`** — Pill-shaped tappable cell used in the iPhone 17 Pro buy page. Background `{colors.canvas}`, text `{colors.ink}` in `{typography.caption}`, rounded `{rounded.pill}`, padding 12px × 16px. Contains a small product thumbnail + label + price delta. Arranged in a grid of 4–5 options per row.
 
-## 8. Navigation and layout
+**`configurator-option-chip-selected`** — Selected state. Border upgrades to 2px solid `{colors.primary-focus}`. Same shape, same content.
 
-### 8.1 Struktur
+**`environment-quote-card`** — A photographic-canvas hero specific to the environment page. Dark photographic backdrop (mountain vista at dawn) with `{colors.surface-tile-1}` as the fallback color, centered white-text headline in `{typography.display-lg}` (40px), small green "Apple 2030" pictographic logo above the headline, single `{component.button-primary}` below. Padding `{spacing.section}` (80px).
 
-```
-Root Stack (src/app/_layout.tsx)   ← P1, provider store + import global.css
-└── index                          ← pilih peran + identitas (P1)
-├── (praktikan) Tabs               ← P1
-│   ├── jadwal                     daftar sesi
-│   ├── jadwal/[id]                detail + Presensi
-│   └── kehadiran                  riwayat
-└── (asisten) Tabs                 ← P2
-    ├── jadwal                     daftar sesi diampu
-    ├── jadwal/[id]                detail + Buka/Tutup + rekap sesi
-    └── rekap                      ringkasan per sesi
-```
+**`floating-sticky-bar`** — Floats at the bottom of the viewport on the iPhone 17 Pro buy page during scroll. Background `{colors.canvas-parchment}` at 80% opacity with `backdrop-filter: blur(N)`, height 64px, padding 12px × 32px. Left: running price total in `{typography.body}`. Right: `{component.button-primary}` ("Add to Bag").
 
-- Detail sesi adalah **stack** di dalam tab, bukan modal.
-- Bottom sheet hanya untuk konfirmasi, bukan navigasi.
-- `GantiPeranButton` di `headerRight` kedua tab. Aksi: `setUser(null)` lalu kembali ke `index`.
-- Guard: bila `user === null`, root me-redirect ke `index`.
+### Inputs & Forms
 
-### 8.2 Perbedaan peran
+**`search-input`** — The accessories search input. Background `{colors.canvas}`, text `{colors.ink}` in `{typography.body}` (17px), 1px solid `rgba(0, 0, 0, 0.08)` border, rounded `{rounded.pill}` (full pill — search is also pill-shaped, matching the CTA grammar), padding 12px × 20px, height 44px. Leading icon: search glyph at 14px, muted tint.
 
-| Aspek | Praktikan | Asisten |
-|---|---|---|
-| Tab | Jadwal, Kehadiran (2) | Jadwal, Rekap (2) |
-| Aksi di detail | Presensi | Buka/Tutup sesi + rekap peserta |
-| Header | Judul tab + Ganti peran | sama |
-| Gaya visual | **identik** — dibedakan hanya oleh label & aksi | sama |
+Error and validation states were not surfaced in the analyzed pages.
 
-Jumlah tab maksimal 3 agar label tidak terpotong (Material: 3–5).
+### Footer
 
-### 8.3 Safe area & layout
+**`footer`** — Background `{colors.canvas-parchment}` (#f5f5f7), text `{colors.ink-muted-80}`. Link columns in `{typography.dense-link}` (17px / 400 / 2.41 line-height — the relaxed leading is what makes the dense columns scannable). Column headings in `{typography.caption-strong}` (14px / 600). Legal row at the very bottom in `{typography.fine-print}` (12px / 400) with `{colors.ink-muted-48}` text. Vertical padding 64px.
 
-- `Screen` menangani safe area; jangan menambah `SafeAreaView` di layar anak.
-- Tab bar tidak boleh menutupi konten terakhir → padding bawah `BottomTabInset + spacing.three`.
-- Semua layout `flexbox`; dilarang `position: absolute` kecuali scrim & badge overlay.
-- Konten `self-center` + `maxWidth` 800 pada layar lebar (web/tablet).
-
-### 8.4 Scrolling & keyboard
-
-- Daftar jadwal & rekap wajib `FlatList` (bukan `map` di `ScrollView`) agar performa tetap baik.
-- Form hanya di `index` (pilih peran/identitas) — gunakan `KeyboardAvoidingView` dengan `behavior` `padding` (iOS) / `height` (Android).
-- Input tidak boleh tertutup keyboard; pastikan aksi utama tetap terlihat.
-- Saat `BottomSheet` terbuka, konten di belakang tidak di-scroll (scrim menutup).
-
----
-
-## 9. Light / dark mode
-
-- Sumber: `darkMode: 'media'` di `tailwind.config.js` → mengikuti `prefers-color-scheme`. Tidak ada toggle manual di dalam aplikasi.
-- Nilai dark di-override lewat `@media (prefers-color-scheme: dark)` pada CSS variable `--color-*` di `src/global.css`.
-- **Jangan** memakai prefix `dark:` di komponen. Semua perbedaan tema sudah ditangani variable; `dark:bg-black` akan menduplikasi logika dan melanggar satu sumber.
-
-**Aturan kontras:**
-- Teks utama harus ≥ 7:1 (AAA) bila memungkinkan; minimum 4.5:1.
-- Teks sekunder minimum 4.5:1 — semua pasangan `textSecondary` terukur lulus (5.2–10.1:1).
-- Warna status **tidak boleh** dipakai di atas `background` polos; selalu di dalam `*Surface` pasangannya.
-- Komponen baru wajib diuji di kedua mode; screenshot PR memuat iOS **dan** Android/web (GIT-WORKFLOW §3).
-
----
-
-## 10. Accessibility
-
-| Aspek | Aturan |
-|---|---|
-| Target sentuh | Minimal 44×44 pt. Tombol `md` = 44, `lg` = 48. Baris daftar minimal 56pt. |
-| Label | Semua `Pressable` punya `accessibilityRole`; tombol ikon wajib `accessibilityLabel`. |
-| Status | Badge selalu berlabel teks; jangan membedakan status hanya dengan warna (PRD §13.7). |
-| Kontras teks | Min 4.5:1 (normal), 3:1 (≥18.66px bold / ≥24px). |
-| Kontras UI | Border/outline min 3:1 — **`border` saat ini 1.39:1**, jadi border bukan satu-satunya pembatas. |
-| Skala font | Jangan mematikan `allowFontScaling`. Layout harus tetap utuh pada font size besar (uji 1.3×). |
-| Urutan baca | Urutan elemen mengikuti urutan visual; jangan memakai `position: absolute` untuk konten informatif. |
-| Bottom sheet | `accessibilityViewIsModal`; fokus awal ke judul atau tombol konfirmasi. |
-
-**Kontras `primary` (sudah diperbaiki):** `primary` light `#1470C8` dengan `primaryText` putih = **5.02:1**, lulus AA untuk teks normal. Nilai sebelumnya `#208AEF` hanya 3.53:1 dan gagal; perubahan ini disetujui PM (lihat §13, D-1). Karena itu `primary` **selalu** dipasangkan dengan `primaryText` — jangan menaruh `text` atau hex lain di atasnya.
-
----
-
-## 11. NativeWind conventions
-
-1. **`className` dulu.** `StyleSheet.create` hanya untuk nilai yang tidak bisa menjadi class: nilai dinamis dari store (mis. `tintColor`), animasi, dan style callback `Pressable`.
-2. **Gunakan token semantik**, bukan skala default: `bg-background` (bukan `bg-white`), `text-textSecondary` (bukan `text-gray-500`), `p-three` (bukan `p-4`).
-3. **Dilarang arbitrary value:** `p-[13px]`, `text-[#123456]`, `bg-[rgb(...)]`, `w-[347px]`. Bila butuh nilai baru, tambahkan token ke `tokens.js` (butuh approval P3 + PM).
-4. **Warna baru butuh 3 langkah:** `tokens.js` (light+dark) → channel RGB di `global.css` (light+dark) → dokumentasikan di §3.1. Tanpa ketiganya, warna tidak akan konsisten di dark mode.
-5. **Jangan pakai prefix `dark:`** (lihat §9).
-6. **Urutan utility:** layout → spacing → warna → tipografi → state. Konsisten walaupun Tailwind tidak mewajibkan.
-7. **`global.css` hanya diimpor di `_layout.tsx`.** Menambah import di tempat lain menyebabkan urutan CSS rusak.
-8. **Jangan mengubah** `babel.config.js`, `metro.config.js`, `tailwind.config.js`, `nativewind-env.d.ts` tanpa approval PM (CODEOWNERS: P1).
-9. **Prettier plugin** `prettier-plugin-tailwindcss` sudah terpasang; biarkan ia mengurutkan class, jangan mengurutkan manual.
-10. **Config memakai `extend`**, sehingga skala default Tailwind (mis. `p-4`, `text-base`) masih valid secara teknis. Itu **bukan** alasan memakainya — aturan #2 tetap berlaku.
-
----
-
-## 12. Do / Don't
+## Do's and Don'ts
 
 ### Do
-
-```tsx
-// Kartu jadwal: status selalu berlabel
-<Card onPress={() => router.push(`/jadwal/${sesi.id}`)}>
-  <View className="flex-row items-start justify-between gap-two">
-    <View className="flex-1 gap-one">
-      <Text className="text-body font-semibold text-text">{sesi.namaPraktikum}</Text>
-      <Text className="text-small text-textSecondary">
-        {sesi.kelas} · {sesi.lab}
-      </Text>
-    </View>
-    <StatusBadge tone="success" label="Dibuka" />
-  </View>
-</Card>
-```
-
-```tsx
-// Tombol nonaktif selalu punya alasan
-<AppButton
-  label="Presensi"
-  variant="primary"
-  size="lg"
-  fullWidth
-  onPress={bukaKonfirmasi}
-  disabled={sesi.status !== 'dibuka'}
-  disabledReason={
-    sesi.status === 'belum-dibuka' ? 'Sesi belum dibuka' : 'Sesi sudah ditutup'
-  }
-/>
-```
-
-```tsx
-// Feedback dari store, bukan tebakan layar
-const hasil = catatPresensi(sesi.id, user.id);
-setBanner(hasil); // { ok, pesan }
-```
+- Use `{colors.primary}` (Action Blue #0066cc) for every interactive element — links, pill CTAs, focus signals — and nothing else. The single accent is non-negotiable.
+- Set headlines in `{typography.hero-display}` or `{typography.display-lg}` with negative letter-spacing (`-0.28 → -0.374px`) to get the signature "Apple tight" cadence.
+- Run body copy at `{typography.body}` (17px / 400 / 1.47 / -0.374px) — not 16px. The extra pixel defines the brand's reading pace.
+- Alternate `{component.product-tile-light}` (or parchment) and `{component.product-tile-dark}` for full-bleed section rhythm. The color change IS the divider.
+- Reserve `{rounded.pill}` for the primary blue CTA and any other element that should read as an "action" (configurator chips, search input, sticky bar CTA).
+- Apply the single product-shadow (`rgba(0, 0, 0, 0.22) 3px 5px 30px`) only to product renders resting on a surface — never on cards, buttons, or text.
+- Use `transform: scale(0.95)` as the active/press state on every button — it's the system-wide micro-interaction.
+- Keep the global nav `{colors.surface-black}` (true black) — it's the only place pure black appears on most pages.
 
 ### Don't
+- Don't introduce a second accent color; every "click me" signal is `{colors.primary}` (Action Blue).
+- Don't add shadows to cards, buttons, or text — shadow is reserved for product imagery.
+- Don't use gradients as decorative backgrounds; atmosphere comes from photography.
+- Don't set body copy at weight 500 — Apple's ladder is 300 / 400 / 600 / 700, with 500 deliberately absent. Body is always 400; strong inline is 600; display is 600.
+- Don't round full-bleed tiles — tiles are rectangular and edge-to-edge; the color change is the divider.
+- Don't tighten line-height below 1.47 for body copy — the editorial leading is part of the brand.
+- Don't mix radii grammars — use `{rounded.sm}` for compact utility, `{rounded.lg}` for utility cards, `{rounded.pill}` for pills, and nothing in between (except the rare `{rounded.md}` Pearl Button).
+- Don't use `{colors.primary-on-dark}` (Sky Link Blue) on light surfaces — it's the dark-tile-only variant. Action Blue is for light surfaces.
 
-```tsx
-// ❌ Warna hardcode + palet default Tailwind
-<View className="bg-blue-500 p-4">
-  <Text className="text-white text-base">Presensi</Text>
-</View>
+## Responsive Behavior
 
-// ❌ Status hanya lewat warna
-<View className="w-two h-two rounded-pill bg-green-500" />
+### Breakpoints
 
-// ❌ Loading palsu
-{loading && <ActivityIndicator />}
+| Name | Width | Key Changes |
+|---|---|---|
+| Small phone | ≤ 419px | Single-column tiles; sub-nav collapses to category name + primary CTA only; hero typography drops to 28px |
+| Phone | 420–640px | Single-column stack; product renders scale to 80% of tile width; hero h1 drops to 34px |
+| Large phone | 641–735px | Tiles transition to tighter padding (48px vertical vs 80px); fine-print wraps |
+| Tablet portrait | 736–833px | Global nav collapses to hamburger; sub-nav hides category chips, keeps primary CTA |
+| Tablet landscape | 834–1023px | Global nav returns fully expanded; 3-column utility grids become 2-column |
+| Small desktop | 1024–1068px | Product tiles use 2/3 width with margin gutters; hero h1 stays at 40px |
+| Desktop | 1069–1440px | Full layout; 4–5 column store grids; 1440px content max |
+| Wide desktop | ≥ 1441px | Content locks at 1440px, margins absorb extra width |
 
-// ❌ Prefix dark: menduplikasi logika tema
-<View className="bg-white dark:bg-black" />
+The structural breakpoints that matter for agents: 1440px (content lock), 1068px (small-desktop), 833px (tablet landscape switch), 734px (tablet portrait), 640px (phone), 480px (small phone).
 
-// ❌ Arbitrary value
-<Text className="text-[#1470C8] mt-[13px]">Jam</Text>
+### Touch Targets
+- Minimum 44 × 44px. `{component.button-primary}` lands at ~44 × 100px (with the full-pill radius making the visible hit area more generous than the label suggests).
+- `{component.button-icon-circular}` is exactly 44 × 44px.
+- Global nav utility links are smaller (~32 × 80px) — they deliberately sit at a tighter target because they're precision desktop actions, and the mobile hamburger replaces them at ≤ 833px.
 
-// ❌ Alert sistem untuk feedback
-Alert.alert('Berhasil', 'Presensi tercatat');
+### Collapsing Strategy
+- **Global nav**: full horizontal link row on desktop → collapses to Apple logo + hamburger + bag icon at 834px and below.
+- **Sub-nav**: category name + inline links + primary CTA → category name + primary CTA only at mobile; inline links move into a hamburger tray.
+- **Product tiles**: stack from 2-column to 1-column at 834px; vertical padding tightens from 80px → 48px at small-phone.
+- **Utility grids** (store, accessories): 5-col → 4-col (1440px) → 3-col (1068px) → 2-col (834px) → 1-col (640px).
+- **Hero typography**: `{typography.hero-display}` (56px) → `{typography.display-lg}` (40px) at 1068px → 34px at 640px → 28px at 419px.
 
-// ❌ State lokal duplikat
-const [sudahPresensi, setSudahPresensi] = useState(false);
+### Image Behavior
+- All product imagery uses responsive `srcset` with breakpoint-matched crops.
+- Hero photography may switch art direction at mobile (e.g., the environment page's vista crops to a taller aspect ratio on mobile, framing the subject differently).
+- Product renders maintain their 1:1 or 4:3 aspect ratios across breakpoints; only scale changes.
+- Lazy-loading is default; the above-fold hero loads eagerly.
 
-// ❌ Dua tombol primary bersaing
-<AppButton label="Batal" variant="primary" />
-<AppButton label="Lanjutkan" variant="primary" />
-```
+## Iteration Guide
 
----
+1. Focus on ONE component at a time. Reference its YAML key directly (`{component.product-tile-dark}`, `{component.search-input}`).
+2. Variants of an existing component (`-active`, `-focus`, `-2`, `-3`) live as separate entries in `components:`.
+3. Use `{token.refs}` everywhere — never inline hex.
+4. Never document hover. Default and Active/Pressed states only.
+5. Display headlines stay SF Pro Display 600 with negative letter-spacing. Body stays SF Pro Text 400 at 17px. The boundary is unbreakable.
+6. The single drop-shadow (`rgba(0, 0, 0, 0.22) 3px 5px 30px`) is reserved for product photography only.
+7. When in doubt about emphasis: alternate surface (light → dark tile) before adding chrome.
 
-## 13. Keputusan desain & status persetujuan PM
+## Known Gaps
 
-| # | Isu | Dampak | Status |
-|---|---|---|---|
-| D-1 | Kontras `primary`/`primaryText` light | Semua tombol utama | **Disetujui.** `lightColors.primary` → `#1470C8` (putih = 5.02:1, lulus AA). Opsi (b) `primaryText` → `#00131F` dan (c) terima deviasi tidak dipakai. Sinkron di `tokens.js`, `global.css`, splash `app.json` |
-| D-2 | Tidak ada token elevation/shadow | Tampilan lebih flat dari referensi Material | **Disetujui.** Hierarki lewat surface + border. Shadow tidak ditambahkan |
-| D-3 | `GantiPeranButton` tidak ada di PRD §9 | Komponen baru di luar PRD | **Disetujui.** Komponen reusable; PRD §9 diamendemen |
-| D-4 | Tidak ada token spacing 12 | Tidak bisa mengikuti `md:12` Material | **Disetujui.** Token spacing tetap 7; jarak memakai 8/16 |
-| D-5 | `border` 1.39:1 tidak bisa jadi pembatas tunggal | Input wajib filled | **Disetujui.** Input filled, bukan outlined |
-| D-6 | Skala default Tailwind masih aktif (config `extend`) | `p-4`/`text-base` bisa lolos | **Tertunda.** `extend` dipertahankan; butuh PR terpisah bila ingin theme tertutup |
-| D-7 | `warning` belum dipakai di Sprint 1 | Token tidak terpakai | **Disetujui.** Biarkan sebagai cadangan; jangan hapus |
-| D-8 | Bottom sheet = `Modal` RN, bukan library | Kualitas animasi lebih rendah dari library | **Disetujui.** Tanpa dependency baru |
-| D-9 | `src/components/animated-icon.tsx:143` masih `#208AEF` (overlay splash) | Selisih biru sesaat saat splash | **Tertunda.** File template, akan dihapus P1 saat scaffold. Tidak diubah di tindak lanjut ini |
+- Form validation and error states were not surfaced on the analyzed pages; only the neutral search input is documented.
+- The homepage's embedded video/player frame uses `{colors.surface-black}`; interior player controls are not documented (they're a platform widget, not a design token).
+- Some component imagery is dynamic (rotating product hero) and its specific copy varies per surface — component specs name the structure, not the rotating content.
+- Dark-mode counterparts for store and accessories utility cards were not surfaced on the analyzed pages; the system documented is the daytime/light-dominant variant Apple ships by default.
+- Atmospheric photography (environment page mountain vista) is a content asset, not a design token; the documented `{component.environment-quote-card}` describes the structural surface only.
+- The exact backdrop-filter blur radius on `{component.sub-nav-frosted}` and `{component.floating-sticky-bar}` is platform-dependent; production CSS uses `saturate(180%) blur(20px)` as a typical baseline but the value isn't formalized as a token.
 
----
+## Adaptasi Mobile untuk PraktikumKU
 
-## 14. Ringkasan token & komponen
+Dokumen ini menganalisis Apple.com. Bagian ini menerjemahkan arah visual tersebut ke aplikasi React Native PraktikumKU. Yang diambil adalah prinsipnya: Action Blue, parchment, tipografi sistem, tombol pill, dan satu shadow untuk mockup. Layout Apple.com tidak disalin.
 
-**Token:** 15 warna semantik (light+dark), 7 spacing, 4 radius, 6 tipografi, 4 weight. **Tidak ada** token shadow/elevation.
+**Design read:** aplikasi kehadiran praktikum untuk mahasiswa dan asisten, dengan bahasa visual Apple yang tenang, dial ENERGY 2 / RHYTHM 2 / MOTION 1.
 
-**Komponen (9):** `Screen`, `AppButton`, `Card`, `StatusBadge`, `EmptyState`, `BottomSheet`, `Field`, `Banner`, `GantiPeranButton`.
+### Token mobile
 
-**Pemilik:** semua di `src/components/ui/**` → P3 (CODEOWNERS). Token di `src/constants/tokens.js` → P3. Konfigurasi styling → P1.
+| Token | Nilai | Pemakaian |
+|---|---|---|
+| `action-blue` | `#0066cc` | tombol utama, tautan, fokus |
+| `parchment` | `#f5f5f7` | latar halaman |
+| `surface` | `#ffffff` | kartu dan sheet |
+| `ink` | `#1d1d1f` | teks utama |
+| `muted` | `#6e6e73` | teks sekunder |
+| `hairline` | `#d2d2d7` | garis dan border |
+| `success` | `#248a3d` | badge sesi dibuka dan feedback sukses |
+| `warning` | `#b25000` | badge belum dibuka |
+| `danger` | `#d70015` | error dan aksi keluar |
+
+- Radius: kartu 16, input 12, bottom sheet 24 di sudut atas, tombol dan badge pill.
+- Spacing: 4, 8, 12, 16, 24, 32. Padding layar 16.
+- Tipografi: 34/40 untuk judul landing, 28 untuk judul layar, 22 untuk judul kartu besar, 17 untuk body, 15 untuk meta, 13 untuk label. iOS memakai SF Pro, Android memakai system sans. Tidak ada dependency font eksternal.
+- Shadow hanya untuk dropdown profil dan bottom sheet. Kartu memakai border tipis, bukan shadow.
+
+### Layout
+
+- Layar memakai safe area dan flexbox. Tidak ada container 1440px atau padding section 80px.
+- Di tablet, konten dibatasi sekitar 720px dan tetap di tengah.
+- Header peran setinggi 44pt. Profil menjadi tombol avatar inisial 44 x 44 di kanan. Tombol Beranda menjadi tombol teks dengan chevron di kiri pada halaman detail.
+- Kartu jadwal memakai padding 16, jarak antar kartu 12, dan seluruh area kartu dapat ditekan.
+- Bottom sheet konfirmasi muncul dari bawah, punya handle, tinggi maksimal 85%, dan tombol aksi di bawah.
+- Dropdown profil berlabuh di kanan atas, lebar sekitar 280, radius 12, dengan item setinggi minimal 44.
+
+### Pola layar
+
+- **Landing:** judul 34 sampai 40, satu paragraf nilai produk, tombol utama **Masuk**, lalu dua ringkasan peran. Tidak ada statistik, testimoni, atau logo palsu.
+- **Login:** judul 28, dua field, tombol **Masuk** yang nonaktif sampai form terisi, dan banner error di atas tombol. Tidak ada kartu pengisi otomatis.
+- **Jadwal:** kartu berisi nama praktikum, kelas dan lab, hari dan tanggal, jam, serta badge status. Satu kartu punya satu fokus: nama praktikum.
+- **Detail:** judul, badge status, grid meta, lalu area aksi. Tombol nonaktif selalu disertai alasan.
+- **Profil:** header identitas berisi nama, NIM/NIP, dan peran. Item Beranda, Ganti peran (demo), dan Keluar akun. Keluar akun memakai style danger.
+- **Rekap:** ringkasan jumlah hadir di atas, daftar peserta di bawah, urut waktu.
+
+### Motion dan aksesibilitas
+
+- Motion hanya untuk membuka bottom sheet dan dropdown, sekitar 150 sampai 200ms. Tidak ada parallax, autoplay, atau animasi dekoratif.
+- Semua target sentuh minimal 44 x 44pt.
+- Status sesi memakai teks, bukan warna saja.
+- Teks mendukung dynamic type sampai sekitar 1.3x tanpa terpotong.
+- Kontras teks minimal 4.5:1 untuk teks normal dan 3:1 untuk teks besar.
+- Hormati reduce motion.
+
+### Yang tidak dipakai
+
+- Hero 56px dan padding section 80px dari Apple.com.
+- Grid produk, fotografi produk, logo Apple, dan navigasi global desktop.
+- Glassmorphism, gradient dekoratif, dan shadow di semua kartu.
+- Tombol atau tautan yang tidak punya tujuan nyata.

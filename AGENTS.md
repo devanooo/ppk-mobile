@@ -1,8 +1,8 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+This is an Expo/React Native mobile application for iOS and Android. Web is not a target platform. Prioritize mobile-first patterns, performance, and iOS/Android compatibility.
 
-## Project: AntarMuka (AntarPraktikum)
+## Project: PraktikumKU
 
-Sistem informasi praktikum untuk mencatat kehadiran, dengan 2 peran: **praktikan** dan **asisten**. Sprint 1 fokus UI; data dummy + state in-memory, tanpa backend/auth/database.
+Sistem informasi praktikum untuk mencatat kehadiran, dengan 2 peran: **praktikan** dan **asisten**. Sprint 1 fokus UI; data dummy + state in-memory + auth dummy, tanpa backend/database.
 
 Baca sebelum mengubah kode:
 
@@ -14,24 +14,26 @@ Baca sebelum mengubah kode:
 
 | Path | Owner |
 |---|---|
-| `src/app/_layout.tsx`, `src/app/index.tsx`, `src/app/(praktikan)/**`, `src/features/praktikan/**` | P1 |
+| `src/app/_layout.tsx`, `src/app/index.tsx`, `src/app/login.tsx`, `src/features/auth/**`, `src/app/(praktikan)/**`, `src/features/praktikan/**` | P1 |
 | `src/app/(asisten)/**`, `src/features/asisten/**` | P2 |
-| `src/constants/theme.ts`, `src/types/**`, `src/data/**`, `src/store/**`, `src/components/ui/**` | P3 |
+| `src/constants/tokens.js`, `src/constants/theme.ts`, `src/types/**`, `src/data/**`, `src/store/**`, `src/components/ui/**` | P3 |
 | `README.md`, `docs/**`, `AGENTS.md`, `.github/**` | PM |
 
 - Satu path satu owner. Perubahan di path orang lain hanya lewat PR ke owner tersebut.
-- File beku setelah D1 (jangan diubah tanpa persetujuan owner): `src/app/_layout.tsx`, `src/constants/theme.ts`, `src/types/index.ts`, `src/components/ui/index.ts`.
+- File beku setelah D1 (jangan diubah tanpa persetujuan owner): `src/app/_layout.tsx`, `src/constants/tokens.js`, `src/constants/theme.ts`, `src/types/index.ts`, `src/components/ui/index.ts`, `src/data/credentials.ts`.
 - Jangan menambah dependency tanpa persetujuan PM.
 - Jangan membuat file sementara di area orang lain.
 
 ## Aturan implementasi
 
+- **Platform:** target hanya iOS dan Android. Jangan menambah kode, dependency, file `.web.tsx`, atau konfigurasi khusus web. `expo-web-browser` tetap dipakai untuk membuka link eksternal di in-app browser pada perangkat.
 - **Route:** `src/app/**` hanya berisi screen dan `_layout.tsx`. Komponen, hook, util di luar `src/app/`. Gunakan `Tabs` dari `expo-router` untuk tab di dalam route group; jangan pakai `NativeTabs` untuk group bersarang.
 - **Layar:** pisahkan presentational component (menerima props) dari route file (memanggil hook store). Route file harus tipis.
-- **State:** satu sumber kebenaran di `src/store/session-store.tsx`. Dilarang menduplikasi state sesi/presensi secara lokal di layar. Mutasi hanya lewat aksi store (`bukaSesi`, `tutupSesi`, `catatPresensi`).
+- **State:** satu sumber kebenaran di `src/store/session-store.tsx`. Dilarang menduplikasi state sesi, presensi, atau autentikasi secara lokal di layar. Mutasi hanya lewat aksi store (`login`, `logout`, `setUser`, `bukaSesi`, `tutupSesi`, `catatPresensi`).
 - **Data:** dummy di `src/data/`, tipe di `src/types/`. Jangan invent field baru di layar; kontrak dibekukan setelah D1.
 - **Styling:** NativeWind (Tailwind CSS) untuk komponen JSX. Token desain ada di `src/constants/tokens.js` — satu-satunya sumber nilai, dibaca oleh `tailwind.config.js` dan di-re-export bertipe oleh `src/constants/theme.ts`. Dilarang hardcode warna/ukuran font dan dilarang arbitrary value (`p-[13px]`, `text-[#123456]`). Layout wajib flexbox + safe area; target sentuh minimal 44×44 pt.
-- **Interaksi:** konfirmasi perubahan status/presensi lewat modal atau bottom sheet; setiap aksi memberi feedback sukses/gagal; tombol nonaktif harus punya alasan yang terlihat.
+- **Interaksi:** konfirmasi perubahan status sesi, presensi, logout, dan ganti peran lewat modal atau bottom sheet; setiap aksi memberi feedback sukses/gagal; tombol nonaktif harus punya alasan yang terlihat.
+- **Auth:** login dummy memakai username + password dari `src/data/credentials.ts`. Root stack memakai `Stack.Protected`; route `index` dan `login` hanya untuk `user === null`, route peran hanya untuk peran yang sesuai. Logout tidak boleh menghapus `sesi` atau `presensi`. `setUser` hanya untuk ganti peran demo.
 - **Empty state:** wajib untuk daftar kosong, rekap kosong, dan riwayat kehadiran kosong.
 - **Aksesibilitas:** semua tombol punya `accessibilityLabel`; teks status tidak hanya dibedakan lewat warna.
 
@@ -109,3 +111,18 @@ Docs: https://docs.expo.dev/eas/index.md
 - If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+
+<!-- antislop:start -->
+## antislop
+For UI, copy, people, mobile layout, or code comments work, read these installed skill files directly (use these paths even if a same-named global skill exists):
+- Core filter, always on: `antislop`: `.agents/skills/antislop/SKILL.md`
+- UI / visual: `antislop-ui`: `.agents/skills/antislop-ui/SKILL.md`
+- Copy & text: `antislop-copywriting`: `.agents/skills/antislop-copywriting/SKILL.md`
+- People: `antislop-human`: `.agents/skills/antislop-human/SKILL.md`
+- Mobile / responsive: `antislop-layoutmobile`: `.agents/skills/antislop-layoutmobile/SKILL.md`
+- Code comments: `antislop-code`: `.agents/skills/antislop-code/SKILL.md`
+Before starting, follow the core's "Two Usage Modes" section in strict order: explicit session instruction first, then global preference, then ask. A session instruction always wins. For a resolved mode, say `antislop active: <mode> (session override).` or `antislop active: <mode> (global preference).` once before presenting findings or making edits, using the actual mode and source. Acknowledging the user's request without naming the source does not replace this notice.
+Only an explicit choice of antislop during or after selects a session mode. A request to review, audit, or avoid file edits does not select a mode; read the global preference in that case. Another skill's mode does not select antislop's mode.
+If the mode is unresolved, ask during/after and end the response; wait for the answer before any UI review, planning, or concept. For read-only tasks, put the active-mode notice only at the start of the final answer, never in progress messages. For editing tasks, announce before the first edit and omit it from the final answer.
+To update antislop later: `npx antislop-ai --update`, or run `npx antislop-ai` and pick Overwrite them.
+<!-- antislop:end -->
