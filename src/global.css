@@ -1,9 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Token warna sebagai CSS variable (channel RGB, tanpa `rgb()`).
+ * Nilai mentah berasal dari `src/constants/tokens.js`; jaga keduanya sinkron.
+ * Light = default, dark ditimpa lewat prefers-color-scheme (darkMode: 'media').
+ */
 :root {
-  --font-display:
-    Spline Sans, Inter, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji,
-    Segoe UI Symbol, Noto Color Emoji;
-  --font-mono:
-    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-  --font-rounded: 'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+  --color-text: 0 0 0;
+  --color-textSecondary: 96 100 108;
+  --color-textInverse: 255 255 255;
+  --color-background: 255 255 255;
+  --color-backgroundElement: 240 240 243;
+  --color-backgroundSelected: 224 225 230;
+  --color-border: 217 219 224;
+  --color-primary: 20 112 200;
+  --color-primaryText: 255 255 255;
+  --color-success: 20 125 79;
+  --color-successSurface: 228 245 236;
+  --color-danger: 180 35 24;
+  --color-dangerSurface: 253 236 234;
+  --color-warning: 138 90 0;
+  --color-warningSurface: 255 244 224;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text: 255 255 255;
+    --color-textSecondary: 176 180 186;
+    --color-textInverse: 0 0 0;
+    --color-background: 0 0 0;
+    --color-backgroundElement: 33 34 37;
+    --color-backgroundSelected: 46 49 53;
+    --color-border: 58 61 66;
+    --color-primary: 92 168 245;
+    --color-primaryText: 0 19 31;
+    --color-success: 95 211 155;
+    --color-successSurface: 16 41 30;
+    --color-danger: 255 139 128;
+    --color-dangerSurface: 46 23 21;
+    --color-warning: 240 192 112;
+    --color-warningSurface: 43 34 19;
+  }
 }

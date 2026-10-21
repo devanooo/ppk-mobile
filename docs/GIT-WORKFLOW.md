@@ -1,4 +1,4 @@
-# Git Workflow — AntarMuka
+# Git Workflow: PraktikumKU
 
 Berlaku untuk 1 PM + 3 programmer yang bekerja paralel. Tujuan: `main` selalu bisa dijalankan dan setiap perubahan punya pemilik jelas.
 
@@ -56,13 +56,14 @@ Format Conventional Commits, **scope wajib**:
 | `docs` | dokumentasi |
 | `chore` | config, dependency, tooling |
 
-Scope: `praktikan`, `asisten`, `ui`, `data`, `docs`, `config`.
+Scope: `shell`, `praktikan`, `asisten`, `ui`, `data`, `docs`, `config`.
 
 Aturan subject: imperative, lowercase, tanpa titik akhir, maksimal 72 karakter, satu commit = satu perubahan logis.
 
 Benar:
 
 ```
+feat(shell): tambah landing page dan login dummy
 feat(praktikan): tambah bottom sheet konfirmasi presensi
 fix(asisten): status sesi tidak berubah setelah ditutup
 style(ui): samakan radius kartu jadwal dengan token
@@ -76,7 +77,7 @@ Tambahan:
 - `fix` wajib menyebut gejala di subject, bukan dugaan penyebab.
 - Perubahan kontrak `src/types` memakai footer `BREAKING CHANGE: <detail>`.
 - Commit `WIP` boleh lokal tetapi wajib di-squash sebelum merge.
-- Perubahan di file beku (`_layout.tsx`, `theme.ts`, `types`, `ui/index.ts`) wajib menyebut owner di body: `Owner: P3`.
+- Perubahan di file beku (`_layout.tsx`, `tokens.js`, `theme.ts`, `types`, `ui/index.ts`, `credentials.ts`) wajib menyebut owner file di body, misalnya `Owner: P1` atau `Owner: P3`.
 
 ## 3. Pull request
 
@@ -96,7 +97,7 @@ Keduanya harus hijau. PR yang gagal typecheck/lint tidak direview.
 - Maksimal **400 baris berubah** dan **10 file** (di luar lockfile).
 - Satu topik per PR. Lebih besar → pecah.
 - Buka **draft PR** di hari pertama supaya progres terlihat.
-- Wajib screenshot (iOS + Android/web) untuk PR yang mengubah UI.
+- Wajib screenshot (iOS + Android) untuk PR yang mengubah UI.
 
 ### Judul
 
@@ -118,7 +119,7 @@ Wajib memakai `.github/pull_request_template.md`:
 2. ...
 
 ## Screenshot
-| iOS | Android/Web |
+| iOS | Android |
 |---|---|
 | ... | ... |
 
@@ -127,7 +128,7 @@ Wajib memakai `.github/pull_request_template.md`:
 - [ ] `npx tsc --noEmit` hijau
 - [ ] `npx expo lint` hijau
 - [ ] Ada empty state bila relevan; tidak ada loading state palsu
-- [ ] Tidak ada warna hardcode (pakai token)
+- [ ] Tidak ada warna hardcode atau arbitrary value (pakai token NativeWind)
 - [ ] Layout pakai flexbox + safe area
 - [ ] Tidak menambah dependency tanpa approval PM
 - [ ] Semua feedback diambil dari hasil `{ ok, pesan }` store; tidak ada loading palsu
