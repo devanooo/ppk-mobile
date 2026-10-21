@@ -28,8 +28,8 @@ Tujuan dokumen: setiap file punya **tepat satu pemilik**. Tidak ada dua orang me
 | `src/components/ui/**` | P3 | primitif UI. **Beku setelah D1**, kecuali perbaikan via PR |
 | `src/components/app-tabs.tsx`, `src/components/app-tabs.web.tsx` | P1 | dihapus/diganti saat scaffold |
 | `README.md`, `docs/**`, `AGENTS.md` | PM | dokumentasi |
-| `.github/**` | PM | CODEOWNERS, template PR |
-| `app.json`, `package.json`, `tsconfig.json` | PM (approval) + P1 (eksekusi) | perubahan config harus disetujui PM |
+| `.github/**` | PM | CODEOWNERS, template PR. **Pengecualian:** `.github/workflows/**` diusulkan P3, disetujui PM |
+| `app.json`, `package.json`, `tsconfig.json` | P1 | satu-satunya owner. Perubahan config wajib approval PM **sebelum** PR diajukan/di-merge |
 
 Path yang tidak tercantum: **jangan disentuh** tanpa persetujuan PM.
 
@@ -44,26 +44,30 @@ Path yang tidak tercantum: **jangan disentuh** tanpa persetujuan PM.
 
 ## 4. Kontrak data (dibuat P3, hari D1)
 
-`src/types/index.ts` — salinan tipe dari `docs/PRD.md` bagian 9, tanpa tambahan field.
-`src/data/dummy.ts` — 2 asisten + 4 praktikan + 5 sesi (2 `belum-dibuka`, 2 `dibuka`, 1 `ditutup`) + 2 presensi awal.
+`src/types/index.ts` — salinan tipe dari `docs/PRD.md` bagian Implementation Decisions, tanpa tambahan field.
+`src/data/dummy.ts` — 2 asisten (A mengampu 5 sesi, B tidak mengampu sesi) + 4 praktikan (3 terdaftar per sesi, 1 tanpa sesi) + 5 sesi (2 `belum-dibuka`, 2 `dibuka`, 1 `ditutup`) + 2 presensi awal.
 `src/store/session-store.tsx` — API minimal:
 
 ```ts
+type HasilAksi = { ok: boolean; pesan: string };
+
 type Store = {
   user: User | null;
   sesi: Sesi[];
   presensi: Presensi[];
   setUser: (u: User | null) => void;
-  bukaSesi: (sesiId: string) => void;
-  tutupSesi: (sesiId: string) => void;
-  catatPresensi: (sesiId: string, praktikanId: string) => { ok: boolean; pesan: string };
+  sesiById: (sesiId: string) => Sesi | undefined;
+  sesiUntuk: (user: User) => Sesi[];
+  bukaSesi: (sesiId: string) => HasilAksi;
+  tutupSesi: (sesiId: string) => HasilAksi;
+  catatPresensi: (sesiId: string, praktikanId: string) => HasilAksi;
   presensiSaya: (praktikanId: string) => Presensi[];
   rekapSesi: (sesiId: string) => Array<{ praktikan: User; waktu: string }>;
   sudahPresensi: (sesiId: string, praktikanId: string) => boolean;
 };
 ```
 
-Aturan: `catatPresensi` menolak bila sesi tidak `dibuka` atau presensi sudah ada. Semua mutasi hanya lewat store — tidak ada state lokal duplikat di layar.
+Aturan: mutasi sesi dan presensi (`bukaSesi`, `tutupSesi`, `catatPresensi`) mengembalikan `{ ok, pesan }`; `setUser` tidak memakai jalur hasil aksi karena pergantian identitas tidak punya kegagalan yang perlu dilaporkan. `bukaSesi` hanya valid dari `belum-dibuka`; `tutupSesi` hanya valid dari `dibuka`; `catatPresensi` menolak bila sesi tidak `dibuka`, praktikan tidak ada di `pesertaIds`, atau presensi untuk pasangan `sesiId + praktikanId` sudah ada. Pesan penolakan memakai teks pada PRD bagian 10. Semua mutasi hanya lewat store — tidak ada state lokal duplikat di layar.
 
 `src/components/ui/` minimal: `Screen`, `AppButton`, `Card`, `StatusBadge`, `EmptyState`, `BottomSheet`, `Field` (picker/teks), `Banner` (feedback). Diekspor lewat `index.ts`.
 
@@ -71,7 +75,7 @@ Aturan: `catatPresensi` menolak bila sesi tidak `dibuka` atau presensi sudah ada
 
 | Hari | PM | P1 | P2 | P3 |
 |---|---|---|---|---|
-| D1 | install skills, finalkan PRD & backlog, siapkan CODEOWNERS | scaffold route + `index.tsx` + tab praktikan kosong; hapus `app-tabs*`; serahkan folder `(asisten)` ke P2 | baca PRD + kontrak, siapkan daftar komponen presentational yang dibutuhkan | tulis types, dummy, store, token, primitif UI; **freeze di akhir hari** |
+| D1 | install skills, finalkan PRD & backlog, siapkan CODEOWNERS | scaffold root layout + `index.tsx` + `(praktikan)` kosong; hapus `app-tabs*` | scaffold `(asisten)` kosong: `_layout.tsx` tab asisten + layar placeholder | tulis types, dummy, store, token, primitif UI; **freeze di akhir hari** |
 | D2 | cek progres, unblock, review PR docs | layar jadwal + detail (presentational) | layar jadwal + detail asisten (presentational) | polish primitif + empty state, bantu wiring |
 | D3 | QA matrix awal | alur presensi + bottom sheet + feedback | aksi buka/tutup sesi + rekap | dokumentasi komponen, review pemakaian token |
 | D4 | review UI vs acceptance criteria | wiring store sisi praktikan | wiring store sisi asisten | perbaikan bug store/komponen |
@@ -81,32 +85,33 @@ Aturan: `catatPresensi` menolak bila sesi tidak `dibuka` atau presensi sudah ada
 
 **P1**
 - [ ] Root layout + pemilihan peran berjalan; tab praktikan muncul setelah masuk.
-- [ ] Jadwal & detail praktikan sesuai F1; presensi sesuai F3 & F5.
+- [ ] Jadwal & detail praktikan lulus AC-02; presensi lulus AC-04 & AC-09.
 - [ ] Bottom sheet konfirmasi + feedback sukses/gagal berfungsi.
-- [ ] Empty state & status nonaktif punya alasan.
+- [ ] Empty state & status nonaktif punya alasan sesuai PRD bagian 10.
 
 **P2**
 - [ ] Tab asisten: jadwal, detail, rekap.
-- [ ] Buka/tutup sesi sesuai F2 (dengan konfirmasi, tanpa aksi ilegal).
-- [ ] Rekap sesuai F4 (urut waktu, jumlah hadir, empty state).
-- [ ] Status sesi terlihat konsisten setelah aksi.
+- [ ] Buka/tutup sesi lulus AC-03 & AC-08 (dengan konfirmasi, tanpa aksi ilegal).
+- [ ] Rekap urut waktu, jumlah hadir, empty state.
+- [ ] Status sesi konsisten di daftar dan detail setelah aksi.
 
 **P3**
 - [ ] `tsc --noEmit` bersih untuk types/store/dummy.
 - [ ] Tidak ada warna hardcode di komponen UI.
-- [ ] Semua komponen UI punya state disabled/loading/empty bila relevan.
-- [ ] Store menolak presensi ganda dan sesi tidak valid (diuji manual + satu cek assert).
+- [ ] Semua komponen UI punya state disabled/empty bila relevan; tidak ada loading palsu.
+- [ ] Store menolak presensi ganda, sesi tidak aktif, dan peserta tidak terdaftar (AC-05, AC-06, AC-07).
 - [ ] `ui/index.ts` mengekspor seluruh komponen yang dipakai P1/P2.
 
 **PM**
 - [ ] PRD, pembagian tugas, git workflow, README, AGENTS.md lengkap dan saling konsisten.
 - [ ] CODEOWNERS + template PR aktif.
-- [ ] QA matrix F1–F7 terisi status lulus/gagal.
-- [ ] Demo script dijalankan 2× tanpa error.
+- [ ] QA matrix AC-01…AC-12 terisi status lulus/gagal.
+- [ ] Demo script dijalankan 2× tanpa error (AC-12).
 
 ## 7. Handoff
 
-- **P1 → P2 (D1):** folder `(asisten)/` + `_layout.tsx` tab asisten sudah ada dan bisa dibuka, walau isinya placeholder.
+- **P1 → P2 (D1):** root layout + `index.tsx` sudah ada dan bisa dijalankan, sehingga tab asisten bisa dipasang tanpa menyentuh file P1.
+- **P2 (D1):** scaffold folder `(asisten)/` sendiri (`_layout.tsx` tab + layar placeholder yang bisa dibuka).
 - **P3 → P1/P2 (akhir D1):** types, store, primitif UI ter-freeze; perubahan hanya lewat PR.
 - **Semua → PM (D4):** screenshot tiap layar + daftar empty state untuk QA matrix.
 
