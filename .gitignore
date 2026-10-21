@@ -41,3 +41,8 @@ example
 # generated native folders
 /ios
 /android
+
+# local agent config, keep shared skills tracked
+.opencode/*
+!.opencode/skills/
+!.opencode/skills/**

@@ -1,27 +1,34 @@
-# CODEOWNERS — AntarMuka
+# CODEOWNERS: PraktikumKU
 # Ganti @username-* dengan handle GitHub asli sebelum repo dipakai.
 # Satu path hanya boleh diubah pemiliknya. Lihat docs/PEMBAGIAN-TUGAS.md.
 
-# P1 — shell + praktikan
+# P1: shell, auth, praktikan
 /src/app/_layout.tsx            @username-p1
 /src/app/index.tsx              @username-p1
+/src/app/login.tsx              @username-p1
 /src/app/(praktikan)/           @username-p1
+/src/features/auth/             @username-p1
 /src/features/praktikan/        @username-p1
 /src/components/app-tabs.tsx     @username-p1
-/src/components/app-tabs.web.tsx @username-p1
+/tailwind.config.js              @username-p1
+/src/global.css                  @username-p1
+/babel.config.js                 @username-p1
+/metro.config.js                 @username-p1
+/nativewind-env.d.ts             @username-p1
 
-# P2 — asisten
+# P2: asisten
 /src/app/(asisten)/             @username-p2
 /src/features/asisten/          @username-p2
 
-# P3 — design system + data
+# P3: design system + data
+/src/constants/tokens.js         @username-p3
 /src/constants/theme.ts         @username-p3
 /src/types/                     @username-p3
 /src/data/                      @username-p3
 /src/store/                     @username-p3
 /src/components/ui/             @username-p3
 
-# PM — dokumentasi & config repo
+# PM: dokumentasi & config repo
 /README.md                      @username-pm
 /AGENTS.md                      @username-pm
 /docs/                          @username-pm

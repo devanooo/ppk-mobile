@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "AntarMuka",
+    "name": "PraktikumKU",
     "slug": "PraktikumKU",
     "version": "1.0.0",
+    "platforms": ["ios", "android"],
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "antarmuka",
+    "scheme": "praktikumku",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -19,16 +20,12 @@
       },
       "predictiveBackGestureEnabled": false
     },
-    "web": {
-      "output": "server",
-      "favicon": "./assets/images/favicon.png"
-    },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#1470C8",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
@@ -41,7 +38,7 @@
     "extra": {
       "router": {
         "asyncRoutes": {
-          "web": true
+          "web": false
         }
       },
       "eas": {
