@@ -187,7 +187,7 @@ type Presensi = {
 | Detail sesi (asisten) | dari daftar | info sesi, waktu buka/tutup, tombol Buka/Tutup sesi, jumlah hadir, daftar peserta |
 | Rekap | tab | ringkasan tiap sesi yang diampu + jumlah hadir |
 
-**Navigasi:** root stack untuk pemilihan identitas; tab per peran setelah masuk; detail sesi sebagai layar stack dari daftar. Tombol **Ganti peran** tersedia di header tab.
+**Navigasi:** root stack untuk pemilihan identitas; tab per peran setelah masuk; detail sesi sebagai layar stack dari daftar. Tombol **Ganti peran** tersedia di header kedua tab sebagai komponen reusable `GantiPeranButton` (`src/components/ui/`), dipakai bersama oleh tab praktikan dan asisten.
 
 **Interaksi**
 
@@ -198,7 +198,7 @@ type Presensi = {
 | Tutup sesi | bottom sheet konfirmasi | status + waktu tutup berubah; banner sukses |
 | Presensi | bottom sheet konfirmasi (nama sesi + identitas) | banner sukses + jam kehadiran; tombol jadi *Sudah presensi* |
 | Presensi ditolak | aksi dari store | banner gagal berisi pesan dari store |
-| Ganti peran | tombol header | kembali ke layar pilih identitas |
+| Ganti peran | tombol header `GantiPeranButton` | kembali ke layar pilih identitas |
 
 **Aturan interaksi**
 

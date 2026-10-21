@@ -25,7 +25,7 @@ const lightColors = {
   backgroundElement: '#F0F0F3',
   backgroundSelected: '#E0E1E6',
   border: '#D9DBE0',
-  primary: '#208AEF',
+  primary: '#1470C8',
   primaryText: '#FFFFFF',
   success: '#147D4F',
   successSurface: '#E4F5EC',
