@@ -1,0 +1,29 @@
+# CODEOWNERS — AntarMuka
+# Ganti @username-* dengan handle GitHub asli sebelum repo dipakai.
+# Satu path hanya boleh diubah pemiliknya. Lihat docs/PEMBAGIAN-TUGAS.md.
+
+# P1 — shell + praktikan
+/src/app/_layout.tsx            @username-p1
+/src/app/index.tsx              @username-p1
+/src/app/(praktikan)/           @username-p1
+/src/features/praktikan/        @username-p1
+
+# P2 — asisten
+/src/app/(asisten)/             @username-p2
+/src/features/asisten/          @username-p2
+
+# P3 — design system + data
+/src/constants/theme.ts         @username-p3
+/src/types/                     @username-p3
+/src/data/                      @username-p3
+/src/store/                     @username-p3
+/src/components/ui/             @username-p3
+
+# PM — dokumentasi & config repo
+/README.md                      @username-pm
+/AGENTS.md                      @username-pm
+/docs/                          @username-pm
+/.github/                       @username-pm
+
+# Fallback: perubahan di luar area di atas harus lewat PM
+*                               @username-pm

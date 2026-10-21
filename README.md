@@ -1,56 +1,88 @@
-# Welcome to your Expo app 👋
+# AntarMuka
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Antar Praktikum** — aplikasi catatan kehadiran praktikum untuk praktikan dan asisten.
 
-## Get started
+Sprint 1 berfokus pada **UI** dengan data dummy dan state lokal (belum ada database). Dua sudut pandang pengguna:
 
-1. Install dependencies
+- **Praktikan** — lihat jadwal & detail sesi, melakukan presensi saat sesi dibuka, melihat riwayat kehadiran sendiri.
+- **Asisten** — lihat jadwal, membuka & menutup sesi, memantau kehadiran, melihat rekap peserta beserta waktu presensi.
 
-   ```bash
-   npm install
-   ```
+## Demo sprint 1
 
-2. Start the app
+1. Pilih peran **Asisten** → buka salah satu sesi berstatus *Belum dibuka*.
+2. Pindah ke peran **Praktikan** → sesi tampil *Dibuka* → tekan **Presensi** → konfirmasi di bottom sheet.
+3. Presensi berhasil (waktu tercatat, tombol berubah jadi *Sudah presensi*). Coba lagi → ditolak.
+4. Pindah ke **Asisten** → buka rekap sesi → peserta + waktu kehadiran tampil.
+5. Asisten menutup sesi → status berubah di kedua sisi.
 
-   ```bash
-   npx expo start
-   ```
+## Menjalankan
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Prasyarat: Node.js LTS dan aplikasi Expo Go di perangkat, atau simulator/emulator.
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Lalu tekan `i` (iOS), `a` (Android), atau `w` (web). Proyek ini memakai npm (`package-lock.json`).
 
-### Other setup steps
+Perintah lain:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npx expo lint      # lint
+npx tsc --noEmit   # typecheck
+npx expo-doctor    # cek dependency & config
+```
 
-## Learn more
+Menambah library wajib lewat `npx expo install <paket>` dan **harus disetujui PM**.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Stack
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Expo SDK 58 + React Native 0.88, React 19
+- Expo Router (file-based routing, typed routes)
+- TypeScript strict
+- Tanpa database, tanpa auth, tanpa state library eksternal — data dummy + React state/context
 
-## Join the community
+## Struktur folder
 
-Join our community of developers creating universal apps.
+```
+src/
+  app/                     # route saja (screen + _layout)
+    _layout.tsx            # root Stack + provider
+    index.tsx              # pilih peran & identitas
+    (praktikan)/           # tab praktikan
+    (asisten)/             # tab asisten
+  components/
+    ui/                    # komponen reusable (Button, Card, Badge, EmptyState, BottomSheet)
+  features/
+    praktikan/             # komponen & hook khusus praktikan
+    asisten/               # komponen & hook khusus asisten
+  types/                   # tipe domain
+  data/                    # data dummy
+  store/                   # state sesi & presensi (context)
+  constants/theme.ts       # token warna, font, spacing
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Non-route code tidak boleh ditaruh di `src/app/`.
+
+## Peran dalam tim
+
+| Kode | Peran | Area |
+|---|---|---|
+| PM | Product Manager | docs, backlog, QA, demo |
+| P1 | Programmer | navigasi shell + alur praktikan |
+| P2 | Programmer | alur asisten |
+| P3 | Programmer | design system + data/state |
+
+Matriks ownership file ada di [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.md). Patuhi `CODEOWNERS`: satu path hanya boleh diubah pemiliknya.
+
+## Dokumentasi
+
+- [`docs/PRD.md`](docs/PRD.md) — kebutuhan, acceptance criteria, peta layar, demo script
+- [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.md) — pembagian kerja & kontrak data
+- [`docs/GIT-WORKFLOW.md`](docs/GIT-WORKFLOW.md) — branch, commit, PR, review, merge
+- [`AGENTS.md`](AGENTS.md) — aturan kerja untuk developer & AI agent
+
+## Non-goals sprint 1
+
+Backend/database, autentikasi, notifikasi push, presensi berbasis QR/lokasi, multi-semester, export laporan.

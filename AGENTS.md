@@ -1,5 +1,66 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## Project: AntarMuka (Antar Praktikum)
+
+Sistem informasi praktikum untuk mencatat kehadiran, dengan 2 peran: **praktikan** dan **asisten**. Sprint 1 fokus UI; data dummy + state in-memory, tanpa backend/auth/database.
+
+Baca sebelum mengubah kode:
+
+- `docs/PRD.md` — kebutuhan dan acceptance criteria
+- `docs/PEMBAGIAN-TUGAS.md` — pemilik setiap path
+- `docs/GIT-WORKFLOW.md` — branch, commit, PR
+
+## Ownership (wajib)
+
+| Path | Owner |
+|---|---|
+| `src/app/_layout.tsx`, `src/app/index.tsx`, `src/app/(praktikan)/**`, `src/features/praktikan/**` | P1 |
+| `src/app/(asisten)/**`, `src/features/asisten/**` | P2 |
+| `src/constants/theme.ts`, `src/types/**`, `src/data/**`, `src/store/**`, `src/components/ui/**` | P3 |
+| `README.md`, `docs/**`, `AGENTS.md`, `.github/**` | PM |
+
+- Satu path satu owner. Perubahan di path orang lain hanya lewat PR ke owner tersebut.
+- File beku setelah D1 (jangan diubah tanpa persetujuan owner): `src/app/_layout.tsx`, `src/constants/theme.ts`, `src/types/index.ts`, `src/components/ui/index.ts`.
+- Jangan menambah dependency tanpa persetujuan PM.
+- Jangan membuat file sementara di area orang lain.
+
+## Aturan implementasi
+
+- **Route:** `src/app/**` hanya berisi screen dan `_layout.tsx`. Komponen, hook, util di luar `src/app/`. Gunakan `Tabs` dari `expo-router` untuk tab di dalam route group; jangan pakai `NativeTabs` untuk group bersarang.
+- **Layar:** pisahkan presentational component (menerima props) dari route file (memanggil hook store). Route file harus tipis.
+- **State:** satu sumber kebenaran di `src/store/session-store.tsx`. Dilarang menduplikasi state sesi/presensi secara lokal di layar. Mutasi hanya lewat aksi store (`bukaSesi`, `tutupSesi`, `catatPresensi`).
+- **Data:** dummy di `src/data/`, tipe di `src/types/`. Jangan invent field baru di layar; kontrak dibekukan setelah D1.
+- **Styling:** token dari `src/constants/theme.ts`. Dilarang hardcode warna/ukuran font. Layout wajib flexbox + safe area; target sentuh minimal 44×44 pt.
+- **Interaksi:** konfirmasi perubahan status/presensi lewat modal atau bottom sheet; setiap aksi memberi feedback sukses/gagal; tombol nonaktif harus punya alasan yang terlihat.
+- **Empty state:** wajib untuk daftar kosong, rekap kosong, dan riwayat kehadiran kosong.
+- **Aksesibilitas:** semua tombol punya `accessibilityLabel`; teks status tidak hanya dibedakan lewat warna.
+
+## Verifikasi sebelum selesai
+
+```bash
+npx tsc --noEmit
+npx expo lint
+```
+
+Keduanya harus hijau, dan alur demo di `docs/PRD.md` bagian 11 harus tetap berjalan. PR wajib memakai `.github/pull_request_template.md`.
+
+## Skills
+
+Install sekali dari skills.sh (butuh `npx`), lalu gunakan sesuai area:
+
+| Skill | Install | Untuk |
+|---|---|---|
+| `expo-router` | `npx skills add https://github.com/expo/skills --skill expo-router` | struktur route, tab, modal/form sheet |
+| `expo-design-system` | `npx skills add https://github.com/expo/skills --skill expo-design-system` | token & komponen reusable (P3) |
+| `building-native-ui` | `npx skills add https://github.com/expo/skills --skill building-native-ui` | list, bottom sheet, safe area, HIG |
+| `vercel-react-native-skills` | `npx skills add https://github.com/vercel-labs/agent-skills --skill vercel-react-native-skills` | performa list, `Pressable`, `expo-image` |
+| `to-prd` | `npx skills add https://github.com/mattpocock/skills --skill to-prd` | menyusun PRD (PM) |
+| `code-review` | `npx skills add https://github.com/mattpocock/skills --skill code-review` | review PR |
+| `resolving-merge-conflicts` | `npx skills add https://github.com/mattpocock/skills --skill resolving-merge-conflicts` | konflik merge |
+| `find-skills` | `npx skills add https://github.com/vercel-labs/skills --skill find-skills` | mencari skill baru |
+
+Jangan install `expo-tailwind-setup` (proyek memakai StyleSheet + token), `native-data-fetching` (data dummy), atau `git-guardrails-claude-code` (hook khusus Claude Code).
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:

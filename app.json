@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "PraktikumKU",
+    "name": "AntarMuka",
     "slug": "PraktikumKU",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "praktikumku",
+    "scheme": "antarmuka",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -37,6 +37,16 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "1140cb80-c281-40a3-b90f-66c11df4ecfb"
+      }
     }
   }
 }
