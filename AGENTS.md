@@ -1,6 +1,6 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
-## Project: AntarMuka (Antar Praktikum)
+## Project: AntarMuka (AntarPraktikum)
 
 Sistem informasi praktikum untuk mencatat kehadiran, dengan 2 peran: **praktikan** dan **asisten**. Sprint 1 fokus UI; data dummy + state in-memory, tanpa backend/auth/database.
 
@@ -42,7 +42,7 @@ npx tsc --noEmit
 npx expo lint
 ```
 
-Keduanya harus hijau, dan alur demo di `docs/PRD.md` bagian 11 harus tetap berjalan. PR wajib memakai `.github/pull_request_template.md`.
+Keduanya harus hijau, dan alur demo di `docs/PRD.md` bagian 12 (Testing dan demo script) harus tetap berjalan. PR wajib memakai `.github/pull_request_template.md`.
 
 ## Skills
 
@@ -54,7 +54,7 @@ Install sekali dari skills.sh (butuh `npx`), lalu gunakan sesuai area:
 | `expo-design-system` | `npx skills add https://github.com/expo/skills --skill expo-design-system` | token & komponen reusable (P3) |
 | `building-native-ui` | `npx skills add https://github.com/expo/skills --skill building-native-ui` | list, bottom sheet, safe area, HIG |
 | `vercel-react-native-skills` | `npx skills add https://github.com/vercel-labs/agent-skills --skill vercel-react-native-skills` | performa list, `Pressable`, `expo-image` |
-| `to-prd` | `npx skills add https://github.com/mattpocock/skills --skill to-prd` | menyusun PRD (PM) |
+| `to-spec` | `npx skills add https://github.com/mattpocock/skills --skill to-spec` | menyusun PRD/spec (PM) |
 | `code-review` | `npx skills add https://github.com/mattpocock/skills --skill code-review` | review PR |
 | `resolving-merge-conflicts` | `npx skills add https://github.com/mattpocock/skills --skill resolving-merge-conflicts` | konflik merge |
 | `find-skills` | `npx skills add https://github.com/vercel-labs/skills --skill find-skills` | mencari skill baru |
