@@ -71,6 +71,7 @@ export function ProfileMenu({ user, onHome, onSwitchRole, onLogout }: ProfileMen
         />
 
         <Animated.View
+          accessibilityViewIsModal
           className="absolute w-menuWidth rounded-md bg-backgroundElement p-two"
           style={[gayaBayangan, { top: posisi.atas, right: posisi.kanan, opacity: progres, transform: [{ scale: skala }] }]}
         >
