@@ -53,7 +53,10 @@ const darkColors = {
   warningSurface: '#2B2213',
 };
 
-/** Skala spacing (pt). 4-based. `touch` = tinggi minimum target sentuh. */
+/**
+ * Skala spacing (pt). 4-based. `touch` = tinggi minimum target sentuh,
+ * `sheetMax` = tinggi maksimum bottom sheet (relatif terhadap layar).
+ */
 const spacing = {
   half: 2,
   one: 4,
@@ -64,6 +67,17 @@ const spacing = {
   five: 32,
   six: 64,
   touch: 44,
+  sheetMax: '85%',
+};
+
+/** Satu-satunya bayangan: dropdown profil dan bottom sheet. */
+const shadow = {
+  color: '#000000',
+  opacity: 0.22,
+  offsetX: 3,
+  offsetY: 5,
+  radius: 30,
+  elevation: 24,
 };
 
 /** Radius (pt). Kartu 16, input 12, sheet 24, tombol dan badge pill. */
@@ -92,5 +106,5 @@ const fontWeight = {
   bold: '700',
 };
 
-module.exports = { lightColors, darkColors, spacing, radius, fontSize, fontWeight };
+module.exports = { lightColors, darkColors, spacing, radius, fontSize, fontWeight, shadow };
 

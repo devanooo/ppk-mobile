@@ -19,6 +19,7 @@ export const Colors = {
 };
 export const Spacing = tokens.spacing;
 export const Radius = tokens.radius;
+export const Shadow = tokens.shadow;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 export type ThemeMode = keyof typeof Colors;
