@@ -1,6 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
-type AppButtonVariant = 'primary' | 'secondary' | 'ghost';
+type AppButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 type AppButtonProps = {
   label: string;
@@ -16,6 +16,7 @@ const VARIANTS: Record<AppButtonVariant, { wadah: string; teks: string }> = {
   primary: { wadah: 'bg-primary', teks: 'text-primaryText' },
   secondary: { wadah: 'border border-primary bg-transparent', teks: 'text-primary' },
   ghost: { wadah: 'bg-transparent', teks: 'text-primary' },
+  danger: { wadah: 'bg-transparent', teks: 'text-danger' },
 };
 
 export function AppButton({

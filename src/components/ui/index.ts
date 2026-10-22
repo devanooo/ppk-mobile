@@ -1,6 +1,9 @@
 export { AppButton } from './app-button';
 export type { AppButtonProps, AppButtonVariant } from './app-button';
 
+export { BottomSheet } from './bottom-sheet';
+export type { BottomSheetProps } from './bottom-sheet';
+
 export { Card } from './card';
 export type { CardProps } from './card';
 
