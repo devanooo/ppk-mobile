@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
   Animated,
   Modal,
@@ -41,13 +41,16 @@ export function BottomSheet({
   onKonfirmasi,
   bahaya = false,
 }: BottomSheetProps) {
+  const [tinggiSheet, setTinggiSheet] = useState(0);
   const { height: tinggiLayar } = useWindowDimensions();
   const inset = useSafeAreaInsets();
   const progres = useAnimasiMuncul(visible, DURASI);
 
+  // Sebelum tinggi sheet terukur, geser sejauh tinggi layar supaya sheet benar-benar
+  // masuk dari tepi bawah, bukan dari tengah layar.
   const geser = progres.interpolate({
     inputRange: [0, 1],
-    outputRange: [tinggiLayar * 0.5, 0],
+    outputRange: [tinggiSheet || tinggiLayar, 0],
   });
 
   return (
@@ -69,6 +72,7 @@ export function BottomSheet({
         <Animated.View
           accessibilityViewIsModal
           onAccessibilityEscape={onClose}
+          onLayout={(peristiwa) => setTinggiSheet(peristiwa.nativeEvent.layout.height)}
           className="max-h-sheetMax rounded-t-xl bg-backgroundElement px-four pt-twoHalf"
           style={[
             gayaBayangan,
