@@ -5,6 +5,9 @@ const colorUtilities = Object.fromEntries(
   Object.keys(tokens.lightColors).map((name) => [name, `rgb(var(--color-${name}) / <alpha-value>)`])
 );
 
+/** Scrim modal: warna dasar dari CSS variable, alpha diatur lewat `bg-overlay/<opacity>`. */
+const overlayUtility = { overlay: 'rgb(var(--color-overlay) / <alpha-value>)' };
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
@@ -12,7 +15,7 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
-      colors: colorUtilities,
+      colors: { ...colorUtilities, ...overlayUtility },
       spacing: tokens.spacing,
       borderRadius: tokens.radius,
       fontSize: tokens.fontSize,
