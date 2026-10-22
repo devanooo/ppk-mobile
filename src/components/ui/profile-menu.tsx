@@ -1,30 +1,17 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ComponentRef } from 'react';
-import {
-  AccessibilityInfo,
-  Animated,
-  Modal,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { useRef, useState, type ComponentRef } from 'react';
+import { Animated, Modal, Pressable, Text, View, useWindowDimensions } from 'react-native';
 
-import { Shadow, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import type { Peran, User } from '@/types';
+
+import { useAnimasiMuncul } from './motion';
+import { gayaBayangan } from './shadow-style';
 
 const DURASI = 150;
 
 const LABEL_PERAN: Record<Peran, string> = {
   praktikan: 'Praktikan',
   asisten: 'Asisten',
-};
-
-const GAYA_BAYANGAN = {
-  shadowColor: Shadow.color,
-  shadowOffset: { width: Shadow.offsetX, height: Shadow.offsetY },
-  shadowOpacity: Shadow.opacity,
-  shadowRadius: Shadow.radius,
-  elevation: Shadow.elevation,
 };
 
 type ProfileMenuProps = {
@@ -37,32 +24,9 @@ type ProfileMenuProps = {
 export function ProfileMenu({ user, onHome, onSwitchRole, onLogout }: ProfileMenuProps) {
   const [terbuka, setTerbuka] = useState(false);
   const [posisi, setPosisi] = useState({ atas: 0, kanan: 0 });
-  const [progres] = useState(() => new Animated.Value(0));
-  const [kurangiGerak, setKurangiGerak] = useState(false);
   const pemicu = useRef<ComponentRef<typeof Pressable>>(null);
   const { width: lebarLayar } = useWindowDimensions();
-
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setKurangiGerak);
-    const langganan = AccessibilityInfo.addEventListener('reduceMotionChanged', setKurangiGerak);
-    return () => langganan.remove();
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!terbuka) return;
-
-    if (kurangiGerak) {
-      progres.setValue(1);
-      return;
-    }
-
-    progres.setValue(0);
-    Animated.timing(progres, {
-      toValue: 1,
-      duration: DURASI,
-      useNativeDriver: true,
-    }).start();
-  }, [terbuka, kurangiGerak, progres]);
+  const progres = useAnimasiMuncul(terbuka, DURASI);
 
   function bukaMenu() {
     pemicu.current?.measureInWindow((x, y, lebar, tinggi) => {
@@ -108,7 +72,7 @@ export function ProfileMenu({ user, onHome, onSwitchRole, onLogout }: ProfileMen
 
         <Animated.View
           className="absolute w-menuWidth rounded-md bg-backgroundElement p-two"
-          style={[GAYA_BAYANGAN, { top: posisi.atas, right: posisi.kanan, opacity: progres, transform: [{ scale: skala }] }]}
+          style={[gayaBayangan, { top: posisi.atas, right: posisi.kanan, opacity: progres, transform: [{ scale: skala }] }]}
         >
           <View className="px-two pb-three pt-two">
             <Text className="text-body font-semibold text-text">{user.nama}</Text>
