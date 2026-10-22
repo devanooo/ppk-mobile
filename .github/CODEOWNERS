@@ -1,38 +1,37 @@
 # CODEOWNERS: PraktikumKU
-# Ganti @username-* dengan handle GitHub asli sebelum repo dipakai.
 # Satu path hanya boleh diubah pemiliknya. Lihat docs/PEMBAGIAN-TUGAS.md.
+# Owner harus sudah diundang sebagai collaborator agar bisa di-assign reviewer.
 
-# P1: shell, auth, praktikan
-/src/app/_layout.tsx            @username-p1
-/src/app/index.tsx              @username-p1
-/src/app/login.tsx              @username-p1
-/src/app/(praktikan)/           @username-p1
-/src/features/auth/             @username-p1
-/src/features/praktikan/        @username-p1
-/src/components/app-tabs.tsx     @username-p1
-/tailwind.config.js              @username-p1
-/src/global.css                  @username-p1
-/babel.config.js                 @username-p1
-/metro.config.js                 @username-p1
-/nativewind-env.d.ts             @username-p1
+# P1 Anggita Kirana Puspa: shell, auth, praktikan
+/src/app/_layout.tsx            @anggitakirana
+/src/app/index.tsx              @anggitakirana
+/src/app/login.tsx              @anggitakirana
+/src/app/(praktikan)/           @anggitakirana
+/src/features/auth/             @anggitakirana
+/src/features/praktikan/        @anggitakirana
+/tailwind.config.js             @anggitakirana
+/src/global.css                 @anggitakirana
+/babel.config.js                @anggitakirana
+/metro.config.js                @anggitakirana
+/nativewind-env.d.ts            @anggitakirana
 
-# P2: asisten
-/src/app/(asisten)/             @username-p2
-/src/features/asisten/          @username-p2
+# P2 Nashwa: asisten
+/src/app/(asisten)/             @nashwanashwa
+/src/features/asisten/          @nashwanashwa
 
-# P3: design system + data
-/src/constants/tokens.js         @username-p3
-/src/constants/theme.ts         @username-p3
-/src/types/                     @username-p3
-/src/data/                      @username-p3
-/src/store/                     @username-p3
-/src/components/ui/             @username-p3
+# P3 Dehar Zaidan Dzaki Amirullah: design system + data
+/src/constants/tokens.js        @21d4n
+/src/constants/theme.ts         @21d4n
+/src/types/                     @21d4n
+/src/data/                      @21d4n
+/src/store/                     @21d4n
+/src/components/ui/             @21d4n
 
-# PM: dokumentasi & config repo
-/README.md                      @username-pm
-/AGENTS.md                      @username-pm
-/docs/                          @username-pm
-/.github/                       @username-pm
+# PM Devano Trestanto: dokumentasi & config repo
+/README.md                      @devanooo
+/AGENTS.md                      @devanooo
+/docs/                          @devanooo
+/.github/                       @devanooo
 
 # Fallback: perubahan di luar area di atas harus lewat PM
-*                               @username-pm
+*                               @devanooo
