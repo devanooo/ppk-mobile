@@ -44,4 +44,5 @@ export const Fonts = Platform.select({
 });
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
-export const MaxContentWidth = 800;
+/** Lebar maksimum konten di tablet (design.md baris 596). */
+export const MaxContentWidth = 720;
