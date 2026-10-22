@@ -10,6 +10,12 @@ export type { CardProps } from './card';
 export { EmptyState, teksKosong } from './empty-state';
 export type { EmptyStateProps } from './empty-state';
 
+export { HomeButton } from './home-button';
+export type { HomeButtonProps } from './home-button';
+
+export { ProfileMenu } from './profile-menu';
+export type { ProfileMenuProps } from './profile-menu';
+
 export { Screen } from './screen';
 export type { ScreenProps } from './screen';
 
