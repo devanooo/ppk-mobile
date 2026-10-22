@@ -14,7 +14,9 @@ import type { Presensi, Sesi, User } from '@/types';
 import {
   bukaSesi as bukaSesiLogika,
   catatPresensi as catatPresensiLogika,
-  cocokkanKredensial,
+  gantiPeran as gantiPeranLogika,
+  keluar as keluarLogika,
+  masuk as masukLogika,
   presensiSaya as presensiSayaLogika,
   rekapSesi as rekapSesiLogika,
   sesiUntuk as sesiUntukLogika,
@@ -22,6 +24,7 @@ import {
   tutupSesi as tutupSesiLogika,
   type HasilAksi,
   type HasilLogin,
+  type StateAplikasi,
 } from './session-logic';
 
 export type { HasilAksi, HasilLogin } from './session-logic';
@@ -44,106 +47,106 @@ type Store = {
   sudahPresensi: (sesiId: string, praktikanId: string) => boolean;
 };
 
+const AWAL: StateAplikasi = { user: null, sesi: sesiAwal, presensi: presensiAwal };
+
 const SessionContext = createContext<Store | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [sesi, setSesi] = useState<Sesi[]>(sesiAwal);
-  const [presensi, setPresensi] = useState<Presensi[]>(presensiAwal);
+  const [state, setState] = useState<StateAplikasi>(AWAL);
 
-  const login = useCallback((username: string, password: string): HasilLogin => {
-    const hasil = cocokkanKredensial(kredensial, users, username, password);
-    if (hasil.ok) setUser(hasil.user);
-    return hasil;
-  }, []);
+  const login = useCallback(
+    (username: string, password: string): HasilLogin => {
+      const hasil = masukLogika(state, kredensial, users, username, password);
+      if (!hasil.ok) return hasil;
 
-  const logout = useCallback(() => setUser(null), []);
+      setState(hasil.state);
+      return { ok: true, user: hasil.user };
+    },
+    [state],
+  );
+
+  const logout = useCallback(() => setState(keluarLogika), []);
+
+  const setUser = useCallback(
+    (pengguna: User | null) => setState((lama) => ({ ...lama, user: pengguna })),
+    [],
+  );
 
   const gantiPeranDemo = useCallback(
     (userId?: string): User | null => {
-      const tujuanId =
-        userId ?? (user ? (user.peran === 'asisten' ? 'mhs-1' : 'asisten-1') : null);
-      if (!tujuanId) return null;
+      const hasil = gantiPeranLogika(state, users, userId);
+      if (!hasil.ok) return null;
 
-      const tujuan = users.find((u) => u.id === tujuanId);
-      if (!tujuan) return null;
-
-      setUser(tujuan);
-      return tujuan;
+      setState(hasil.state);
+      return hasil.user;
     },
-    [user],
+    [state],
   );
 
-  const sesiById = useCallback((sesiId: string) => sesi.find((s) => s.id === sesiId), [sesi]);
+  const sesiById = useCallback((sesiId: string) => state.sesi.find((s) => s.id === sesiId), [
+    state.sesi,
+  ]);
 
   const bukaSesi = useCallback(
     (sesiId: string): HasilAksi => {
-      const target = sesi.find((s) => s.id === sesiId);
-      if (!target) return { ok: false, pesan: 'Sesi tidak ditemukan' };
-
-      const hasil = bukaSesiLogika(target, new Date().toISOString());
+      const hasil = bukaSesiLogika(state, sesiId, new Date().toISOString());
       if (!hasil.ok) return hasil;
 
-      setSesi((daftar) => daftar.map((s) => (s.id === sesiId ? hasil.sesi : s)));
+      setState(hasil.state);
       return { ok: true, pesan: hasil.pesan };
     },
-    [sesi],
+    [state],
   );
 
   const tutupSesi = useCallback(
     (sesiId: string): HasilAksi => {
-      const target = sesi.find((s) => s.id === sesiId);
-      if (!target) return { ok: false, pesan: 'Sesi tidak ditemukan' };
-
-      const hasil = tutupSesiLogika(target, new Date().toISOString());
+      const hasil = tutupSesiLogika(state, sesiId, new Date().toISOString());
       if (!hasil.ok) return hasil;
 
-      setSesi((daftar) => daftar.map((s) => (s.id === sesiId ? hasil.sesi : s)));
+      setState(hasil.state);
       return { ok: true, pesan: hasil.pesan };
     },
-    [sesi],
+    [state],
   );
 
   const catatPresensi = useCallback(
     (sesiId: string, praktikanId: string): HasilAksi => {
-      const target = sesi.find((s) => s.id === sesiId);
-      if (!target) return { ok: false, pesan: 'Sesi tidak ditemukan' };
-
-      const hasil = catatPresensiLogika(target, presensi, praktikanId, new Date().toISOString());
+      const hasil = catatPresensiLogika(state, sesiId, praktikanId, new Date().toISOString());
       if (!hasil.ok) return hasil;
 
-      setPresensi((daftar) => [...daftar, hasil.presensi]);
+      setState(hasil.state);
       return { ok: true, pesan: hasil.pesan };
     },
-    [sesi, presensi],
+    [state],
   );
 
   const presensiSaya = useCallback(
-    (praktikanId: string) => presensiSayaLogika(presensi, praktikanId),
-    [presensi],
+    (praktikanId: string) => presensiSayaLogika(state.presensi, praktikanId),
+    [state.presensi],
   );
 
   const rekapSesi = useCallback(
-    (sesiId: string) => rekapSesiLogika(sesiId, presensi, users),
-    [presensi],
+    (sesiId: string) => rekapSesiLogika(sesiId, state.presensi, users),
+    [state.presensi],
   );
 
   const sudahPresensi = useCallback(
-    (sesiId: string, praktikanId: string) => sudahPresensiLogika(presensi, sesiId, praktikanId),
-    [presensi],
+    (sesiId: string, praktikanId: string) =>
+      sudahPresensiLogika(state.presensi, sesiId, praktikanId),
+    [state.presensi],
   );
 
   const store = useMemo<Store>(
     () => ({
-      user,
-      sesi,
-      presensi,
+      user: state.user,
+      sesi: state.sesi,
+      presensi: state.presensi,
       login,
       logout,
       setUser,
       gantiPeranDemo,
       sesiById,
-      sesiUntuk: (pengguna: User) => sesiUntukLogika(sesi, pengguna),
+      sesiUntuk: (pengguna: User) => sesiUntukLogika(state.sesi, pengguna),
       bukaSesi,
       tutupSesi,
       catatPresensi,
@@ -152,11 +155,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       sudahPresensi,
     }),
     [
-      user,
-      sesi,
-      presensi,
+      state,
       login,
       logout,
+      setUser,
       gantiPeranDemo,
       sesiById,
       bukaSesi,
