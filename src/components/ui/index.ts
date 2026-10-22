@@ -1,6 +1,9 @@
 export { AppButton } from './app-button';
 export type { AppButtonProps, AppButtonVariant } from './app-button';
 
+export { Banner } from './banner';
+export type { BannerProps } from './banner';
+
 export { BottomSheet } from './bottom-sheet';
 export type { BottomSheetProps } from './bottom-sheet';
 
