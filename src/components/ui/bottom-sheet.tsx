@@ -1,6 +1,5 @@
-import { useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import {
-  AccessibilityInfo,
   Animated,
   Modal,
   Pressable,
@@ -11,19 +10,13 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Shadow, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 
 import { AppButton } from './app-button';
+import { useAnimasiMuncul } from './motion';
+import { gayaBayangan } from './shadow-style';
 
 const DURASI = 180;
-
-const GAYA_BAYANGAN = {
-  shadowColor: Shadow.color,
-  shadowOffset: { width: Shadow.offsetX, height: Shadow.offsetY },
-  shadowOpacity: Shadow.opacity,
-  shadowRadius: Shadow.radius,
-  elevation: Shadow.elevation,
-};
 
 type BottomSheetProps = {
   visible: boolean;
@@ -48,32 +41,9 @@ export function BottomSheet({
   onKonfirmasi,
   bahaya = false,
 }: BottomSheetProps) {
-  const [progres] = useState(() => new Animated.Value(0));
-  const [kurangiGerak, setKurangiGerak] = useState(false);
   const { height: tinggiLayar } = useWindowDimensions();
   const inset = useSafeAreaInsets();
-
-  useEffect(() => {
-    AccessibilityInfo.isReduceMotionEnabled().then(setKurangiGerak);
-    const langganan = AccessibilityInfo.addEventListener('reduceMotionChanged', setKurangiGerak);
-    return () => langganan.remove();
-  }, []);
-
-  useLayoutEffect(() => {
-    if (!visible) return;
-
-    if (kurangiGerak) {
-      progres.setValue(1);
-      return;
-    }
-
-    progres.setValue(0);
-    Animated.timing(progres, {
-      toValue: 1,
-      duration: DURASI,
-      useNativeDriver: true,
-    }).start();
-  }, [visible, kurangiGerak, progres]);
+  const progres = useAnimasiMuncul(visible, DURASI);
 
   const geser = progres.interpolate({
     inputRange: [0, 1],
@@ -101,7 +71,7 @@ export function BottomSheet({
           onAccessibilityEscape={onClose}
           className="max-h-sheetMax rounded-t-xl bg-backgroundElement px-four pt-twoHalf"
           style={[
-            GAYA_BAYANGAN,
+            gayaBayangan,
             {
               paddingBottom: inset.bottom + Spacing.three,
               transform: [{ translateY: geser }],
