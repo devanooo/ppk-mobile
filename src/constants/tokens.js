@@ -53,7 +53,7 @@ const darkColors = {
   warningSurface: '#2B2213',
 };
 
-/** Skala spacing (pt). 4-based. */
+/** Skala spacing (pt). 4-based. `touch` = tinggi minimum target sentuh. */
 const spacing = {
   half: 2,
   one: 4,
@@ -63,6 +63,7 @@ const spacing = {
   four: 24,
   five: 32,
   six: 64,
+  touch: 44,
 };
 
 /** Radius (pt). Kartu 16, input 12, sheet 24, tombol dan badge pill. */
