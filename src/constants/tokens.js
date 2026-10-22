@@ -55,7 +55,8 @@ const darkColors = {
 
 /**
  * Skala spacing (pt). 4-based. `touch` = tinggi minimum target sentuh,
- * `sheetMax` = tinggi maksimum bottom sheet (relatif terhadap layar).
+ * `sheetMax` = tinggi maksimum bottom sheet (relatif terhadap layar),
+ * `menuWidth` = lebar dropdown profil.
  */
 const spacing = {
   half: 2,
@@ -68,6 +69,7 @@ const spacing = {
   six: 64,
   touch: 44,
   sheetMax: '85%',
+  menuWidth: 280,
 };
 
 /** Satu-satunya bayangan: dropdown profil dan bottom sheet. */
