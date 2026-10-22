@@ -18,38 +18,38 @@
  * Nama variabel = nama token (dipakai lagi oleh `theme.ts`).
  */
 const lightColors = {
-  text: '#000000',
-  textSecondary: '#60646C',
-  textInverse: '#FFFFFF',
-  background: '#FFFFFF',
-  backgroundElement: '#F0F0F3',
-  backgroundSelected: '#E0E1E6',
-  border: '#D9DBE0',
-  primary: '#1470C8',
-  primaryText: '#FFFFFF',
-  success: '#147D4F',
+  text: '#1d1d1f',
+  textSecondary: '#6e6e73',
+  textInverse: '#ffffff',
+  background: '#f5f5f7',
+  backgroundElement: '#ffffff',
+  backgroundSelected: '#e8e8ed',
+  border: '#d2d2d7',
+  primary: '#0066cc',
+  primaryText: '#ffffff',
+  success: '#248a3d',
   successSurface: '#E4F5EC',
-  danger: '#B42318',
+  danger: '#d70015',
   dangerSurface: '#FDECEA',
-  warning: '#8A5A00',
+  warning: '#b25000',
   warningSurface: '#FFF4E0',
 };
 
 const darkColors = {
-  text: '#FFFFFF',
-  textSecondary: '#B0B4BA',
-  textInverse: '#000000',
+  text: '#f5f5f7',
+  textSecondary: '#cccccc',
+  textInverse: '#1d1d1f',
   background: '#000000',
-  backgroundElement: '#212225',
-  backgroundSelected: '#2E3135',
-  border: '#3A3D42',
-  primary: '#5CA8F5',
+  backgroundElement: '#272729',
+  backgroundSelected: '#2a2a2c',
+  border: '#3a3a3c',
+  primary: '#2997ff',
   primaryText: '#00131F',
-  success: '#5FD39B',
+  success: '#30d158',
   successSurface: '#10291E',
-  danger: '#FF8B80',
+  danger: '#ff453a',
   dangerSurface: '#2E1715',
-  warning: '#F0C070',
+  warning: '#ff9f0a',
   warningSurface: '#2B2213',
 };
 
@@ -58,28 +58,30 @@ const spacing = {
   half: 2,
   one: 4,
   two: 8,
+  twoHalf: 12,
   three: 16,
   four: 24,
   five: 32,
   six: 64,
 };
 
-/** Radius (pt). */
+/** Radius (pt). Kartu 16, input 12, sheet 24, tombol dan badge pill. */
 const radius = {
   sm: 8,
   md: 12,
   lg: 16,
+  xl: 24,
   pill: 999,
 };
 
 /** Skala tipografi. `lineHeight` selalu eksplisit. */
 const fontSize = {
-  caption: [12, 16],
-  small: [14, 20],
-  body: [16, 24],
-  subtitle: [20, 28],
+  caption: [13, 18],
+  small: [15, 20],
+  body: [17, 24],
+  subtitle: [22, 26],
   title: [28, 36],
-  display: [34, 42],
+  display: [34, 40],
 };
 
 const fontWeight = {
