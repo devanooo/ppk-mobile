@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { Card, EmptyState, HomeButton, Screen, StatusBadge } from '@/components/ui';
@@ -7,15 +8,26 @@ import type { Sesi } from '@/types';
 
 import { labelJadwal, rentangJam } from './format-sesi';
 
-type DetailSesiScreenProps = { sesi: Sesi | null; namaAsisten?: string; onKembali: () => void };
+type DetailSesiScreenProps = {
+  sesi: Sesi | null;
+  namaAsisten?: string;
+  onKembali: () => void;
+  profil?: ReactNode;
+};
 
-export function DetailSesiScreen({ sesi, namaAsisten, onKembali }: DetailSesiScreenProps) {
+export function DetailSesiScreen({
+  sesi,
+  namaAsisten,
+  onKembali,
+  profil,
+}: DetailSesiScreenProps) {
   return (
     <Screen padded={false}>
       <ScrollView contentContainerClassName="pb-five" showsVerticalScrollIndicator={false}>
         <View className="w-full self-center px-three" style={{ maxWidth: MaxContentWidth }}>
-          <View className="pt-two">
+          <View className="flex-row items-center justify-between gap-two pt-two">
             <HomeButton onPress={onKembali} />
+            {profil}
           </View>
 
           {sesi ? (

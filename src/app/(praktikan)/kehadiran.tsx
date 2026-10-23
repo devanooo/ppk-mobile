@@ -1,4 +1,5 @@
 import { KehadiranScreen, type RiwayatKehadiran } from '@/features/praktikan/kehadiran-screen';
+import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
 import { useSession } from '@/store/session-store';
 
 export default function KehadiranPraktikanRoute() {
@@ -16,5 +17,5 @@ export default function KehadiranPraktikanRoute() {
     })
     .sort((a, b) => b.waktu.localeCompare(a.waktu));
 
-  return <KehadiranScreen riwayat={riwayat} />;
+  return <KehadiranScreen profil={<MenuProfilPraktikan />} riwayat={riwayat} />;
 }

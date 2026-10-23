@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { FlatList, Text, View } from 'react-native';
 
 import { Card, EmptyState, Screen, teksKosong } from '@/components/ui';
@@ -9,9 +10,9 @@ import { labelJadwal, rentangJam } from './format-sesi';
 
 type RiwayatKehadiran = { sesi: Sesi; waktu: string };
 
-type KehadiranScreenProps = { riwayat: RiwayatKehadiran[] };
+type KehadiranScreenProps = { riwayat: RiwayatKehadiran[]; profil?: ReactNode };
 
-export function KehadiranScreen({ riwayat }: KehadiranScreenProps) {
+export function KehadiranScreen({ riwayat, profil }: KehadiranScreenProps) {
   return (
     <Screen padded={false}>
       <View className="w-full flex-1 self-center" style={{ maxWidth: MaxContentWidth }}>
@@ -21,11 +22,14 @@ export function KehadiranScreen({ riwayat }: KehadiranScreenProps) {
           contentContainerClassName="gap-twoHalf px-three pb-five"
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            <View className="pt-three">
-              <Text accessibilityRole="header" className="text-title font-semibold text-text">
-                Kehadiran
-              </Text>
-              <Text className="mt-one text-small text-textSecondary">Catatan presensi kamu.</Text>
+            <View className="flex-row items-start justify-between gap-three pt-three">
+              <View className="flex-1">
+                <Text accessibilityRole="header" className="text-title font-semibold text-text">
+                  Kehadiran
+                </Text>
+                <Text className="mt-one text-small text-textSecondary">Catatan presensi kamu.</Text>
+              </View>
+              {profil}
             </View>
           }
           ListEmptyComponent={
