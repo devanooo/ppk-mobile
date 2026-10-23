@@ -1,4 +1,5 @@
 import { SymbolView } from 'expo-symbols';
+import type { ReactNode } from 'react';
 import { FlatList, Text, View } from 'react-native';
 
 import { Card, EmptyState, Screen, StatusBadge, teksKosong } from '@/components/ui';
@@ -8,9 +9,13 @@ import type { Sesi } from '@/types';
 
 import { labelJadwal, rentangJam, urutkanSesi } from './format-sesi';
 
-type JadwalScreenProps = { sesi: Sesi[]; onBukaSesi: (sesiId: string) => void };
+type JadwalScreenProps = {
+  sesi: Sesi[];
+  onBukaSesi: (sesiId: string) => void;
+  profil?: ReactNode;
+};
 
-export function JadwalScreen({ sesi, onBukaSesi }: JadwalScreenProps) {
+export function JadwalScreen({ sesi, onBukaSesi, profil }: JadwalScreenProps) {
   const theme = useTheme();
   const jadwal = urutkanSesi(sesi);
 
@@ -22,7 +27,7 @@ export function JadwalScreen({ sesi, onBukaSesi }: JadwalScreenProps) {
           keyExtractor={(item) => item.id}
           contentContainerClassName="gap-twoHalf px-three pb-five"
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={<JudulJadwal jumlah={jadwal.length} />}
+          ListHeaderComponent={<JudulJadwal jumlah={jadwal.length} profil={profil} />}
           ListEmptyComponent={
             <EmptyState
               ikon={
@@ -45,15 +50,18 @@ export function JadwalScreen({ sesi, onBukaSesi }: JadwalScreenProps) {
   );
 }
 
-function JudulJadwal({ jumlah }: { jumlah: number }) {
+function JudulJadwal({ jumlah, profil }: { jumlah: number; profil?: ReactNode }) {
   return (
-    <View className="pt-three">
-      <Text accessibilityRole="header" className="text-title font-semibold text-text">
-        Jadwal
-      </Text>
-      <Text className="mt-one text-small text-textSecondary">
-        {jumlah > 0 ? `${jumlah} sesi praktikum` : 'Sesi praktikum yang kamu ikuti.'}
-      </Text>
+    <View className="flex-row items-start justify-between gap-three pt-three">
+      <View className="flex-1">
+        <Text accessibilityRole="header" className="text-title font-semibold text-text">
+          Jadwal
+        </Text>
+        <Text className="mt-one text-small text-textSecondary">
+          {jumlah > 0 ? `${jumlah} sesi praktikum` : 'Sesi praktikum yang kamu ikuti.'}
+        </Text>
+      </View>
+      {profil}
     </View>
   );
 }

@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 
 import { users } from '@/data/dummy';
 import { DetailSesiScreen } from '@/features/praktikan/detail-sesi-screen';
+import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
 import { useSession } from '@/store/session-store';
 
 export default function DetailSesiPraktikanRoute() {
@@ -22,6 +23,11 @@ export default function DetailSesiPraktikanRoute() {
   }
 
   return (
-    <DetailSesiScreen namaAsisten={asisten?.nama} onKembali={kembali} sesi={sesi ?? null} />
+    <DetailSesiScreen
+      namaAsisten={asisten?.nama}
+      onKembali={kembali}
+      profil={<MenuProfilPraktikan />}
+      sesi={sesi ?? null}
+    />
   );
 }
