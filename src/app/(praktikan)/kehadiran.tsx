@@ -17,5 +17,11 @@ export default function KehadiranPraktikanRoute() {
     })
     .sort((a, b) => b.waktu.localeCompare(a.waktu));
 
-  return <KehadiranScreen profil={<MenuProfilPraktikan />} riwayat={riwayat} />;
+  return (
+    <KehadiranScreen
+      namaPraktikan={user.nama}
+      profil={<MenuProfilPraktikan />}
+      riwayat={riwayat}
+    />
+  );
 }

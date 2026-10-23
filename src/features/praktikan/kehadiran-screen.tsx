@@ -10,9 +10,13 @@ import { labelJadwal, rentangJam } from './format-sesi';
 
 type RiwayatKehadiran = { sesi: Sesi; waktu: string };
 
-type KehadiranScreenProps = { riwayat: RiwayatKehadiran[]; profil?: ReactNode };
+type KehadiranScreenProps = {
+  riwayat: RiwayatKehadiran[];
+  namaPraktikan?: string;
+  profil?: ReactNode;
+};
 
-export function KehadiranScreen({ riwayat, profil }: KehadiranScreenProps) {
+export function KehadiranScreen({ riwayat, namaPraktikan, profil }: KehadiranScreenProps) {
   return (
     <Screen padded={false}>
       <View className="w-full flex-1 self-center" style={{ maxWidth: MaxContentWidth }}>
@@ -22,15 +26,11 @@ export function KehadiranScreen({ riwayat, profil }: KehadiranScreenProps) {
           contentContainerClassName="gap-twoHalf px-three pb-five"
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            <View className="flex-row items-start justify-between gap-three pt-three">
-              <View className="flex-1">
-                <Text accessibilityRole="header" className="text-title font-semibold text-text">
-                  Kehadiran
-                </Text>
-                <Text className="mt-one text-small text-textSecondary">Catatan presensi kamu.</Text>
-              </View>
-              {profil}
-            </View>
+            <JudulKehadiran
+              jumlah={riwayat.length}
+              namaPraktikan={namaPraktikan}
+              profil={profil}
+            />
           }
           ListEmptyComponent={
             <EmptyState
@@ -38,20 +38,59 @@ export function KehadiranScreen({ riwayat, profil }: KehadiranScreenProps) {
               deskripsi={teksKosong.riwayat.deskripsi}
             />
           }
-          renderItem={({ item }) => (
-            <Card>
-              <Text className="text-body font-semibold text-text">{item.sesi.namaPraktikum}</Text>
-              <Text className="mt-one text-small text-textSecondary">
-                {labelJadwal(item.sesi)} · {rentangJam(item.sesi)}
-              </Text>
-              <Text className="mt-two text-small text-text">
-                Hadir pukul {formatJam(item.waktu)}
-              </Text>
-            </Card>
-          )}
+          renderItem={({ item }) => <KartuKehadiran item={item} />}
         />
       </View>
     </Screen>
+  );
+}
+
+function JudulKehadiran({
+  jumlah,
+  namaPraktikan,
+  profil,
+}: {
+  jumlah: number;
+  namaPraktikan?: string;
+  profil?: ReactNode;
+}) {
+  return (
+    <View className="flex-row items-start justify-between gap-three pt-three">
+      <View className="flex-1">
+        {namaPraktikan ? (
+          <Text className="text-small text-textSecondary">Halo, {namaPraktikan}</Text>
+        ) : null}
+        <Text
+          accessibilityRole="header"
+          className={`text-title font-semibold text-text ${namaPraktikan ? 'mt-one' : ''}`}
+        >
+          Kehadiran
+        </Text>
+        <Text className="mt-one text-small text-textSecondary">
+          {jumlah > 0 ? `${jumlah} catatan kehadiran` : 'Catatan presensi kamu.'}
+        </Text>
+      </View>
+      {profil}
+    </View>
+  );
+}
+
+function KartuKehadiran({ item }: { item: RiwayatKehadiran }) {
+  return (
+    <Card>
+      <Text className="text-subtitle font-semibold text-text">{item.sesi.namaPraktikum}</Text>
+
+      <View className="mt-three flex-row flex-wrap items-center justify-between gap-two">
+        <Text className="text-body text-text">{labelJadwal(item.sesi)}</Text>
+        <Text className="ml-auto shrink-0 text-body font-semibold text-text">
+          {rentangJam(item.sesi)}
+        </Text>
+      </View>
+
+      <Text className="mt-one text-small text-textSecondary">
+        Hadir pukul {formatJam(item.waktu)}
+      </Text>
+    </Card>
   );
 }
 
