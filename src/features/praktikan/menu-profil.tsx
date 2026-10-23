@@ -14,6 +14,9 @@ export function MenuProfilPraktikan() {
 
   if (!user) return null;
 
+  const labelGantiPeran =
+    user.peran === 'praktikan' ? 'Beralih ke Asisten (Demo)' : 'Beralih ke Praktikan (Demo)';
+
   function bukaLembar(nilai: Lembar) {
     setTimeout(() => setLembar(nilai), 0);
   }
@@ -27,6 +30,7 @@ export function MenuProfilPraktikan() {
     <>
       <ProfileMenu
         user={user}
+        labelGantiPeran={labelGantiPeran}
         onHome={() => router.replace(berandaUntuk(user.peran))}
         onLogout={() => bukaLembar('keluar')}
         onSwitchRole={() => bukaLembar('asisten')}
