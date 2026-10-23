@@ -8,10 +8,15 @@ import { useSession } from '@/store/session-store';
 export default function DetailSesiPraktikanRoute() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { sesiById } = useSession();
+  const { catatPresensi, presensiSaya, sesiById, user } = useSession();
+
+  if (!user) {
+    return null;
+  }
 
   const sesi = sesiById(id);
   const asisten = sesi ? users.find((pengguna) => pengguna.id === sesi.asistenId) : undefined;
+  const waktuHadir = presensiSaya(user.id).find((item) => item.sesiId === id)?.waktu;
 
   function kembali() {
     if (router.canGoBack()) {
@@ -25,9 +30,12 @@ export default function DetailSesiPraktikanRoute() {
   return (
     <DetailSesiScreen
       namaAsisten={asisten?.nama}
+      onCatatKehadiran={() => catatPresensi(id, user.id)}
       onKembali={kembali}
+      praktikan={user}
       profil={<MenuProfilPraktikan />}
       sesi={sesi ?? null}
+      waktuHadir={waktuHadir}
     />
   );
 }
