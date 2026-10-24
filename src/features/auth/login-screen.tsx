@@ -25,6 +25,14 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
   const [pesanGagal, setPesanGagal] = useState<string | null>(null);
 
   const bisaMasuk = username.trim().length > 0 && password.length > 0;
+  const alasanTombol =
+    username.trim().length === 0 && password.length === 0
+      ? 'Isi username dan kata sandi'
+      : username.trim().length === 0
+        ? 'Isi username'
+        : password.length === 0
+          ? 'Isi kata sandi'
+          : undefined;
 
   function ubahUsername(nilai: string) {
     setUsername(nilai);
@@ -56,6 +64,7 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
       >
         <ScrollView
           contentContainerClassName="grow px-three pb-five"
+          keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
@@ -64,9 +73,10 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
               accessibilityLabel="Kembali ke halaman awal"
               accessibilityRole="button"
               onPress={onKembali}
-              className="-ml-two min-h-touch justify-center self-start px-two active:opacity-60"
+              className="-ml-one min-h-touch flex-row items-center self-start pl-one pr-two active:scale-95"
             >
-              <Text className="text-body text-primary">Kembali</Text>
+              <Text className="text-body text-primary">‹</Text>
+              <Text className="ml-one text-body text-primary">Kembali</Text>
             </Pressable>
 
             <View className="mt-four">
@@ -74,7 +84,7 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
                 Masuk
               </Text>
               <Text className="mt-two text-body text-textSecondary">
-                Masuk menggunakan akun praktikum kamu.
+                Masuk dengan akun praktikan atau asisten laboratorium.
               </Text>
             </View>
 
@@ -92,6 +102,7 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
                 onChangeText={ubahPassword}
                 placeholder="Masukkan kata sandi"
                 secureTextEntry
+                showPasswordToggle
                 value={password}
               />
             </View>
@@ -102,7 +113,7 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
               accessibilityLabel="Masuk"
               className="mt-four"
               disabled={!bisaMasuk}
-              disabledReason="Isi username dan kata sandi"
+              disabledReason={alasanTombol}
               label="Masuk"
               onPress={kirim}
             />
