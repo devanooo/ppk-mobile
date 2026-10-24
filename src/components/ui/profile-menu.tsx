@@ -19,9 +19,16 @@ type ProfileMenuProps = {
   onHome: () => void;
   onSwitchRole: () => void;
   onLogout: () => void;
+  labelGantiPeran?: string;
 };
 
-export function ProfileMenu({ user, onHome, onSwitchRole, onLogout }: ProfileMenuProps) {
+export function ProfileMenu({
+  user,
+  onHome,
+  onSwitchRole,
+  onLogout,
+  labelGantiPeran = 'Ganti peran (demo)',
+}: ProfileMenuProps) {
   const [terbuka, setTerbuka] = useState(false);
   const [posisi, setPosisi] = useState({ atas: 0, kanan: 0 });
   const pemicu = useRef<ComponentRef<typeof Pressable>>(null);
@@ -85,7 +92,7 @@ export function ProfileMenu({ user, onHome, onSwitchRole, onLogout }: ProfileMen
           <View className="my-two h-half bg-border" />
 
           <ItemMenu label="Beranda" onPress={() => tutupLalu(onHome)} />
-          <ItemMenu label="Ganti peran (demo)" onPress={() => tutupLalu(onSwitchRole)} />
+          <ItemMenu label={labelGantiPeran} onPress={() => tutupLalu(onSwitchRole)} />
           <ItemMenu label="Keluar akun" onPress={() => tutupLalu(onLogout)} bahaya />
         </Animated.View>
       </Modal>
@@ -107,7 +114,7 @@ function ItemMenu({
       accessibilityLabel={label}
       accessibilityRole="button"
       onPress={onPress}
-      className="min-h-touch justify-center rounded-sm px-two active:scale-95"
+      className="min-h-touch justify-center rounded-sm px-two py-two active:scale-95"
     >
       <Text className={`text-body ${bahaya ? 'text-danger' : 'text-text'}`}>{label}</Text>
     </Pressable>

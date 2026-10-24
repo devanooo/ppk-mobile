@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols';
 import { useState, type ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
@@ -12,6 +13,7 @@ import {
   StatusBadge,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { formatJam, type HasilAksi } from '@/store/session-logic';
 import type { Sesi, User } from '@/types';
 
@@ -91,9 +93,7 @@ function DetailSesi({
       ? 'Sesi belum dibuka'
       : sesi.status === 'ditutup'
         ? 'Sesi sudah ditutup'
-        : sudahHadir
-          ? 'Presensi sudah tercatat'
-          : undefined;
+        : undefined;
 
   function catatKehadiran() {
     const hasil = onCatatKehadiran();
@@ -103,30 +103,23 @@ function DetailSesi({
 
   return (
     <View className="pt-three">
-      <View className="flex-row items-start justify-between gap-two">
-        <Text
-          accessibilityRole="header"
-          className="flex-1 text-title font-semibold text-text"
-        >
-          {sesi.namaPraktikum}
-        </Text>
-        <StatusBadge status={sesi.status} />
-      </View>
+      <Text accessibilityRole="header" className="text-title font-semibold text-text">
+        {sesi.namaPraktikum}
+      </Text>
 
-      <Text className="mt-one text-small text-textSecondary">Kelas {sesi.kelas} · {sesi.lab}</Text>
+      <StatusBadge className="mt-two" status={sesi.status} />
 
       <Card className="mt-four">
         <BarisInfo label="Jadwal" nilai={labelJadwal(sesi)} />
         <BarisInfo garis label="Waktu" nilai={rentangJam(sesi)} />
+        <BarisInfo garis label="Kelas" nilai={sesi.kelas} />
+        <BarisInfo garis label="Lab" nilai={sesi.lab} />
         {namaAsisten ? <BarisInfo garis label="Asisten" nilai={namaAsisten} /> : null}
         {sesi.dibukaPada ? (
           <BarisInfo garis label="Dibuka" nilai={`pukul ${formatJam(sesi.dibukaPada)}`} />
         ) : null}
         {sesi.ditutupPada ? (
           <BarisInfo garis label="Ditutup" nilai={`pukul ${formatJam(sesi.ditutupPada)}`} />
-        ) : null}
-        {waktuHadir ? (
-          <BarisInfo garis label="Kehadiran" nilai={`pukul ${formatJam(waktuHadir)}`} />
         ) : null}
       </Card>
 
@@ -140,17 +133,7 @@ function DetailSesi({
         ) : null}
 
         {sudahHadir ? (
-          <View className="items-center">
-            <View className="min-h-touch flex-row items-center justify-center gap-two rounded-pill border border-success bg-successSurface px-four">
-              <View className="h-two w-two rounded-pill bg-success" />
-              <Text className="text-body font-semibold text-text">Sudah hadir</Text>
-            </View>
-            {alasanNonaktif ? (
-              <Text className="mt-two text-center text-caption text-textSecondary">
-                {alasanNonaktif}
-              </Text>
-            ) : null}
-          </View>
+          <StatusHadir waktu={waktuHadir} />
         ) : (
           <AppButton
             disabled={!bisaPresensi}
@@ -180,6 +163,31 @@ function DetailSesi({
           </Text>
         </View>
       </BottomSheet>
+    </View>
+  );
+}
+
+function StatusHadir({ waktu }: { waktu?: string }) {
+  const theme = useTheme();
+  const keterangan = waktu
+    ? `Presensi tercatat pukul ${formatJam(waktu)}.`
+    : 'Presensi tercatat untuk sesi ini.';
+
+  return (
+    <View
+      accessible
+      accessibilityLabel={`Sudah hadir. ${keterangan}`}
+      className="min-h-touch flex-row items-center gap-two rounded-md border border-success bg-successSurface px-three py-two"
+    >
+      <SymbolView
+        name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
+        size={20}
+        tintColor={theme.success}
+      />
+      <View className="flex-1">
+        <Text className="text-body font-semibold text-text">Sudah hadir</Text>
+        <Text className="mt-half text-small text-text">{keterangan}</Text>
+      </View>
     </View>
   );
 }
