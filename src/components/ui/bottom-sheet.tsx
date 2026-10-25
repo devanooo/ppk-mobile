@@ -65,7 +65,7 @@ export function BottomSheet({
         <Pressable
           accessibilityLabel="Tutup"
           accessibilityRole="button"
-          className="absolute inset-0"
+          className="absolute inset-0 bg-overlay/40"
           onPress={onClose}
         />
 
