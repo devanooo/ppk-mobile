@@ -73,7 +73,7 @@ export function ProfileMenu({
         <Pressable
           accessibilityLabel="Tutup menu profil"
           accessibilityRole="button"
-          className="absolute inset-0"
+          className="absolute inset-0 bg-overlay/40"
           onPress={() => setTerbuka(false)}
         />
 
