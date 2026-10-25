@@ -2,7 +2,14 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { Card, EmptyState, ProfileMenu, Screen, StatusBadge, teksKosong } from '@/components/ui';
+import {
+  Card,
+  EmptyState,
+  Screen,
+  StatusBadge,
+  teksKosong,
+} from '@/components/ui';
+import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useSession } from '@/store/session-store';
 import type { Sesi } from '@/types';
 
@@ -83,7 +90,7 @@ function KartuJadwal({ sesi }: { sesi: Sesi }) {
 }
 
 export default function JadwalAsistenScreen() {
-  const { user, sesiUntuk, gantiPeranDemo, logout } = useSession();
+  const { user, sesiUntuk } = useSession();
 
   const jadwal = useMemo(() => {
     if (!user || user.peran !== 'asisten') {
@@ -97,19 +104,6 @@ export default function JadwalAsistenScreen() {
       return waktuA.localeCompare(waktuB);
     });
   }, [user, sesiUntuk]);
-
-  function gantiPeran() {
-    const penggunaBaru = gantiPeranDemo();
-
-    if (penggunaBaru) {
-      router.replace('/');
-    }
-  }
-
-  function keluarAkun() {
-    logout();
-    router.replace('/');
-  }
 
   return (
     <Screen>
@@ -131,14 +125,7 @@ export default function JadwalAsistenScreen() {
             </Text>
           </View>
 
-          {user ? (
-            <ProfileMenu
-              user={user}
-              onHome={() => router.replace('/')}
-              onSwitchRole={gantiPeran}
-              onLogout={keluarAkun}
-            />
-          ) : null}
+          {user ? <MenuProfilAsisten /> : null}
         </View>
 
         {user?.peran !== 'asisten' ? (
