@@ -2,9 +2,29 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { Card, EmptyState, Screen } from '@/components/ui';
+import { Card, EmptyState, Screen, StatusBadge } from '@/components/ui';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useSession } from '@/store/session-store';
+
+function formatTanggal(tanggal: string) {
+  const [tahun, bulan, hari] = tanggal.split('-').map(Number);
+
+  const namaBulan = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'Mei',
+    'Jun',
+    'Jul',
+    'Agu',
+    'Sep',
+    'Okt',
+    'Nov',
+    'Des',
+  ];
+  return `${hari} ${namaBulan[bulan - 1]} ${tahun}`;
+}
 
 export default function RekapAsistenScreen() {
   const { user, sesiUntuk, rekapSesi } = useSession();
@@ -180,81 +200,94 @@ function IsiRekap({
       </Card>
 
       <Text className="mb-three text-subtitle font-semibold text-text">
-        Sesi Selesai
+        Rekap Per Sesi
       </Text>
 
-      {sesiSelesai.length === 0 ? (
-        <Card>
-          <EmptyState
-            judul="Belum ada sesi selesai"
-            deskripsi="Rekap kehadiran akan muncul setelah sesi praktikum ditutup."
-          />
-        </Card>
-      ) : (
-        sesiSelesai.map((item) => {
-          const jumlahHadir = rekapSesi(item.id).length;
+      {daftarSesi.map((item) => {
+        const jumlahHadir = rekapSesi(item.id).length;
+        const sesiSudahDibuka = item.status !== 'belum-dibuka';
 
-          const persentase =
-            item.pesertaIds.length > 0
-              ? Math.round(
-                  (jumlahHadir / item.pesertaIds.length) * 100,
-                )
-              : 0;
+        const persentase =
+          sesiSudahDibuka && item.pesertaIds.length > 0
+            ? Math.round(
+                (jumlahHadir / item.pesertaIds.length) * 100,
+              )
+            : 0;
 
-          return (
-            <Card
-              key={item.id}
-              className="mb-three"
-              onPress={() =>
-                router.push({
-                  pathname: '/(asisten)/jadwal/[id]',
-                  params: {
-                    id: item.id,
-                    from: 'rekap',
-                  },
-                })
-              }
-              accessibilityLabel={`Lihat detail sesi ${item.namaPraktikum}`}
-            >
-              <Text className="text-subtitle font-semibold text-text">
-                {item.namaPraktikum}
-              </Text>
-
-              <Text className="mt-one text-small text-textSecondary">
-                Kelas {item.kelas} · {item.lab}
-              </Text>
-
-              <View className="mt-three border-t border-border pt-three">
-                <Text className="text-body text-text">
-                  {item.hari}, {item.tanggal}
+        return (
+          <Card
+            key={item.id}
+            className="mb-three"
+            onPress={() =>
+              router.push({
+                pathname: '/(asisten)/jadwal/[id]',
+                params: {
+                  id: item.id,
+                  from: 'rekap',
+                },
+              })
+            }
+            accessibilityLabel={`Lihat detail sesi ${item.namaPraktikum}`}
+          >
+            <View className="flex-row items-start justify-between gap-two">
+              <View className="flex-1">
+                <Text className="text-subtitle font-semibold text-text">
+                  {item.namaPraktikum}
                 </Text>
 
                 <Text className="mt-one text-small text-textSecondary">
-                  {item.jamMulai}–{item.jamSelesai}
-                </Text>
-
-                <View className="mt-three flex-row items-center justify-between">
-                  <Text className="text-body text-textSecondary">
-                    Kehadiran
-                  </Text>
-
-                  <Text className="text-body font-semibold text-text">
-                    {jumlahHadir} dari {item.pesertaIds.length} peserta
-                  </Text>
-                </View>
-
-                <Text className="mt-one text-small text-textSecondary">
-                  Persentase kehadiran: {persentase}%
+                  Kelas {item.kelas} · {item.lab}
                 </Text>
               </View>
 
-              <Text className="mt-three text-small font-medium text-text">
-                Lihat detail sesi →
+              <StatusBadge status={item.status} />
+            </View>
+
+            <View className="mt-three border-t border-border pt-three">
+              <Text className="text-body text-text">
+                {item.hari}, {formatTanggal(item.tanggal)}
               </Text>
-            </Card>
-          );
-        })
-      )}
+
+              <Text className="mt-one text-small text-textSecondary">
+                {item.jamMulai}–{item.jamSelesai}
+              </Text>
+
+              {sesiSudahDibuka ? (
+                <>
+                  <View className="mt-three flex-row items-center justify-between">
+                    <Text className="text-body text-textSecondary">
+                      Kehadiran
+                    </Text>
+
+                    <Text className="text-body font-semibold text-text">
+                      {jumlahHadir} dari {item.pesertaIds.length} peserta
+                    </Text>
+                  </View>
+
+                  <Text className="mt-one text-small text-textSecondary">
+                    Persentase kehadiran: {persentase}%
+                  </Text>
+
+                  <View className="mt-two h-two overflow-hidden rounded-pill bg-backgroundSelected">
+                    <View
+                      className="h-full rounded-pill bg-primary"
+                      style={{ width: `${persentase}%` }}
+                    />
+                  </View>
+                </>
+              ) : (
+                <Text className="mt-three text-small text-textSecondary">
+                  Sesi belum dibuka. Kehadiran akan tampil setelah sesi dibuka.
+                </Text>
+              )}
+            </View>
+
+            <Text className="mt-three text-small font-medium text-text">
+              Lihat detail sesi →
+            </Text>
+          </Card>
+        );
+      })}
     </>
   );
 }
