@@ -3,28 +3,14 @@ import { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import { Card, EmptyState, Screen, StatusBadge } from '@/components/ui';
+import { MaxContentWidth } from '@/constants/theme';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
+import {
+  formatTanggal,
+  rentangJam,
+  urutkanSesi,
+} from '@/features/praktikan/format-sesi';
 import { useSession } from '@/store/session-store';
-
-function formatTanggal(tanggal: string) {
-  const [tahun, bulan, hari] = tanggal.split('-').map(Number);
-
-  const namaBulan = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'Mei',
-    'Jun',
-    'Jul',
-    'Agu',
-    'Sep',
-    'Okt',
-    'Nov',
-    'Des',
-  ];
-  return `${hari} ${namaBulan[bulan - 1]} ${tahun}`;
-}
 
 export default function RekapAsistenScreen() {
   const { user, sesiUntuk, rekapSesi } = useSession();
@@ -34,12 +20,7 @@ export default function RekapAsistenScreen() {
       return [];
     }
 
-    return [...sesiUntuk(user)].sort((a, b) => {
-      const waktuA = `${a.tanggal}T${a.jamMulai}`;
-      const waktuB = `${b.tanggal}T${b.jamMulai}`;
-
-      return waktuA.localeCompare(waktuB);
-    });
+    return urutkanSesi(sesiUntuk(user));
   }, [user, sesiUntuk]);
 
   if (!user || user.peran !== 'asisten') {
@@ -59,35 +40,37 @@ export default function RekapAsistenScreen() {
     <Screen>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 16,
-          paddingBottom: 32,
-        }}
+        contentContainerClassName="pt-three pb-five"
       >
-        <View className="mb-four flex-row items-start justify-between gap-three">
-          <View className="flex-1">
-            <Text className="text-title font-bold text-text">
-              Rekap Sesi
-            </Text>
+        <View
+          className="w-full self-center"
+          style={{ maxWidth: MaxContentWidth }}
+        >
+          <View className="mb-four flex-row items-start justify-between gap-three">
+            <View className="flex-1">
+              <Text className="text-title font-semibold text-text">
+                Rekap Sesi
+              </Text>
 
-            <Text className="mt-one text-body text-textSecondary">
-              Ringkasan pelaksanaan praktikum dan kehadiran peserta.
-            </Text>
+              <Text className="mt-one text-body text-textSecondary">
+                Ringkasan pelaksanaan praktikum dan kehadiran peserta.
+              </Text>
+            </View>
+
+            <MenuProfilAsisten />
           </View>
 
-          <MenuProfilAsisten />
+          {daftarSesi.length === 0 ? (
+            <Card>
+              <EmptyState
+                judul="Belum ada data rekap"
+                deskripsi="Data rekap sesi akan muncul di sini."
+              />
+            </Card>
+          ) : (
+            <IsiRekap daftarSesi={daftarSesi} rekapSesi={rekapSesi} />
+          )}
         </View>
-
-        {daftarSesi.length === 0 ? (
-          <Card>
-            <EmptyState
-              judul="Belum ada data rekap"
-              deskripsi="Data rekap sesi akan muncul di sini."
-            />
-          </Card>
-        ) : (
-          <IsiRekap daftarSesi={daftarSesi} rekapSesi={rekapSesi} />
-        )}
       </ScrollView>
     </Screen>
   );
@@ -148,7 +131,7 @@ function IsiRekap({
                 {item.label}
               </Text>
 
-              <Text className="mt-two text-title font-bold text-text">
+              <Text className="mt-two text-title font-semibold text-text">
                 {item.nilai}
               </Text>
             </Card>
@@ -186,7 +169,7 @@ function IsiRekap({
             Persentase kehadiran
           </Text>
 
-          <Text className="mt-one text-title font-bold text-text">
+          <Text className="mt-one text-title font-semibold text-text">
             {persentaseKehadiran}%
           </Text>
 
@@ -249,7 +232,7 @@ function IsiRekap({
               </Text>
 
               <Text className="mt-one text-small text-textSecondary">
-                {item.jamMulai}–{item.jamSelesai}
+                {rentangJam(item)}
               </Text>
 
               {sesiSudahDibuka ? (
@@ -281,10 +264,6 @@ function IsiRekap({
                 </Text>
               )}
             </View>
-
-            <Text className="mt-three text-small font-medium text-text">
-              Lihat detail sesi →
-            </Text>
           </Card>
         );
       })}

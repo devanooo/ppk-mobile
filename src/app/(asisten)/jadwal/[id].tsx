@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 
 import {
   AppButton,
@@ -8,287 +8,226 @@ import {
   BottomSheet,
   Card,
   EmptyState,
+  HomeButton,
   Screen,
   StatusBadge,
 } from '@/components/ui';
+import { MaxContentWidth } from '@/constants/theme';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
+import { labelJadwal, rentangJam } from '@/features/praktikan/format-sesi';
+import { formatJam } from '@/store/session-logic';
 import { useSession } from '@/store/session-store';
 
 type AksiSesi = 'buka' | 'tutup';
 
-function formatTanggal(tanggal: string) {
-  const bagian = tanggal.split('-');
-
-  if (bagian.length !== 3) {
-    return tanggal;
-  }
-
-  const [tahun, bulan, hari] = bagian;
-
-  const namaBulan = [
-    'Januari',
-    'Februari',
-    'Maret',
-    'April',
-    'Mei',
-    'Juni',
-    'Juli',
-    'Agustus',
-    'September',
-    'Oktober',
-    'November',
-    'Desember',
-  ];
-
-  const nomorBulan = Number(bulan) - 1;
-
-  if (!namaBulan[nomorBulan]) {
-    return tanggal;
-  }
-
-  return `${Number(hari)} ${namaBulan[nomorBulan]} ${tahun}`;
-}
-
-function formatWaktu(waktu?: string) {
-  if (!waktu) {
-    return 'Belum ada';
-  }
-
-  const tanggal = new Date(waktu);
-
-  if (Number.isNaN(tanggal.getTime())) {
-    return waktu;
-  }
-
-  return tanggal.toLocaleString('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  });
-}
-
 export default function DetailSesiAsistenScreen() {
-  const { id, from } = useLocalSearchParams<{
-    id: string;
-    from?: string;
-  }>();
+const { id, from } = useLocalSearchParams<{
+id: string;
+from?: string;
+}>();
 
-  const {
-    user,
-    sesiById,
-    bukaSesi,
-    tutupSesi,
-    rekapSesi,
-  } = useSession();
+const { user, sesiById, bukaSesi, tutupSesi, rekapSesi } = useSession();
 
-  const [aksiDipilih, setAksiDipilih] =
-    useState<AksiSesi | null>(null);
+const [aksiDipilih, setAksiDipilih] = useState<AksiSesi | null>(null);
+const [pesan, setPesan] = useState('');
+const [jenisPesan, setJenisPesan] = useState<'sukses' | 'gagal'>('sukses');
 
-  const [pesan, setPesan] = useState('');
+const sesi = sesiById(id);
 
-  const [jenisPesan, setJenisPesan] =
-    useState<'success' | 'error'>('success');
+const daftarPresensi = useMemo(
+() => (sesi ? rekapSesi(sesi.id) : []),
+[sesi, rekapSesi],
+);
 
-  const sesi = sesiById(id);
+function kembali() {
+if (from === 'rekap') {
+router.replace('/(asisten)/rekap');
+return;
+}
 
-  const daftarPresensi = useMemo(
-    () => (sesi ? rekapSesi(sesi.id) : []),
-    [sesi, rekapSesi],
-  );
+router.replace('/(asisten)/jadwal');
 
-  function kembaliKeHalamanAsal() {
-    if (from === 'rekap') {
-      router.replace('/(asisten)/rekap');
-      return;
-    }
+}
 
-    router.replace('/(asisten)/jadwal');
-  }
+function konfirmasiAksi() {
+if (!sesi || !aksiDipilih) {
+return;
+}
 
-  function konfirmasiAksi() {
-    if (!sesi || !aksiDipilih) {
-      return;
-    }
+const hasil =
+  aksiDipilih === 'buka'
+    ? bukaSesi(sesi.id)
+    : tutupSesi(sesi.id);
 
-    const hasil =
-      aksiDipilih === 'buka'
-        ? bukaSesi(sesi.id)
-        : tutupSesi(sesi.id);
+setPesan(hasil.pesan);
+setJenisPesan(hasil.ok ? 'sukses' : 'gagal');
+setAksiDipilih(null);
 
-    setPesan(hasil.pesan);
-    setJenisPesan(hasil.ok ? 'success' : 'error');
-    setAksiDipilih(null);
-  }
+}
 
-  if (!user || user.peran !== 'asisten') {
-    return (
-      <Screen>
-        <Card>
-          <EmptyState
-            judul="Akun asisten belum aktif"
-            deskripsi="Gunakan akun asisten untuk melihat detail sesi."
+if (!user || user.peran !== 'asisten') {
+return (
+<Screen>
+<View
+className="w-full flex-1 self-center justify-center px-three"
+style={{ maxWidth: MaxContentWidth }}
+>
+<Card>
+<EmptyState
+           judul="Akun asisten belum aktif"
+           deskripsi="Gunakan akun asisten untuk melihat detail sesi."
+         />
+</Card>
+</View>
+</Screen>
+);
+}
+
+if (!sesi || sesi.asistenId !== user.id) {
+return (
+<Screen>
+<View
+className="w-full flex-1 self-center justify-center px-three"
+style={{ maxWidth: MaxContentWidth }}
+>
+<Card>
+<EmptyState
+           judul="Sesi tidak ditemukan"
+           deskripsi="Sesi ini tidak tersedia untuk akun asistenmu."
+         />
+<AppButton
+           className="mt-three"
+           label="Kembali"
+           variant="secondary"
+           onPress={kembali}
+         />
+</Card>
+</View>
+</Screen>
+);
+}
+
+return (
+<Screen padded={false}>
+<View
+className="w-full flex-1 self-center"
+style={{ maxWidth: MaxContentWidth }}
+>
+{/* Header tetap di atas */}
+<View className="flex-row items-center justify-between gap-two px-three pt-two">
+<HomeButton onPress={kembali} />
+<MenuProfilAsisten />
+</View>
+
+    {/* Konten dapat di-scroll */}
+    <ScrollView
+      className="flex-1"
+      contentContainerClassName="pb-five"
+      showsVerticalScrollIndicator={false}
+    >
+      {/* Judul dan status sesi */}
+      <View className="px-three pt-three">
+        <Text
+          accessibilityRole="header"
+          className="text-title font-semibold text-text"
+        >
+          {sesi.namaPraktikum}
+        </Text>
+
+        <StatusBadge className="mt-two" status={sesi.status} />
+      </View>
+
+      {/* Pesan hasil aksi */}
+      {pesan ? (
+        <View className="px-three pt-three">
+          <Banner
+            jenis={jenisPesan}
+            pesan={pesan}
+            onTutup={() => setPesan('')}
+          />
+        </View>
+      ) : null}
+
+      {/* Informasi sesi */}
+      <View className="px-three">
+        <Card className="mt-four">
+          <BarisInfo label="Jadwal" nilai={labelJadwal(sesi)} />
+          <BarisInfo garis label="Waktu" nilai={rentangJam(sesi)} />
+          <BarisInfo garis label="Kelas" nilai={sesi.kelas} />
+          <BarisInfo garis label="Lab" nilai={sesi.lab} />
+          <BarisInfo
+            garis
+            label="Sesi dibuka"
+            nilai={
+              sesi.dibukaPada
+                ? `pukul ${formatJam(sesi.dibukaPada)}`
+                : 'Belum dibuka'
+            }
+          />
+          <BarisInfo
+            garis
+            label="Sesi ditutup"
+            nilai={
+              sesi.ditutupPada
+                ? `pukul ${formatJam(sesi.ditutupPada)}`
+                : 'Belum ditutup'
+            }
           />
         </Card>
-      </Screen>
-    );
-  }
+      </View>
 
-  if (!sesi || sesi.asistenId !== user.id) {
-    return (
-      <Screen>
-        <Card>
-          <EmptyState
-            judul="Sesi tidak ditemukan"
-            deskripsi="Sesi ini tidak tersedia untuk akun asistenmu."
-          />
-
+      {/* Tombol buka atau tutup sesi */}
+      <View className="gap-two px-three pt-four">
+        {sesi.status === 'belum-dibuka' ? (
           <AppButton
-            className="mt-three"
-            label={
-              from === 'rekap'
-                ? 'Kembali ke Rekap'
-                : 'Kembali ke Jadwal'
-            }
-            variant="secondary"
-            onPress={kembaliKeHalamanAsal}
+            label="Buka Sesi"
+            onPress={() => {
+              setPesan('');
+              setAksiDipilih('buka');
+            }}
           />
-        </Card>
-      </Screen>
-    );
-  }
-
-  return (
-    <Screen>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 16,
-          paddingBottom: 32,
-        }}
-      >
-        <View className="mb-four flex-row items-center justify-between">
-          <Pressable
-            onPress={kembaliKeHalamanAsal}
-            accessibilityRole="button"
-            accessibilityLabel={
-              from === 'rekap'
-                ? 'Kembali ke Rekap Asisten'
-                : 'Kembali ke Jadwal Asisten'
-            }
-            hitSlop={10}
-            className="flex-row items-center"
-          >
-            <Text className="text-title font-semibold text-primary">
-              ‹
-            </Text>
-
-            <Text className="ml-two text-body font-medium text-primary">
-              Kembali
-            </Text>
-          </Pressable>
-
-          <MenuProfilAsisten />
-        </View>
-
-        <View className="mb-four">
-          <Text className="text-title font-bold text-text">
-            Detail Sesi
+        ) : sesi.status === 'dibuka' ? (
+          <AppButton
+            label="Tutup Sesi"
+            variant="danger"
+            onPress={() => {
+              setPesan('');
+              setAksiDipilih('tutup');
+            }}
+          />
+        ) : (
+          <Text className="text-small text-textSecondary">
+            Sesi sudah ditutup. Aksi buka dan tutup tidak tersedia.
           </Text>
+        )}
+      </View>
 
-          <Text className="mt-one text-body text-textSecondary">
-            Informasi praktikum dan kehadiran peserta.
-          </Text>
-        </View>
+      {/* Rekap kehadiran */}
+      <View className="px-three pt-four">
+        <Text className="text-subtitle font-semibold text-text">
+          Rekap Kehadiran
+        </Text>
 
-        {pesan ? (
-          <View className="mb-three">
-            <Banner
-              jenis={jenisPesan === 'success' ? 'sukses' : 'gagal'}
-              pesan={pesan}
-              onTutup={() => setPesan('')}
-            />
-          </View>
-        ) : null}
+        <Text className="mt-one text-small text-textSecondary">
+          Peserta yang sudah melakukan presensi.
+        </Text>
 
-        <Card>
-          <View className="flex-row items-start justify-between gap-two">
-            <View className="flex-1">
-              <Text className="text-subtitle font-semibold text-text">
-                {sesi.namaPraktikum}
-              </Text>
-
-              <Text className="mt-one text-small text-textSecondary">
-                Kelas {sesi.kelas} · {sesi.lab}
-              </Text>
-            </View>
-
-            <StatusBadge status={sesi.status} />
-          </View>
-
-          <View className="mt-three border-t border-border pt-three">
+        <Card className="mt-two">
+          <View className="flex-row items-center justify-between gap-two">
             <Text className="text-body text-text">
-              {sesi.hari}, {formatTanggal(sesi.tanggal)}
+              Peserta hadir
             </Text>
 
-            <Text className="mt-one text-body text-text">
-              {sesi.jamMulai} - {sesi.jamSelesai}
-            </Text>
-          </View>
-
-          <View className="mt-three border-t border-border pt-three">
-            <Text className="text-small text-textSecondary">
-              Waktu buka sesi
-            </Text>
-
-            <Text className="mt-one text-body text-text">
-              {formatWaktu(sesi.dibukaPada)}
-            </Text>
-
-            <Text className="mt-three text-small text-textSecondary">
-              Waktu tutup sesi
-            </Text>
-
-            <Text className="mt-one text-body text-text">
-              {formatWaktu(sesi.ditutupPada)}
+            <Text className="text-subtitle font-semibold text-text">
+              {daftarPresensi.length} / {sesi.pesertaIds.length}
             </Text>
           </View>
-
-          {sesi.status === 'belum-dibuka' ? (
-            <AppButton
-              className="mt-four"
-              label="Buka Sesi"
-              onPress={() => {
-                setPesan('');
-                setAksiDipilih('buka');
-              }}
-            />
-          ) : sesi.status === 'dibuka' ? (
-            <AppButton
-              className="mt-four"
-              label="Tutup Sesi"
-              variant="danger"
-              onPress={() => {
-                setPesan('');
-                setAksiDipilih('tutup');
-              }}
-            />
-          ) : (
-            <Text className="mt-four text-small text-textSecondary">
-              Sesi sudah ditutup. Aksi buka/tutup tidak tersedia.
-            </Text>
-          )}
         </Card>
+      </View>
 
-        <Card className="mt-three">
-          <Text className="text-subtitle font-semibold text-text">
-            Rekap Kehadiran
-          </Text>
-
-          <Text className="mt-one text-body text-textSecondary">
-            {daftarPresensi.length} hadir dari {sesi.pesertaIds.length} peserta
-          </Text>
-        </Card>
-
-        <Text className="mb-three mt-four text-subtitle font-semibold text-text">
+      {/* Daftar peserta hadir */}
+      <View className="gap-two px-three pt-four">
+        <Text className="text-subtitle font-semibold text-text">
           Daftar Peserta Hadir
         </Text>
 
@@ -296,15 +235,12 @@ export default function DetailSesiAsistenScreen() {
           <Card>
             <EmptyState
               judul="Belum ada presensi"
-              deskripsi="Daftar peserta yang hadir akan muncul di sini."
+              deskripsi="Peserta yang sudah melakukan presensi akan muncul di sini."
             />
           </Card>
         ) : (
           daftarPresensi.map((item) => (
-            <Card
-              key={`${sesi.id}-${item.praktikan.id}`}
-              className="mb-three"
-            >
+            <Card key={`${sesi.id}-${item.praktikan.id}`}>
               <Text className="text-body font-semibold text-text">
                 {item.praktikan.nama}
               </Text>
@@ -313,35 +249,74 @@ export default function DetailSesiAsistenScreen() {
                 {item.praktikan.nomorInduk}
               </Text>
 
-              <Text className="mt-one text-small text-textSecondary">
-                Waktu presensi: {formatWaktu(item.waktu)}
-              </Text>
+              <View className="mt-two border-t border-border pt-two">
+                <Text className="text-small text-textSecondary">
+                  Waktu presensi
+                </Text>
+
+                <Text className="mt-one text-body text-text">
+                  {formatJam(item.waktu)}
+                </Text>
+              </View>
             </Card>
           ))
         )}
-      </ScrollView>
+      </View>
+    </ScrollView>
 
-      <BottomSheet
-        visible={aksiDipilih !== null}
-        onClose={() => setAksiDipilih(null)}
-        judul={
-          aksiDipilih === 'buka'
-            ? 'Buka sesi praktikum?'
-            : 'Tutup sesi praktikum?'
-        }
-        deskripsi={
-          aksiDipilih === 'buka'
-            ? 'Peserta dapat mulai melakukan presensi setelah sesi dibuka.'
-            : 'Pastikan sesi praktikum sudah selesai sebelum menutupnya.'
-        }
-        labelKonfirmasi={
-          aksiDipilih === 'buka'
-            ? 'Ya, Buka Sesi'
-            : 'Ya, Tutup Sesi'
-        }
-        onKonfirmasi={konfirmasiAksi}
-        bahaya={aksiDipilih === 'tutup'}
-      />
-    </Screen>
-  );
+    {/* Konfirmasi buka atau tutup sesi */}
+    <BottomSheet
+      visible={aksiDipilih !== null}
+      onClose={() => setAksiDipilih(null)}
+      judul={
+        aksiDipilih === 'buka'
+          ? 'Buka sesi praktikum?'
+          : 'Tutup sesi praktikum?'
+      }
+      deskripsi={
+        aksiDipilih === 'buka'
+          ? 'Peserta dapat mulai melakukan presensi setelah sesi dibuka.'
+          : 'Pastikan sesi praktikum sudah selesai sebelum menutupnya.'
+      }
+      labelKonfirmasi={
+        aksiDipilih === 'buka'
+          ? 'Ya, Buka Sesi'
+          : 'Ya, Tutup Sesi'
+      }
+      onKonfirmasi={konfirmasiAksi}
+      bahaya={aksiDipilih === 'tutup'}
+    />
+  </View>
+</Screen>
+
+);
+}
+
+function BarisInfo({
+label,
+nilai,
+garis = false,
+}: {
+label: string;
+nilai: string;
+garis?: boolean;
+}) {
+return (
+<View
+className={
+garis
+? 'flex-row items-start justify-between gap-three border-t border-border py-two'
+: 'flex-row items-start justify-between gap-three py-two'
+}
+>
+<Text className="text-small text-textSecondary">
+{label}
+</Text>
+
+  <Text className="flex-1 text-right text-body text-text">
+    {nilai}
+  </Text>
+</View>
+
+);
 }
