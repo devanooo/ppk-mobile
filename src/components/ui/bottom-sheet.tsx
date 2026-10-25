@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Animated,
   Modal,
+  PanResponder,
   Pressable,
   ScrollView,
   Text,
@@ -13,10 +14,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Spacing } from '@/constants/theme';
 
 import { AppButton } from './app-button';
-import { useAnimasiMuncul } from './motion';
+import { useAnimasiMuncul, useReduceMotion } from './motion';
 import { gayaBayangan } from './shadow-style';
 
 const DURASI = 180;
+
+/** Geser turun minimal, bagian dari tinggi sheet, yang dianggap sengaja menutup. */
+const AMBANG_GESER = 0.25;
+
+/** Lemparan cepat (pt/ms) menutup sheet walau jaraknya belum melewati ambang geser. */
+const AMBANG_LEMPAR = 0.8;
 
 type BottomSheetProps = {
   visible: boolean;
@@ -53,6 +60,49 @@ export function BottomSheet({
     outputRange: [tinggiSheet || tinggiLayar, 0],
   });
 
+  const kurangiGerak = useReduceMotion();
+  const [tarikan] = useState(() => new Animated.Value(0));
+
+  // Sheet ditutup tanpa animasi keluar, jadi tarikan cukup direset saat tertutup.
+  useEffect(() => {
+    if (!visible) tarikan.setValue(0);
+  }, [visible, tarikan]);
+
+  const kembalikan = useCallback(() => {
+    if (kurangiGerak) {
+      tarikan.setValue(0);
+      return;
+    }
+
+    Animated.spring(tarikan, {
+      toValue: 0,
+      useNativeDriver: true,
+      bounciness: 0,
+      speed: 18,
+    }).start();
+  }, [kurangiGerak, tarikan]);
+
+  const penarik = useMemo(
+    () =>
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_peristiwa, gestur) =>
+          gestur.dy > Spacing.two && Math.abs(gestur.dy) > Math.abs(gestur.dx),
+        onPanResponderMove: (_peristiwa, gestur) => {
+          tarikan.setValue(Math.max(0, gestur.dy));
+        },
+        onPanResponderRelease: (_peristiwa, gestur) => {
+          if (gestur.dy > (tinggiSheet || tinggiLayar) * AMBANG_GESER || gestur.vy > AMBANG_LEMPAR) {
+            onClose();
+            return;
+          }
+
+          kembalikan();
+        },
+        onPanResponderTerminate: () => kembalikan(),
+      }),
+    [kembalikan, onClose, tarikan, tinggiLayar, tinggiSheet],
+  );
+
   return (
     <Modal
       animationType="none"
@@ -73,7 +123,7 @@ export function BottomSheet({
           accessibilityViewIsModal
           onAccessibilityEscape={onClose}
           onLayout={(peristiwa) => setTinggiSheet(peristiwa.nativeEvent.layout.height)}
-          className="max-h-sheetMax rounded-t-xl bg-backgroundElement px-four pt-twoHalf"
+          className="max-h-sheetMax rounded-t-xl bg-backgroundElement px-four"
           style={[
             gayaBayangan,
             {
@@ -82,7 +132,15 @@ export function BottomSheet({
             },
           ]}
         >
-          <View className="mx-auto mb-three h-one w-five rounded-pill bg-border" />
+          {/* Padding atas sheet dipindah ke sini agar area geser pegangan setinggi mungkin
+              tanpa mengubah posisi visual pegangan. Geser turun melewati ambang = tutup. */}
+          <Animated.View
+            {...penarik.panHandlers}
+            className="pt-twoHalf pb-three"
+            style={{ transform: [{ translateY: tarikan }] }}
+          >
+            <View className="mx-auto h-one w-five rounded-pill bg-border" />
+          </Animated.View>
 
           <ScrollView bounces={false} className="shrink">
             <Text className="text-subtitle font-semibold text-text">{judul}</Text>
