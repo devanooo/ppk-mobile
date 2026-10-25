@@ -1,9 +1,17 @@
-
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import { AppButton, Banner, BottomSheet, Card, EmptyState, ProfileMenu, Screen, StatusBadge } from '@/components/ui';
+import {
+  AppButton,
+  Banner,
+  BottomSheet,
+  Card,
+  EmptyState,
+  Screen,
+  StatusBadge,
+} from '@/components/ui';
+import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useSession } from '@/store/session-store';
 
 type AksiSesi = 'buka' | 'tutup';
@@ -59,7 +67,10 @@ function formatWaktu(waktu?: string) {
 }
 
 export default function DetailSesiAsistenScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{
+    id: string;
+    from?: string;
+  }>();
 
   const {
     user,
@@ -67,8 +78,6 @@ export default function DetailSesiAsistenScreen() {
     bukaSesi,
     tutupSesi,
     rekapSesi,
-    gantiPeranDemo,
-    logout,
   } = useSession();
 
   const [aksiDipilih, setAksiDipilih] =
@@ -86,21 +95,13 @@ export default function DetailSesiAsistenScreen() {
     [sesi, rekapSesi],
   );
 
-  function kembaliKeJadwal() {
-    router.replace('/(asisten)/jadwal');
-  }
-
-  function gantiPeran() {
-    const penggunaBaru = gantiPeranDemo();
-
-    if (penggunaBaru) {
-      router.replace('/');
+  function kembaliKeHalamanAsal() {
+    if (from === 'rekap') {
+      router.replace('/(asisten)/rekap');
+      return;
     }
-  }
 
-  function keluarAkun() {
-    logout();
-    router.replace('/');
+    router.replace('/(asisten)/jadwal');
   }
 
   function konfirmasiAksi() {
@@ -142,9 +143,13 @@ export default function DetailSesiAsistenScreen() {
 
           <AppButton
             className="mt-three"
-            label="Kembali ke Jadwal"
+            label={
+              from === 'rekap'
+                ? 'Kembali ke Rekap'
+                : 'Kembali ke Jadwal'
+            }
             variant="secondary"
-            onPress={kembaliKeJadwal}
+            onPress={kembaliKeHalamanAsal}
           />
         </Card>
       </Screen>
@@ -160,12 +165,15 @@ export default function DetailSesiAsistenScreen() {
           paddingBottom: 32,
         }}
       >
-        {/* Tombol kembali dan profil dalam satu baris */}
         <View className="mb-four flex-row items-center justify-between">
           <Pressable
-            onPress={kembaliKeJadwal}
+            onPress={kembaliKeHalamanAsal}
             accessibilityRole="button"
-            accessibilityLabel="Kembali ke Jadwal Asisten"
+            accessibilityLabel={
+              from === 'rekap'
+                ? 'Kembali ke Rekap Asisten'
+                : 'Kembali ke Jadwal Asisten'
+            }
             hitSlop={10}
             className="flex-row items-center"
           >
@@ -178,15 +186,9 @@ export default function DetailSesiAsistenScreen() {
             </Text>
           </Pressable>
 
-          <ProfileMenu
-            user={user}
-            onHome={() => router.replace('/')}
-            onSwitchRole={gantiPeran}
-            onLogout={keluarAkun}
-          />
+          <MenuProfilAsisten />
         </View>
 
-        {/* Judul halaman */}
         <View className="mb-four">
           <Text className="text-title font-bold text-text">
             Detail Sesi
@@ -197,20 +199,16 @@ export default function DetailSesiAsistenScreen() {
           </Text>
         </View>
 
-        {/* Pesan hasil aksi */}
         {pesan ? (
           <View className="mb-three">
             <Banner
-              jenis={
-                jenisPesan === 'success' ? 'sukses' : 'gagal'
-              }
+              jenis={jenisPesan === 'success' ? 'sukses' : 'gagal'}
               pesan={pesan}
               onTutup={() => setPesan('')}
             />
           </View>
         ) : null}
 
-        {/* Informasi sesi praktikum */}
         <Card>
           <View className="flex-row items-start justify-between gap-two">
             <View className="flex-1">
@@ -254,7 +252,6 @@ export default function DetailSesiAsistenScreen() {
             </Text>
           </View>
 
-          {/* Tombol aksi berdasarkan status sesi */}
           {sesi.status === 'belum-dibuka' ? (
             <AppButton
               className="mt-four"
@@ -281,19 +278,16 @@ export default function DetailSesiAsistenScreen() {
           )}
         </Card>
 
-        {/* Rekap kehadiran */}
         <Card className="mt-three">
           <Text className="text-subtitle font-semibold text-text">
             Rekap Kehadiran
           </Text>
 
           <Text className="mt-one text-body text-textSecondary">
-            {daftarPresensi.length} hadir dari{' '}
-            {sesi.pesertaIds.length} peserta
+            {daftarPresensi.length} hadir dari {sesi.pesertaIds.length} peserta
           </Text>
         </Card>
 
-        {/* Daftar peserta yang hadir */}
         <Text className="mb-three mt-four text-subtitle font-semibold text-text">
           Daftar Peserta Hadir
         </Text>
@@ -327,7 +321,6 @@ export default function DetailSesiAsistenScreen() {
         )}
       </ScrollView>
 
-      {/* Konfirmasi buka atau tutup sesi */}
       <BottomSheet
         visible={aksiDipilih !== null}
         onClose={() => setAksiDipilih(null)}

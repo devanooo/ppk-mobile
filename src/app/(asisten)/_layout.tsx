@@ -24,6 +24,7 @@ export default function AsistenLayout() {
         name="jadwal"
         options={{
           title: 'Jadwal',
+          popToTopOnBlur: true,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'calendar', android: 'calendar_today' }}

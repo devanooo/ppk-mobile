@@ -2,12 +2,12 @@ import { router } from 'expo-router';
 import { useMemo } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
-import { Card, EmptyState, ProfileMenu, Screen } from '@/components/ui';
+import { Card, EmptyState, Screen } from '@/components/ui';
+import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useSession } from '@/store/session-store';
 
 export default function RekapAsistenScreen() {
-  const { user, sesiUntuk, rekapSesi, gantiPeranDemo, logout } =
-    useSession();
+  const { user, sesiUntuk, rekapSesi } = useSession();
 
   const daftarSesi = useMemo(() => {
     if (!user || user.peran !== 'asisten') {
@@ -21,19 +21,6 @@ export default function RekapAsistenScreen() {
       return waktuA.localeCompare(waktuB);
     });
   }, [user, sesiUntuk]);
-
-  function gantiPeran() {
-    const penggunaBaru = gantiPeranDemo();
-
-    if (penggunaBaru) {
-      router.replace('/');
-    }
-  }
-
-  function keluarAkun() {
-    logout();
-    router.replace('/');
-  }
 
   if (!user || user.peran !== 'asisten') {
     return (
@@ -68,12 +55,7 @@ export default function RekapAsistenScreen() {
             </Text>
           </View>
 
-          <ProfileMenu
-            user={user}
-            onHome={() => router.replace('/')}
-            onSwitchRole={gantiPeran}
-            onLogout={keluarAkun}
-          />
+          <MenuProfilAsisten />
         </View>
 
         {daftarSesi.length === 0 ? (
@@ -84,10 +66,7 @@ export default function RekapAsistenScreen() {
             />
           </Card>
         ) : (
-          <IsiRekap
-            daftarSesi={daftarSesi}
-            rekapSesi={rekapSesi}
-          />
+          <IsiRekap daftarSesi={daftarSesi} rekapSesi={rekapSesi} />
         )}
       </ScrollView>
     </Screen>
@@ -143,7 +122,7 @@ function IsiRekap({
     <>
       <View className="mb-three flex-row flex-wrap gap-three">
         {statistik.map((item) => (
-          <View key={item.label} className="w-[47%] flex-grow">
+          <View key={item.label} className="min-w-0 flex-1">
             <Card>
               <Text className="text-small text-textSecondary">
                 {item.label}
@@ -229,7 +208,10 @@ function IsiRekap({
               onPress={() =>
                 router.push({
                   pathname: '/(asisten)/jadwal/[id]',
-                  params: { id: item.id },
+                  params: {
+                    id: item.id,
+                    from: 'rekap',
+                  },
                 })
               }
               accessibilityLabel={`Lihat detail sesi ${item.namaPraktikum}`}
