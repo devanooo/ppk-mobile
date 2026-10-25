@@ -5,9 +5,6 @@ const colorUtilities = Object.fromEntries(
   Object.keys(tokens.lightColors).map((name) => [name, `rgb(var(--color-${name}) / <alpha-value>)`])
 );
 
-/** Scrim modal: warna dasar dari CSS variable, alpha diatur lewat `bg-overlay/<opacity>`. */
-const overlayUtility = { overlay: 'rgb(var(--color-overlay) / <alpha-value>)' };
-
 /**
  * Tailwind menulis lineHeight angka tanpa satuan, lalu NativeWind membacanya
  * sebagai em (40 menjadi 40em). Pakai px agar ukuran baris tetap sesuai token.
@@ -26,7 +23,7 @@ module.exports = {
   darkMode: 'media',
   theme: {
     extend: {
-      colors: { ...colorUtilities, ...overlayUtility },
+      colors: colorUtilities,
       spacing: tokens.spacing,
       borderRadius: tokens.radius,
       fontSize: fontSizes,
