@@ -33,6 +33,8 @@ const lightColors = {
   dangerSurface: '#FDECEA',
   warning: '#b25000',
   warningSurface: '#FFF4E0',
+  /** Scrim modal; alpha diatur di komponen lewat `bg-overlay/<alpha>`. */
+  overlay: '#000000',
 };
 
 const darkColors = {
@@ -51,6 +53,7 @@ const darkColors = {
   dangerSurface: '#2E1715',
   warning: '#ff9f0a',
   warningSurface: '#2B2213',
+  overlay: '#000000',
 };
 
 /**
