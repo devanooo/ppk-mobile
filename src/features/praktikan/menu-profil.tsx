@@ -5,10 +5,10 @@ import { BottomSheet, ProfileMenu } from '@/components/ui';
 import { berandaUntuk } from '@/features/auth/beranda';
 import { useSession } from '@/store/session-store';
 
-type Lembar = 'keluar' | 'asisten' | null;
+type Lembar = 'keluar' | 'peran' | null;
 
 export function MenuProfilPraktikan() {
-  const { user, logout } = useSession();
+  const { user, logout, gantiPeranDemo } = useSession();
   const router = useRouter();
   const [lembar, setLembar] = useState<Lembar>(null);
 
@@ -26,6 +26,16 @@ export function MenuProfilPraktikan() {
     logout();
   }
 
+  function beralihPeran() {
+    const penggunaBaru = gantiPeranDemo();
+
+    setLembar(null);
+
+    if (penggunaBaru) {
+      router.replace(berandaUntuk(penggunaBaru.peran));
+    }
+  }
+
   return (
     <>
       <ProfileMenu
@@ -33,7 +43,7 @@ export function MenuProfilPraktikan() {
         labelGantiPeran={labelGantiPeran}
         onHome={() => router.replace(berandaUntuk(user.peran))}
         onLogout={() => bukaLembar('keluar')}
-        onSwitchRole={() => bukaLembar('asisten')}
+        onSwitchRole={() => bukaLembar('peran')}
       />
 
       <BottomSheet
@@ -47,12 +57,12 @@ export function MenuProfilPraktikan() {
       />
 
       <BottomSheet
-        visible={lembar === 'asisten'}
+        visible={lembar === 'peran'}
         onClose={() => setLembar(null)}
-        judul="Halaman asisten belum tersedia"
-        deskripsi="Ganti peran ke asisten belum dapat dipakai di build ini. Kamu tetap masuk sebagai praktikan."
-        labelKonfirmasi="Mengerti"
-        onKonfirmasi={() => setLembar(null)}
+        judul={`${labelGantiPeran}?`}
+        deskripsi="Identitas aktif akan berganti ke akun demo peran lain. Sesi dan presensi tetap tersimpan."
+        labelKonfirmasi="Beralih"
+        onKonfirmasi={beralihPeran}
       />
     </>
   );

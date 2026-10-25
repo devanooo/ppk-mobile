@@ -37,6 +37,10 @@ function NavigasiAkar() {
       <Stack.Protected guard={user?.peran === 'praktikan'} redirectTo={beranda}>
         <Stack.Screen name="(praktikan)" />
       </Stack.Protected>
+
+      <Stack.Protected guard={user?.peran === 'asisten'} redirectTo={beranda}>
+        <Stack.Screen name="(asisten)" />
+      </Stack.Protected>
     </Stack>
   );
 }
