@@ -2,7 +2,7 @@
 
 Aplikasi catatan kehadiran praktikum untuk praktikan dan asisten.
 
-Aplikasi ini **mobile-only untuk iOS dan Android**. Web bukan target rilis, bukan platform uji, dan bukan alasan untuk menambah komponen atau konfigurasi web.
+Aplikasi ini berjalan di **iOS, Android, dan Web** dari satu codebase Expo. Bagian di bawah ini mendokumentasikan Sprint 1. Rencana Sprint 2 (Firebase Auth, Cloud Firestore, izin dengan klasifikasi AI) ada di [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md) dan menggantikan klaim Sprint 1 yang bertentangan.
 
 Sprint 1 berfokus pada UI dengan data dummy, state lokal, dan autentikasi dummy (belum ada database). Pengguna masuk lewat landing page dan login, lalu diarahkan ke antarmuka sesuai peran. Dua sudut pandang pengguna:
 
@@ -46,7 +46,7 @@ npm install
 npx expo start
 ```
 
-Lalu tekan `i` (iOS) atau `a` (Android). Proyek ini mobile-only dan memakai npm (`package-lock.json`).
+Lalu tekan `i` (iOS) atau `a` (Android). Untuk web: `npx expo start --web`. Proyek ini memakai npm (`package-lock.json`).
 
 Perintah lain:
 
@@ -56,16 +56,16 @@ npx tsc --noEmit   # typecheck
 npx expo-doctor    # cek dependency & config
 ```
 
-Menambah library wajib lewat `npx expo install <paket>` dan **harus disetujui PM**.
+Menambah library lewat `npx expo install <paket>` dan dikoordinasikan dengan PM; perubahan dependency dijelaskan di deskripsi PR (`docs/GIT-WORKFLOW.md`).
 
 ## Stack
 
-- Target platform: iOS dan Android (Expo Go, simulator, atau emulator)
+- Target platform: iOS, Android, dan Web (Expo Go, simulator, emulator, atau browser)
 - Expo SDK 58 + React Native 0.88, React 19
 - Expo Router (file-based routing, typed routes, `Stack.Protected` untuk auth guard)
 - TypeScript strict
 - NativeWind 4 (Tailwind CSS 3) untuk styling, token terpusat di `src/constants/tokens.js`
-- Tanpa database dan tanpa backend. Autentikasi dummy in-memory, data dummy, dan React state/context
+- Sprint 1 tanpa database dan tanpa backend: autentikasi dummy in-memory, data dummy, dan React state/context. Sprint 2 menggantinya dengan Firebase Authentication dan Cloud Firestore (lihat `docs/sprints/sprint-2.md`)
 
 ## Struktur folder
 

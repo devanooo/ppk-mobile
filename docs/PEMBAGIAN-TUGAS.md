@@ -2,6 +2,8 @@
 
 Tujuan dokumen: setiap file punya **tepat satu pemilik**. Tidak ada dua orang mengedit path yang sama dalam satu sprint.
 
+> Dokumen ini berlaku untuk Sprint 1. Pembagian tugas dan aturan koordinasi Sprint 2 ada di [`sprints/sprint-2.md`](sprints/sprint-2.md) bagian 6. Aturan di bawah, termasuk file beku dan larangan dependency, hanya mengikat pekerjaan Sprint 1.
+
 ## 1. Tim
 
 | Kode | Peran | Fokus |
@@ -37,13 +39,13 @@ Tujuan dokumen: setiap file punya **tepat satu pemilik**. Tidak ada dua orang me
 
 Path yang tidak tercantum: **jangan disentuh** tanpa persetujuan PM.
 
-## 3. Aturan anti-tabrakan
+## 3. Aturan anti-tabrakan (Sprint 1)
 
 1. **Satu path satu owner.** Butuh perubahan di file orang lain: buka PR ke owner tersebut atau minta owner yang commit.
 2. **Presentational vs route.** Komponen layar menerima props; file route hanya memanggil hook store dan merender komponen. Dengan begitu P1/P2 bisa bekerja sebelum store selesai.
 3. **File beku D1:** `src/app/_layout.tsx`, `src/constants/theme.ts`, `src/types/index.ts`, `src/components/ui/index.ts`, `src/constants/tokens.js`, `src/data/credentials.ts`. Perubahan setelah beku harus lewat PR kecil ke owner. P3 tetap boleh menambah ekspor komponen baru di `ui/index.ts`.
 4. **Dilarang membuat file baru** di area orang lain, termasuk file sementara.
-5. **Dilarang menambah dependency.** Usul ke PM; jika disetujui, `npx expo install` dijalankan P1.
+5. **Dilarang menambah dependency tanpa koordinasi.** Sprint 1: usul ke PM; jika disetujui, `npx expo install` dijalankan P1. Sprint 2: PM memasang dependency dan menjelaskannya di deskripsi PR (lihat `sprints/sprint-2.md` bagian 6.5).
 6. Konflik merge di file beku: hubungi owner, jangan diselesaikan sendiri.
 
 ## 4. Kontrak data (dibuat P3, hari D1)

@@ -1,12 +1,14 @@
 # PRD: PraktikumKU, Sprint 1
 
+> Dokumen ini berlaku untuk Sprint 1. Sprint 2 mencabut beberapa batasan di sini: dukungan web, backend/database, autentikasi nyata, registrasi, persistensi sesi, dan sinkronisasi lintas perangkat. Acuan Sprint 2 adalah [`docs/sprints/sprint-2.md`](sprints/sprint-2.md).
+
 ## 1. Informasi produk dan tujuan sprint
 
 | Field | Isi |
 |---|---|
 | Produk | PraktikumKU |
 | Sprint | Sprint 1: UI, navigasi, auth dummy, dan alur inti |
-| Platform | React Native (Expo), iOS dan Android. Web bukan target |
+| Platform | React Native (Expo), iOS dan Android untuk Sprint 1. Sprint 2 menambahkan Web |
 | Data | Dummy, state in-memory (tanpa backend/database) |
 | Autentikasi | Dummy, username + password |
 | Status | Approved |
@@ -35,7 +37,7 @@
 
 **Non-goals**
 
-Backend/database, autentikasi dan otorisasi nyata, registrasi akun, lupa password, manajemen akun oleh admin, persistensi sesi setelah aplikasi ditutup, sinkronisasi lintas perangkat, notifikasi push, presensi QR/lokasi, export laporan, multi-semester, riwayat audit perubahan status, membuka ulang sesi yang sudah ditutup, penutupan sesi otomatis berdasarkan waktu, pengelolaan data master (tambah/edit pengguna, jadwal, peserta), serta aplikasi web/desktop.
+Daftar ini berlaku untuk Sprint 1 dan sebagian dicabut oleh Sprint 2 (lihat `docs/sprints/sprint-2.md` bagian 3): backend/database, autentikasi dan otorisasi nyata, registrasi akun, persistensi sesi setelah aplikasi ditutup, sinkronisasi lintas perangkat, pengelolaan data master, serta aplikasi web. Sisa non-goals tetap berlaku: lupa password, manajemen akun oleh admin, notifikasi push, presensi QR/lokasi, export laporan, multi-semester, riwayat audit perubahan status, membuka ulang sesi yang sudah ditutup, penutupan sesi otomatis berdasarkan waktu, serta aplikasi desktop.
 
 ## 4. Pengguna dan user stories
 
