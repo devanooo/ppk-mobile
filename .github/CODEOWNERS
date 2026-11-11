@@ -1,6 +1,8 @@
 # CODEOWNERS: PraktikumKU
 # Satu path hanya boleh diubah pemiliknya. Lihat docs/PEMBAGIAN-TUGAS.md.
 # Owner harus sudah diundang sebagai collaborator agar bisa di-assign reviewer.
+# Peran berputar tiap sprint; isi file ini mengikuti pembagian sprint yang sedang berjalan.
+# Sprint 2: PM Dehar, P1 Anggita, P2 Devano, P3 Nashwa. Lihat docs/sprints/sprint-2.md bagian 6.
 
 # P1 Anggita Kirana Puspa: shell, auth, praktikan
 /src/app/_layout.tsx            @anggitakirana
@@ -15,23 +17,34 @@
 /metro.config.js                @anggitakirana
 /nativewind-env.d.ts            @anggitakirana
 
-# P2 Nashwa: asisten
-/src/app/(asisten)/             @nashwanashwa
-/src/features/asisten/          @nashwanashwa
+# P2 Devano Trestanto: asisten
+/src/app/(asisten)/             @devanooo
+/src/features/asisten/          @devanooo
 
-# P3 Dehar Zaidan Dzaki Amirullah: design system + data
-/src/constants/tokens.js        @21d4n
-/src/constants/theme.ts         @21d4n
-/src/types/                     @21d4n
-/src/data/                      @21d4n
-/src/store/                     @21d4n
-/src/components/ui/             @21d4n
+# P3 Nashwa Aldebaran: design system + data
+/src/constants/tokens.js        @nashwanashwa
+/src/constants/theme.ts         @nashwanashwa
+/src/types/                     @nashwanashwa
+/src/data/                      @nashwanashwa
+/src/store/                     @nashwanashwa
+/src/components/ui/             @nashwanashwa
 
-# PM Devano Trestanto: dokumentasi & config repo
-/README.md                      @devanooo
-/AGENTS.md                      @devanooo
-/docs/                          @devanooo
-/.github/                       @devanooo
+# Sprint 2: modul data baru dipakai bersama, pemiliknya per file sesuai story
+# (P1 auth/firestore, P2 izin/ai, P3 kelas/sesi/presensi). Lihat sprint-2.md bagian 6.
+/src/lib/                       @anggitakirana @devanooo @nashwanashwa
+
+# Catatan Sprint 2: pembagian per story melintasi batas folder lama, misalnya
+# (asisten)/jadwal dan rekap dikerjakan P3, sedangkan (praktikan)/izin dikerjakan P2.
+# Reviewer wajib mengikuti pemilik story di sprint-2.md bagian 6 meski CODEOWNERS
+# menunjuk orang lain untuk path tersebut.
+
+# PM Dehar Zaidan Dzaki Amirullah: dokumentasi & config repo
+/README.md                      @21d4n
+/AGENTS.md                      @21d4n
+/docs/                          @21d4n
+/.github/                       @21d4n
+/app.json                       @21d4n
+/.env.example                   @21d4n
 
 # Fallback: perubahan di luar area di atas harus lewat PM
-*                               @devanooo
+*                               @21d4n
