@@ -9,7 +9,7 @@
 | Periode | 12 November 2026 sampai 16 November 2026 (5 hari kerja) |
 | Sprint goal | Mengganti seluruh sumber data dummy dengan Firebase Authentication dan Cloud Firestore, menambahkan sinkronisasi real-time, pengajuan izin dengan klasifikasi AI, dan pembatasan akses berbasis role, berjalan sama di Android, iOS, dan Web |
 | Target platform | Android, iOS, Web (satu codebase) |
-| Tim | PM: Devano Trestanto. Programmer 1: Anggita Kirana Puspa. Programmer 2: Nashwa. Programmer 3: Dehar Zaidan Dzaki Amirullah |
+| Tim | PM: Devano Trestanto. Programmer 1, Programmer 2, dan Programmer 3: nama menyusul setelah pembagian dipilih |
 | Status | Perencanaan, belum dimulai |
 
 Dokumen ini adalah acuan pelaksanaan. Setiap perubahan scope, kontrak data, atau pembagian tugas harus disepakati PM dan dicatat di sini sebelum dikerjakan.
@@ -463,7 +463,7 @@ Kolom owner memakai kode programmer. Semua task mewarisi Definition of Done bagi
 
 Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alur fungsional dari UI, logika, integrasi data, validasi, penanganan error, sampai pengujian di tiga platform. Tidak ada pembagian berdasarkan jenis file.
 
-### 6.1 Programmer 1: Anggita Kirana Puspa
+### 6.1 Programmer 1
 
 **Primary responsibility.** Identitas dan akses, plus fondasi koneksi data yang dipakai bersama.
 
@@ -478,7 +478,7 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 
 **Testing responsibility.** Registrasi, login, logout, pemulihan sesi, guard semua kombinasi role, dan penolakan rules untuk role asisten. Diuji di Android, iOS, dan Web.
 
-### 6.2 Programmer 2: Nashwa
+### 6.2 Programmer 2
 
 **Primary responsibility.** Alur pengajuan izin secara utuh, termasuk integrasi AI dan keputusan asisten.
 
@@ -493,7 +493,7 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 
 **Testing responsibility.** Pengajuan ganda, akses sesi kelas lain, jalur gagal AI, keputusan ganda, isolasi data antar praktikan, dan sinkronisasi dua perangkat.
 
-### 6.3 Programmer 3: Dehar Zaidan Dzaki Amirullah
+### 6.3 Programmer 3
 
 **Primary responsibility.** Data praktikum dan presensi real-time, dari CRUD asisten sampai rekap.
 
@@ -679,7 +679,7 @@ Yang belum diketahui dan tidak boleh dikarang:
 
 Sampai informasi tersedia, T-045 menyediakan mock. Semua pemetaan field AI dikumpulkan di `src/lib/ai.ts` agar perubahan skema hanya menyentuh satu file.
 
-**Panduan untuk P2 (Nashwa) mendapat detail API.** Programmer 2 menghubungi pengajar paling lambat D1 dan menanyakan enam item di tabel di atas secara tertulis. Format pertanyaan yang bisa dipakai: "Untuk API klasifikasi alasan izin, mohon info: (1) base URL dan path endpoint, (2) method dan header autentikasi, (3) contoh request body, (4) contoh response beserta nama field kategori, (5) daftar kategori yang mungkin keluar, (6) batas waktu dan kuota." Jawaban dicatat di `src/lib/ai.ts` sebagai komentar dan disalin ke bagian 8.5 dokumen ini. Bila pengajar belum menjawab sampai D3, mock T-045 tetap dipakai dan risikonya dicatat di bagian 11.
+**Panduan untuk Programmer 2 mendapat detail API.** Programmer 2 menghubungi pengajar paling lambat D1 dan menanyakan enam item di tabel di atas secara tertulis. Format pertanyaan yang bisa dipakai: "Untuk API klasifikasi alasan izin, mohon info: (1) base URL dan path endpoint, (2) method dan header autentikasi, (3) contoh request body, (4) contoh response beserta nama field kategori, (5) daftar kategori yang mungkin keluar, (6) batas waktu dan kuota." Jawaban dicatat di `src/lib/ai.ts` sebagai komentar dan disalin ke bagian 8.5 dokumen ini. Bila pengajar belum menjawab sampai D3, mock T-045 tetap dipakai dan risikonya dicatat di bagian 11.
 
 ### 8.6 Security Rules
 
