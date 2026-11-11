@@ -9,7 +9,7 @@
 | Periode | 12 November 2026 sampai 16 November 2026 (5 hari kerja) |
 | Sprint goal | Mengganti seluruh sumber data dummy dengan Firebase Authentication dan Cloud Firestore, menambahkan sinkronisasi real-time, pengajuan izin dengan klasifikasi AI, dan pembatasan akses berbasis role, berjalan sama di Android, iOS, dan Web |
 | Target platform | Android, iOS, Web (satu codebase) |
-| Tim | PM: Devano Trestanto. Programmer 1, Programmer 2, dan Programmer 3: nama menyusul setelah pembagian dipilih |
+| Tim | PM: Dehar Zaidan Dzaki Amirullah. Programmer 1: Anggita Kirana Puspa. Programmer 2: Devano Trestanto. Programmer 3: Nashwa Aldebaran |
 | Status | Perencanaan, belum dimulai |
 
 Dokumen ini adalah acuan pelaksanaan. Setiap perubahan scope, kontrak data, atau pembagian tugas harus disepakati PM dan dicatat di sini sebelum dikerjakan.
@@ -463,7 +463,7 @@ Kolom owner memakai kode programmer. Semua task mewarisi Definition of Done bagi
 
 Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alur fungsional dari UI, logika, integrasi data, validasi, penanganan error, sampai pengujian di tiga platform. Tidak ada pembagian berdasarkan jenis file.
 
-### 6.1 Programmer 1
+### 6.1 Programmer 1: Anggita Kirana Puspa
 
 **Primary responsibility.** Identitas dan akses, plus fondasi koneksi data yang dipakai bersama.
 
@@ -478,7 +478,7 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 
 **Testing responsibility.** Registrasi, login, logout, pemulihan sesi, guard semua kombinasi role, dan penolakan rules untuk role asisten. Diuji di Android, iOS, dan Web.
 
-### 6.2 Programmer 2
+### 6.2 Programmer 2: Devano Trestanto
 
 **Primary responsibility.** Alur pengajuan izin secara utuh, termasuk integrasi AI dan keputusan asisten.
 
@@ -493,7 +493,7 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 
 **Testing responsibility.** Pengajuan ganda, akses sesi kelas lain, jalur gagal AI, keputusan ganda, isolasi data antar praktikan, dan sinkronisasi dua perangkat.
 
-### 6.3 Programmer 3
+### 6.3 Programmer 3: Nashwa Aldebaran
 
 **Primary responsibility.** Data praktikum dan presensi real-time, dari CRUD asisten sampai rekap.
 
@@ -801,6 +801,7 @@ Catatan pengujian lintas platform:
 | Presensi ganda dari dua perangkat | Data ganda atau tidak konsisten | ID dokumen presensi sama dengan `uid` dan transaction T-033 |
 | Perubahan konfigurasi oleh programmer merusak setup PM | Aplikasi tidak terhubung | File inisialisasi, `.env`, `app.json`, dan rules hanya diubah PM |
 | Beban P3 paling besar | D4 tidak siap | T-030 diprioritaskan; bila melewati D3, T-031 dan T-032 dialihkan ke P1 |
+| PM baru belum pernah menyiapkan infrastruktur Firebase | Setup D1 terlambat dan seluruh tim menunggu | Dehar mulai membuat project sebelum D1; Devano (PM Sprint 1) mendampingi serah terima |
 | Dokumentasi lama menyatakan web bukan target | Review dan aturan kerja bertentangan | PM memperbarui `README.md`, `docs/PRD.md`, `AGENTS.md`, dan `docs/PEMBAGIAN-TUGAS.md` sebelum D1 |
 | Data seed dan akun asisten tidak siap D1 | P2 dan P3 tidak bisa menguji | PM-08 diselesaikan D1 sore; seed ditulis sebagai data, bukan lewat UI |
 
