@@ -1,44 +1,50 @@
 # CODEOWNERS: PraktikumKU
-# Satu path hanya boleh diubah pemiliknya. Lihat docs/PEMBAGIAN-TUGAS.md.
+# Satu path punya pemilik jelas. Bila satu path dikerjakan dua orang dalam satu
+# sprint, keduanya dicantumkan; satu approval dari salah satunya sudah cukup.
 # Owner harus sudah diundang sebagai collaborator agar bisa di-assign reviewer.
-# Peran berputar tiap sprint; isi file ini mengikuti pembagian sprint yang sedang berjalan.
-# Sprint 2: PM Dehar, P1 Anggita, P2 Devano, P3 Nashwa. Lihat docs/sprints/sprint-2.md bagian 6.
+#
+# Peran berputar tiap sprint. File ini mengikuti pembagian sprint yang berjalan.
+# Sprint 2: PM Dehar (@21d4n), P1 Anggita (@anggitakirana),
+#           P2 Devano (@devanooo), P3 Nashwa (@nashwanashwa).
+# Rincian story: docs/sprints/sprint-2.md bagian 6.
 
-# P1 Anggita Kirana Puspa: shell, auth, praktikan
+# P1 Anggita: shell, auth, registrasi, lapisan data
 /src/app/_layout.tsx            @anggitakirana
 /src/app/index.tsx              @anggitakirana
 /src/app/login.tsx              @anggitakirana
-/src/app/(praktikan)/           @anggitakirana
+/src/app/register.tsx           @anggitakirana
 /src/features/auth/             @anggitakirana
-/src/features/praktikan/        @anggitakirana
 /tailwind.config.js             @anggitakirana
 /src/global.css                 @anggitakirana
 /babel.config.js                @anggitakirana
 /metro.config.js                @anggitakirana
 /nativewind-env.d.ts            @anggitakirana
 
-# P2 Devano Trestanto: asisten
-/src/app/(asisten)/             @devanooo
-/src/features/asisten/          @devanooo
-
-# P3 Nashwa Aldebaran: design system + data
+# P3 Nashwa: design system, tipe, data, dan alur perkuliahan praktikan
+# (jadwal dan riwayat praktikan dikerjakan P3 di Sprint 2)
 /src/constants/tokens.js        @nashwanashwa
 /src/constants/theme.ts         @nashwanashwa
 /src/types/                     @nashwanashwa
 /src/data/                      @nashwanashwa
-/src/store/                     @nashwanashwa
 /src/components/ui/             @nashwanashwa
 
-# Sprint 2: modul data baru dipakai bersama, pemiliknya per file sesuai story
-# (P1 auth/firestore, P2 izin/ai, P3 kelas/sesi/presensi). Lihat sprint-2.md bagian 6.
+# Store dipakai P1 (auth) dan P3 (state data), jadi dua owner
+/src/store/                     @nashwanashwa @anggitakirana
+
+# Modul data baru dipakai bertiga, pemilik per file sesuai story
 /src/lib/                       @anggitakirana @devanooo @nashwanashwa
 
-# Catatan Sprint 2: pembagian per story melintasi batas folder lama, misalnya
-# (asisten)/jadwal dan rekap dikerjakan P3, sedangkan (praktikan)/izin dikerjakan P2.
-# Reviewer wajib mengikuti pemilik story di sprint-2.md bagian 6 meski CODEOWNERS
-# menunjuk orang lain untuk path tersebut.
+# Area praktikan: P1 pemilik shell dan auth, P3 mengerjakan jadwal, detail,
+# kehadiran, P2 mengerjakan tab izin
+/src/app/(praktikan)/           @anggitakirana @nashwanashwa @devanooo
+/src/features/praktikan/        @anggitakirana @nashwanashwa
 
-# PM Dehar Zaidan Dzaki Amirullah: dokumentasi & config repo
+# Area asisten: P2 pemilik shell dan izin, P3 mengerjakan kelas, sesi,
+# jadwal, dan rekap
+/src/app/(asisten)/             @devanooo @nashwanashwa
+/src/features/asisten/          @devanooo @nashwanashwa
+
+# PM Dehar: dokumentasi, konfigurasi repo, dan berkas Firebase
 /README.md                      @21d4n
 /AGENTS.md                      @21d4n
 /docs/                          @21d4n
