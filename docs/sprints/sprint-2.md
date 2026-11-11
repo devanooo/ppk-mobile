@@ -44,6 +44,8 @@ Data bertahan setelah aplikasi ditutup dan dibuka kembali. Pengguna tanpa hak ti
 | FR-13 | Praktikan melihat status dan keputusan izin miliknya | US-12 | Medium |
 | FR-14 | Security Rules membatasi baca dan tulis berdasarkan identitas, role, dan kepemilikan data | US-04, semua | High |
 
+Kode `FR-xx` di tabel ini dipakai sebagai kode SRS pada formulir pembagian tugas: P1 `FR-01 : US-01` sampai `FR-04 : US-04`, P2 `FR-10 : US-09` sampai `FR-13 : US-12`, P3 `FR-05 : US-05` sampai `FR-08 : US-08`. FR-09 (rekap real-time) melekat pada US-08 dan FR-14 bersifat lintas story.
+
 ### 3.2 Non-functional requirements
 
 | ID | Requirement |
@@ -54,7 +56,7 @@ Data bertahan setelah aplikasi ditutup dan dibuka kembali. Pengguna tanpa hak ti
 | NFR-04 | Tidak ada kredensial Firebase atau API AI yang ditulis langsung di kode sumber. Nilai dibaca dari environment |
 | NFR-05 | Target sentuh minimal 44x44 pt tetap berlaku; teks status tidak hanya dibedakan lewat warna |
 | NFR-06 | `npx tsc --noEmit` dan `npx expo lint` hijau sebelum setiap PR |
-| NFR-07 | Perubahan dependency dan konfigurasi dicatat di changelog dan diumumkan di standup |
+| NFR-07 | Perubahan dependency dan konfigurasi diumumkan ke tim dan dijelaskan di deskripsi PR |
 
 ### 3.3 Ringkasan audit Sprint 1
 
@@ -87,7 +89,7 @@ Temuan yang memengaruhi rencana:
 2. `app.json` mengaktifkan `experiments.reactCompiler` dan `typedRoutes`. Konfigurasi web harus diuji terhadap keduanya.
 3. `expo-symbols` dipakai di 5 file (`src/app/(praktikan)/_layout.tsx`, `src/app/(asisten)/_layout.tsx`, `src/components/ui/text-field.tsx`, `src/features/praktikan/jadwal-screen.tsx`, `src/features/praktikan/detail-sesi-screen.tsx`). Dukungan web harus diverifikasi sebelum dianggap selesai.
 4. `Sesi` masih menyimpan `namaPraktikum`, `kelas`, dan `lab` sebagai string. Model ini tidak cocok dengan kebutuhan CRUD kelas.
-5. Dokumentasi Sprint 1 menyatakan Web bukan target dan backend termasuk non-goals (`README.md` baris 5, `docs/PRD.md` baris 9 dan 38, `AGENTS.md`). Ini bertentangan dengan scope Sprint 2. Sesuai batasan pekerjaan, dokumen lama tidak diubah pada sprint ini; PM perlu memperbaruinya sebelum D1. Lihat bagian 8.10.
+5. Dokumentasi Sprint 1 menyatakan Web bukan target dan backend termasuk non-goals (`README.md` baris 5, `docs/PRD.md` baris 9 dan 38, `AGENTS.md`). Ini bertentangan dengan scope Sprint 2. Klaim yang bertentangan sudah diperbaiki secara minimal: `README.md`, `docs/PRD.md`, `AGENTS.md`, dan `docs/PEMBAGIAN-TUGAS.md` kini merujuk dokumen ini untuk Sprint 2. Lihat bagian 8.10.
 
 ## 4. Sprint Backlog
 
@@ -110,7 +112,7 @@ Estimasi memakai ukuran S (setengah hari), M (satu hari), L (dua hari) untuk sat
 | US-11 | Asisten memeriksa dan memutuskan izin | Programmer 2 | High | M | US-09, US-10, US-06 | Belum dimulai |
 | US-12 | Praktikan melihat status izin | Programmer 2 | Medium | S | US-09, US-11 | Belum dimulai |
 
-Total 12 user story, 52 technical task. Rincian task ada di bagian 5.
+Total 12 user story, 53 technical task. Rincian task ada di bagian 5.
 
 ### 4.2 Rincian user story
 
@@ -376,7 +378,7 @@ Kolom owner memakai kode programmer. Semua task mewarisi Definition of Done bagi
 | T-016 | Buat `src/lib/firebase.ts`: `initializeApp` dari `EXPO_PUBLIC_FIREBASE_*`, validasi env, ekspor `auth` dan `db` | Modul Firebase | Aplikasi terhubung di tiga platform | P1 | PM-04, PM-05 |
 | T-017 | Tambah tipe Firestore di `src/types/firestore.ts` dan konverter di `src/lib/konversi.ts` sesuai bagian 8.3 | Tipe dan konverter | Semua koleksi punya konverter | P1 | T-016 |
 | T-018 | Buat helper `src/lib/firestore.ts`: pembungkus `onSnapshot` dengan `data`, `memuat`, `error`, plus `petakanErrorFirestore` | Helper listener | Listener dibersihkan saat unmount | P1 | T-017 |
-| T-019 | Dokumentasikan kontrak koleksi dan aturan penulisan query di komentar modul, lalu umumkan di standup D1 | Catatan kontrak | P2 dan P3 memakai helper yang sama | P1 | T-018 |
+| T-019 | Dokumentasikan kontrak koleksi dan aturan penulisan query di komentar modul, lalu umumkan ke tim pada D1 | Catatan kontrak | P2 dan P3 memakai helper yang sama | P1 | T-018 |
 
 ### US-05 Kelas dan peserta
 
@@ -451,6 +453,12 @@ Kolom owner memakai kode programmer. Semua task mewarisi Definition of Done bagi
 | T-051 | Ganti daftar izin di tab Izin praktikan menjadi listener milik uid, tampilkan status dan keputusan | Riwayat izin | Perubahan status tampil tanpa reload | P2 | T-049 |
 | T-052 | Uji isolasi data antar praktikan dan empty state | Catatan uji | Praktikan lain tidak terbaca | P2 | PM-07 |
 
+### Pembersihan lintas story
+
+| Task | Deskripsi | Deliverable | Kriteria selesai | Owner | Dependensi |
+|---|---|---|---|---|---|
+| T-053 | Hapus `src/data/dummy.ts` dan seluruh impornya; `src/store/session-store.tsx` hanya membaca dari Firestore, termasuk daftar pengguna untuk nama asisten dan pemilih peserta | Sumber data tunggal | `grep` tidak menemukan impor `@/data/dummy`; aplikasi berjalan tanpa data in-memory | P1 | T-031, T-035, T-036 |
+
 ## 6. Programmer Assignment
 
 Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alur fungsional dari UI, logika, integrasi data, validasi, penanganan error, sampai pengujian di tiga platform. Tidak ada pembagian berdasarkan jenis file.
@@ -462,7 +470,7 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 | User Story | Technical Tasks | Expected Deliverable |
 |---|---|---|
 | US-01 | T-001, T-002, T-003, T-004, T-005 | Registrasi praktikan berjalan end-to-end dengan dokumen users otomatis |
-| US-02 | T-006, T-007, T-008, T-009, T-010, T-011 | Login email, logout, sesi persisten di tiga platform |
+| US-02 | T-006, T-007, T-008, T-009, T-010, T-011, T-053 | Login email, logout, sesi persisten di tiga platform, data dummy dihapus |
 | US-03 | T-012, T-013, T-014, T-015 | Guard berbasis Firestore, profil tanpa aksi demo |
 | US-04 | T-016, T-017, T-018, T-019 | Modul `src/lib/firebase.ts`, `konversi.ts`, `firestore.ts` dan tipe Firestore |
 
@@ -511,7 +519,7 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 - P1 memegang auth karena seluruh identitas dan rules bergantung pada `uid` dan role. P1 juga memegang modul data bersama agar hanya satu orang yang mengubah kontrak koneksi.
 - P2 memegang izin end-to-end sesuai kebutuhan: integrasi AI, tampilan asisten, dan keputusan berada di satu tangan sehingga tidak ada negosiasi kontrak internal.
 - P3 memegang data dan presensi karena CRUD kelas dan sesi adalah prasyarat data bagi P1 (jadwal praktikan) dan P2 (pemilihan sesi). Beban P3 paling besar; bila T-030 melewati D3, P1 mengambil alih T-031 dan T-032 agar P2 tidak terblokir.
-- Tidak ada story yang dimiliki dua orang. Perubahan kontrak bersama (tipe, konversi, nama koleksi) hanya lewat P1 dan diumumkan di standup.
+- Tidak ada story yang dimiliki dua orang. Perubahan kontrak bersama (tipe, konversi, nama koleksi) hanya lewat P1 dan diumumkan ke tim lewat pesan grup.
 
 ### 6.5 Koordinasi dan workflow
 
@@ -521,8 +529,8 @@ Tambahan untuk Sprint 2:
 
 | Topik | Aturan |
 |---|---|
-| Pengumuman perubahan kontrak | Setiap perubahan pada `src/types/firestore.ts`, `src/lib/firestore.ts`, atau nama koleksi wajib diumumkan di standup hari yang sama dan dicatat di PR |
-| Dependency baru | Dipasang PM dengan `npx expo install`, diumumkan, dan dicatat di changelog |
+| Pengumuman perubahan kontrak | Setiap perubahan pada `src/types/firestore.ts`, `src/lib/firestore.ts`, atau nama koleksi wajib diumumkan ke tim pada hari yang sama dan dijelaskan di deskripsi PR |
+| Dependency baru | Dipasang PM dengan `npx expo install`, diumumkan ke tim, dan dijelaskan di deskripsi PR |
 | File konfigurasi Firebase | Hanya PM yang mengubah `src/lib/firebase.ts` bagian inisialisasi, `.env`, `app.json`, dan Security Rules |
 | Review | Reviewer default adalah pemilik story terkait; perubahan lintas fitur direview PM |
 | Rencana harian | D1 fondasi dan auth, D2 data praktikum dan jadwal, D3 izin dan AI, D4 integrasi dan QA tiga platform, D5 perbaikan dan demo |
@@ -542,13 +550,13 @@ Pekerjaan PM terpisah dari backlog programmer dan wajib selesai sebelum atau ber
 | PM-07 | Menyusun baseline Security Rules sesuai bagian 8.6 dan memasangnya ke project | Rules aktif | Uji dasar baca dan tulis sesuai role | D1 sore |
 | PM-08 | Seed data: 2 akun asisten Auth beserta dokumen `users`, 2 kelas, 5 sesi, 1 akun praktikan uji | Data seed | Login asisten dan praktikan berhasil | D1 sore |
 | PM-09 | Verifikasi koneksi dari Android, iOS, dan Web: baca daftar sesi dan tulis satu presensi uji | Catatan verifikasi | Tiga platform terhubung | D2 pagi |
-| PM-10 | Tentukan apakah uji Security Rules memakai Firebase Emulator Suite (menambah dependency `firebase-tools` dan `@firebase/rules-unit-testing`) | Keputusan | Tercatat di changelog | D2 pagi |
+| PM-10 | Tentukan apakah uji Security Rules memakai Firebase Emulator Suite (menambah dependency `firebase-tools` dan `@firebase/rules-unit-testing`) | Keputusan | Tercatat di deskripsi PR | D2 pagi |
 
 **Titik koordinasi PM dan programmer.**
 
 1. D1 pagi: PM menyerahkan nama project, isi `.env.example`, dan daftar akun seed. Programmer tidak menebak ID project.
-2. D1 sore: PM mengumumkan baseline rules. Sejak saat itu, penambahan aturan diusulkan lewat PR kecil atau pesan standup, bukan diubah langsung oleh programmer.
-3. Setiap hari setelah standup: PM memeriksa kebutuhan akses baru dari story yang sedang dikerjakan.
+2. D1 sore: PM mengumumkan baseline rules. Sejak saat itu, penambahan aturan diusulkan lewat PR kecil atau pesan grup, bukan diubah langsung oleh programmer.
+3. Setiap hari: PM memeriksa kebutuhan akses baru dari story yang sedang dikerjakan.
 4. D4: PM menjalankan QA manual tiga platform dan mencatat status AC.
 5. D5: PM menandai tag `sprint-2` setelah demo lulus.
 
@@ -638,6 +646,8 @@ Pemetaan dari model Sprint 1:
 
 Aturan penamaan field tetap bahasa Indonesia agar UI tidak perlu pemetaan tambahan. Tipe domain aplikasi tetap di `src/types/index.ts`; tipe dokumen Firestore di `src/types/firestore.ts`.
 
+Setelah migrasi selesai, `src/data/dummy.ts` dihapus (T-053). Pada masa transisi, file itu masih ada, tetapi tidak boleh menjadi sumber data layar mana pun. Seed untuk pengembangan hanya ditulis PM ke Firestore (PM-08), bukan lewat kode aplikasi.
+
 ### 8.4 Real-time
 
 - Semua data yang tampil memakai `onSnapshot`: sesi, presensi rekap, riwayat, izin, dan profil.
@@ -668,6 +678,8 @@ Yang belum diketahui dan tidak boleh dikarang:
 | Batas waktu dan kuota pemanggilan | Perlu dikonfirmasi pengajar |
 
 Sampai informasi tersedia, T-045 menyediakan mock. Semua pemetaan field AI dikumpulkan di `src/lib/ai.ts` agar perubahan skema hanya menyentuh satu file.
+
+**Panduan untuk P2 (Nashwa) mendapat detail API.** Programmer 2 menghubungi pengajar paling lambat D1 dan menanyakan enam item di tabel di atas secara tertulis. Format pertanyaan yang bisa dipakai: "Untuk API klasifikasi alasan izin, mohon info: (1) base URL dan path endpoint, (2) method dan header autentikasi, (3) contoh request body, (4) contoh response beserta nama field kategori, (5) daftar kategori yang mungkin keluar, (6) batas waktu dan kuota." Jawaban dicatat di `src/lib/ai.ts` sebagai komentar dan disalin ke bagian 8.5 dokumen ini. Bila pengajar belum menjawab sampai D3, mock T-045 tetap dipakai dan risikonya dicatat di bagian 11.
 
 ### 8.6 Security Rules
 
@@ -723,8 +735,7 @@ PM-01..PM-07 (infrastruktur)
 | Item | Dampak bila tidak dikonfirmasi |
 |---|---|
 | Detail API AI (endpoint, skema, kategori) | Implementasi klasifikasi memakai mock, demo B tidak bisa memakai model asli |
-| Pembaruan dokumentasi lama yang masih menyatakan web bukan target dan backend non-goal | Kontradiksi aturan bagi programmer dan reviewer |
-| Izin hanya untuk sesi yang belum ditutup | Batasan di US-09 dan rules perlu diubah |
+| Pembaruan dokumentasi lama yang masih menyatakan web bukan target dan backend non-goal | Kontradiksi aturan bagi programmer dan reviewer. Sudah diperbarui; PM cukup memeriksa ulang sebelum D1 |
 | Apakah asisten boleh membaca semua dokumen praktikan atau hanya peserta kelasnya | Baseline rules dan uji akses |
 | Pengujian rules memakai emulator atau manual | Waktu D4 dan kebutuhan dependency |
 | Registrasi Android dan iOS di konsol meski SDK JS tidak memerlukannya | Hanya kelengkapan administrasi |
@@ -756,7 +767,7 @@ Catatan pengujian lintas platform:
 - [ ] Kode sesuai deskripsi task dan kriteria selesai di bagian 5.
 - [ ] `npx tsc --noEmit` dan `npx expo lint` hijau.
 - [ ] Tidak ada `console.log` sisa, tidak ada kredensial hardcode.
-- [ ] Perubahan dependency atau konfigurasi dicatat di changelog.
+- [ ] Perubahan dependency atau konfigurasi dijelaskan di deskripsi PR.
 
 **User Story**
 
