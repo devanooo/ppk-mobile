@@ -1,16 +1,19 @@
-This is an Expo/React Native mobile application for iOS and Android. Web is not a target platform. Prioritize mobile-first patterns, performance, and iOS/Android compatibility.
+This is an Expo/React Native application for iOS, Android, and Web. Prioritize mobile-first patterns and iOS/Android compatibility; Web must still build and run. Sprint 2 replaces the Sprint 1 data layer, so read `docs/sprints/sprint-2.md` before touching data, auth, or config.
 
 ## Project: PraktikumKU
 
-Sistem informasi praktikum untuk mencatat kehadiran, dengan 2 peran: **praktikan** dan **asisten**. Sprint 1 fokus UI; data dummy + state in-memory + auth dummy, tanpa backend/database.
+Sistem informasi praktikum untuk mencatat kehadiran, dengan 2 peran: **praktikan** dan **asisten**. Sprint 1 fokus UI; data dummy + state in-memory + auth dummy. Sprint 2 mengganti semuanya dengan Firebase Authentication dan Cloud Firestore (lihat `docs/sprints/sprint-2.md`).
 
 Baca sebelum mengubah kode:
 
 - `docs/PRD.md` — kebutuhan dan acceptance criteria
 - `docs/PEMBAGIAN-TUGAS.md` — pemilik setiap path
 - `docs/GIT-WORKFLOW.md` — branch, commit, PR
+- `docs/sprints/sprint-2.md` — scope, pembagian tugas, dan kontrak data Sprint 2
 
 ## Ownership (wajib)
+
+Tabel dan aturan di bagian ini berlaku untuk Sprint 1. Pembagian Sprint 2 (P1 identitas dan lapisan data, P2 izin dan AI, P3 kelas, sesi, presensi) ada di `docs/sprints/sprint-2.md` bagian 6. Bila keduanya berbeda, dokumen Sprint 2 menang untuk pekerjaan Sprint 2.
 
 | Path | Owner |
 |---|---|
@@ -21,19 +24,19 @@ Baca sebelum mengubah kode:
 
 - Satu path satu owner. Perubahan di path orang lain hanya lewat PR ke owner tersebut.
 - File beku setelah D1 (jangan diubah tanpa persetujuan owner): `src/app/_layout.tsx`, `src/constants/tokens.js`, `src/constants/theme.ts`, `src/types/index.ts`, `src/components/ui/index.ts`, `src/data/credentials.ts`.
-- Jangan menambah dependency tanpa persetujuan PM.
+- Dependency baru dipasang dengan `npx expo install` setelah dikoordinasikan dengan PM dan dijelaskan di deskripsi PR.
 - Jangan membuat file sementara di area orang lain.
 
 ## Aturan implementasi
 
-- **Platform:** target hanya iOS dan Android. Jangan menambah kode, dependency, file `.web.tsx`, atau konfigurasi khusus web. `expo-web-browser` tetap dipakai untuk membuka link eksternal di in-app browser pada perangkat.
+- **Platform:** iOS, Android, dan Web. Jangan menambah file `.web.tsx` khusus; satu komponen harus berjalan di tiga platform. `expo-web-browser` tetap dipakai untuk membuka link eksternal di in-app browser pada perangkat.
 - **Route:** `src/app/**` hanya berisi screen dan `_layout.tsx`. Komponen, hook, util di luar `src/app/`. Gunakan `Tabs` dari `expo-router` untuk tab di dalam route group; jangan pakai `NativeTabs` untuk group bersarang.
 - **Layar:** pisahkan presentational component (menerima props) dari route file (memanggil hook store). Route file harus tipis.
-- **State:** satu sumber kebenaran di `src/store/session-store.tsx`. Dilarang menduplikasi state sesi, presensi, atau autentikasi secara lokal di layar. Mutasi hanya lewat aksi store (`login`, `logout`, `setUser`, `bukaSesi`, `tutupSesi`, `catatPresensi`).
-- **Data:** dummy di `src/data/`, tipe di `src/types/`. Jangan invent field baru di layar; kontrak dibekukan setelah D1.
+- **State (Sprint 1):** satu sumber kebenaran di `src/store/session-store.tsx`. Dilarang menduplikasi state sesi, presensi, atau autentikasi secara lokal di layar. Mutasi hanya lewat aksi store (`login`, `logout`, `setUser`, `bukaSesi`, `tutupSesi`, `catatPresensi`). Sprint 2 mengganti sumber state ini dengan Firebase; lihat `docs/sprints/sprint-2.md`.
+- **Data (Sprint 1):** dummy di `src/data/`, tipe di `src/types/`. Jangan invent field baru di layar; kontrak dibekukan setelah D1. Sprint 2 memakai Firestore dan menghapus `src/data/dummy.ts`.
 - **Styling:** NativeWind (Tailwind CSS) untuk komponen JSX. Token desain ada di `src/constants/tokens.js` — satu-satunya sumber nilai, dibaca oleh `tailwind.config.js` dan di-re-export bertipe oleh `src/constants/theme.ts`. Dilarang hardcode warna/ukuran font dan dilarang arbitrary value (`p-[13px]`, `text-[#123456]`). Layout wajib flexbox + safe area; target sentuh minimal 44×44 pt.
 - **Interaksi:** konfirmasi perubahan status sesi, presensi, logout, dan ganti peran lewat modal atau bottom sheet; setiap aksi memberi feedback sukses/gagal; tombol nonaktif harus punya alasan yang terlihat.
-- **Auth:** login dummy memakai username + password dari `src/data/credentials.ts`. Root stack memakai `Stack.Protected`; route `index` dan `login` hanya untuk `user === null`, route peran hanya untuk peran yang sesuai. Logout tidak boleh menghapus `sesi` atau `presensi`. `setUser` hanya untuk ganti peran demo.
+- **Auth (Sprint 1):** login dummy memakai username + password dari `src/data/credentials.ts`. Root stack memakai `Stack.Protected`; route `index` dan `login` hanya untuk `user === null`, route peran hanya untuk peran yang sesuai. Logout tidak boleh menghapus `sesi` atau `presensi`. `setUser` hanya untuk ganti peran demo. Sprint 2 mengganti ini dengan Firebase Auth dan menghapus ganti peran demo.
 - **Empty state:** wajib untuk daftar kosong, rekap kosong, dan riwayat kehadiran kosong.
 - **Aksesibilitas:** semua tombol punya `accessibilityLabel`; teks status tidak hanya dibedakan lewat warna.
 
