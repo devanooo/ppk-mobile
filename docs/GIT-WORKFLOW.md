@@ -2,6 +2,8 @@
 
 Berlaku untuk 1 PM + 3 programmer yang bekerja paralel. Tujuan: `main` selalu bisa dijalankan dan setiap perubahan punya pemilik jelas.
 
+**Peran berputar tiap sprint.** PM, P1, P2, dan P3 dipegang orang berbeda di setiap sprint. Pemilik dokumentasi dan `.github/**` mengikuti PM yang sedang aktif, dan `CODEOWNERS` diperbarui di awal sprint. Per sprint 2: PM Dehar Zaidan Dzaki Amirullah (`@21d4n`), P1 Anggita Kirana Puspa, P2 Devano Trestanto, P3 Nashwa Aldebaran. Pembagian kerja per sprint 2 ada di `docs/sprints/sprint-2.md` bagian 6.
+
 ## 1. Branch
 
 `main` = branch produksi/demo. **Dilarang push langsung ke `main`.**
