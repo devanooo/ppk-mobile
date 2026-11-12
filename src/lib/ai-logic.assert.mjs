@@ -6,7 +6,12 @@
 // TypeScript secara langsung, jadi modul diimpor dengan ekstensi eksplisit.
 
 import { klasifikasiAlasanMock } from './ai-mock.ts';
-import { bacaKonfigurasiAi, petakanResponsAi } from './ai-pemetaan.ts';
+import {
+  KATEGORI_IZIN,
+  bacaKonfigurasiAi,
+  normalisasiKategori,
+  petakanResponsAi,
+} from './ai-pemetaan.ts';
 
 let jumlah = 0;
 
@@ -15,46 +20,87 @@ function pastikan(kondisi, pesan) {
   if (!kondisi) throw new Error(`GAGAL: ${pesan}`);
 }
 
-// 1. Respons dengan field `kategori` diterima.
-const kategori = petakanResponsAi({ kategori: 'sakit' });
-pastikan(kategori.ok && kategori.kategori === 'sakit', 'field kategori harus terbaca');
+/** Membungkus teks jawaban model ke bentuk respons chat completions. */
+function respons(konten) {
+  return { choices: [{ message: { role: 'assistant', content: konten } }] };
+}
+
+// 1. Jawaban kategori bersih diterima.
+const sakit = petakanResponsAi(respons('sakit'));
+pastikan(sakit.ok && sakit.kategori === 'sakit', 'kategori sakit harus terbaca');
+
+// 2. Jawaban dengan tanda kutip, backtick, titik, dan huruf besar tetap terbaca.
+for (const varian of ['"sakit"', '`sakit`', 'Sakit.', 'SAKIT', ' sakit ', "'sakit'"]) {
+  const hasil = petakanResponsAi(respons(varian));
+  pastikan(hasil.ok && hasil.kategori === 'sakit', `varian ${JSON.stringify(varian)} harus terbaca`);
+}
+
+// 3. Kategori berspasi dinormalisasi menjadi tanda hubung.
 pastikan(
-  petakanResponsAi({ kategori: '  sakit  ' }).ok,
-  'spasi di tepi kategori harus dirapikan',
+  normalisasiKategori('KEGIATAN KAMPUS') === 'kegiatan-kampus',
+  'spasi harus menjadi tanda hubung',
+);
+pastikan(
+  petakanResponsAi(respons('keadaan keluarga')).ok,
+  'kategori berspasi harus diterima setelah normalisasi',
+);
+pastikan(
+  petakanResponsAi(respons('Keadaan-Keluarga')).ok,
+  'huruf besar pada kategori bergaris hubung harus diterima',
 );
 
-// 2. Respons dengan nama field alternatif tetap terbaca.
-const kategoriAlternatif = petakanResponsAi({ category: 'keadaan-keluarga' });
+// 4. Setiap kategori resmi bisa dipetakan bolak-balik.
+for (const kategori of KATEGORI_IZIN) {
+  const hasil = petakanResponsAi(respons(kategori));
+  pastikan(hasil.ok && hasil.kategori === kategori, `kategori ${kategori} harus dikenali`);
+}
+
+// 5. Jawaban prosa atau kategori asing ditolak, bukan ditebak "lainnya".
 pastikan(
-  kategoriAlternatif.ok && kategoriAlternatif.kategori === 'keadaan-keluarga',
-  'field category harus dikenali sebagai alternatif',
+  !petakanResponsAi(respons('Praktikan tersebut sakit demam tinggi.')).ok,
+  'prosa panjang harus ditolak, bukan ditebak',
 );
-const labelAlternatif = petakanResponsAi({ label: 'lainnya' });
-pastikan(labelAlternatif.ok && labelAlternatif.kategori === 'lainnya', 'field label harus dikenali');
+pastikan(!petakanResponsAi(respons('kategori: sakit')).ok, 'bukan kategori persis harus ditolak');
+pastikan(!petakanResponsAi(respons('membolos')).ok, 'kategori asing harus ditolak');
+pastikan(!petakanResponsAi(respons('')).ok, 'jawaban kosong harus ditolak');
+pastikan(!petakanResponsAi(respons('   ')).ok, 'jawaban spasi saja harus ditolak');
 
-// 3. Respons tanpa field kategori ditolak dengan pesan yang bisa ditampilkan.
-pastikan(!petakanResponsAi({}).ok, 'respons tanpa kategori harus ditolak');
-pastikan(!petakanResponsAi({ kategori: '' }).ok, 'kategori kosong harus ditolak');
-pastikan(!petakanResponsAi({ kategori: null }).ok, 'kategori null harus ditolak');
-
-// 4. Respons bukan objek ditolak tanpa melempar.
+// 6. Bentuk respons rusak ditolak tanpa melempar.
 pastikan(!petakanResponsAi(null).ok, 'respons null harus ditolak');
 pastikan(!petakanResponsAi(undefined).ok, 'respons undefined harus ditolak');
 pastikan(!petakanResponsAi('sakit').ok, 'respons string harus ditolak');
-pastikan(!petakanResponsAi(42).ok, 'respons angka harus ditolak');
+pastikan(!petakanResponsAi({}).ok, 'respons tanpa choices harus ditolak');
+pastikan(!petakanResponsAi({ choices: [] }).ok, 'choices kosong harus ditolak');
+pastikan(!petakanResponsAi({ choices: 'sakit' }).ok, 'choices bukan array harus ditolak');
+pastikan(!petakanResponsAi({ choices: [{}] }).ok, 'choice tanpa message harus ditolak');
+pastikan(!petakanResponsAi({ choices: [{ message: {} }] }).ok, 'message tanpa content harus ditolak');
+pastikan(
+  !petakanResponsAi({ choices: [{ message: { content: 42 } }] }).ok,
+  'content bukan string harus ditolak',
+);
+pastikan(
+  !petakanResponsAi({ choices: [{ message: { content: null } }] }).ok,
+  'content null harus ditolak',
+);
 
-// 5. Pesan gagal tidak kosong supaya bisa langsung dipakai di banner.
-const gagal = petakanResponsAi({});
+// 7. Pesan gagal tidak kosong supaya bisa langsung dipakai di banner.
+const gagal = petakanResponsAi({ choices: [] });
 pastikan(!gagal.ok && gagal.pesan.length > 0, 'pesan gagal tidak boleh kosong');
 
-// 6. Konfigurasi kosong gagal cepat, bukan menembak jaringan.
+// 8. Konfigurasi kosong gagal cepat, bukan menembak jaringan.
 const konfigurasi = bacaKonfigurasiAi();
 if (!process.env.EXPO_PUBLIC_AI_BASE_URL || !process.env.EXPO_PUBLIC_AI_API_KEY) {
   pastikan(!konfigurasi.ok, 'env kosong harus ditolak');
   pastikan(!konfigurasi.ok && konfigurasi.pesan.length > 0, 'pesan env kosong tidak boleh kosong');
+} else {
+  pastikan(konfigurasi.ok && konfigurasi.konfigurasi.model.length > 0, 'model harus ada');
+  pastikan(
+    konfigurasi.ok && konfigurasi.konfigurasi.baseUrl.startsWith('http'),
+    'baseUrl harus berupa URL',
+  );
 }
 
-// 7. Mock klasifikasi deterministik dan selalu mengembalikan kategori yang dikenal.
+// 9. Mock deterministik dan hanya menghasilkan kategori resmi.
 pastikan(klasifikasiAlasanMock('saya sakit demam') === 'sakit', 'kata sakit harus terdeteksi');
 pastikan(
   klasifikasiAlasanMock('ada acara keluarga') === 'keadaan-keluarga',
@@ -68,6 +114,10 @@ pastikan(klasifikasiAlasanMock('alasan lain') === 'lainnya', 'alasan tanpa kata 
 pastikan(
   klasifikasiAlasanMock('SAKIT') === klasifikasiAlasanMock('sakit'),
   'mock harus tidak peka huruf besar kecil',
+);
+pastikan(
+  KATEGORI_IZIN.includes(klasifikasiAlasanMock('apa saja')),
+  'mock harus selalu menghasilkan kategori resmi',
 );
 
 console.log(`LULUS: ${jumlah} pemeriksaan`);
