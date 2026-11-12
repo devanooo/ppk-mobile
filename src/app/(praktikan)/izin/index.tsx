@@ -30,7 +30,7 @@ export default function IzinPraktikanScreen() {
   const praktikanId = user?.id;
   const { sesi, status: statusSesi, pesanGalat: galatSesi } = useSesiPraktikan(db, praktikanId);
   const sesiIds = useMemo(() => sesi.map((item) => item.id), [sesi]);
-  const { izin, status: statusIzin, pesanGalat: galatIzin } = useIzinPraktikan(
+  const { izin, status: statusIzin, pesanGalat: galatIzin, terpotong } = useIzinPraktikan(
     db,
     praktikanId,
     sesiIds,
@@ -52,6 +52,7 @@ export default function IzinPraktikanScreen() {
       profil={<MenuProfilPraktikan />}
       sesiById={sesiById}
       status={gabungStatus(statusSesi, statusIzin)}
+      terpotong={terpotong}
     />
   );
 }

@@ -17,6 +17,8 @@ export const FILTER_STATUS: { nilai: StatusIzin | 'semua'; label: string }[] = [
 
 type DaftarIzinAsistenProps = {
   daftarIzin: Izin[];
+  /** Seluruh izin tanpa filter, dipakai untuk menghitung antrean. */
+  semuaIzin: Izin[];
   sesiById: Map<string, SesiPraktikan>;
   namaPraktikan: Map<string, string>;
   filter: StatusIzin | 'semua';
@@ -29,8 +31,31 @@ type DaftarIzinAsistenProps = {
   umpanBalik?: { jenis: 'sukses' | 'gagal'; pesan: string } | null;
 };
 
+/**
+ * Empty state dibedakan per filter. "Belum ada pengajuan sama sekali" berbeda
+ * artinya dengan "tidak ada yang berstatus disetujui".
+ */
+function judulKosong(filter: StatusIzin | 'semua', total: number): string {
+  if (total === 0) return 'Belum ada pengajuan izin';
+
+  if (filter === 'menunggu') return 'Tidak ada pengajuan yang menunggu';
+  if (filter === 'disetujui') return 'Belum ada izin disetujui';
+  if (filter === 'ditolak') return 'Belum ada izin ditolak';
+
+  return 'Belum ada pengajuan izin';
+}
+
+function deskripsiKosong(filter: StatusIzin | 'semua', total: number): string {
+  if (total === 0) return 'Pengajuan dari praktikan di sesimu akan muncul di sini.';
+
+  if (filter === 'menunggu') return 'Semua pengajuan pada sesimu sudah diputuskan.';
+
+  return 'Pengajuan dengan status ini akan muncul di sini.';
+}
+
 export function DaftarIzinAsisten({
   daftarIzin,
+  semuaIzin,
   sesiById,
   namaPraktikan,
   filter,
@@ -42,7 +67,9 @@ export function DaftarIzinAsisten({
   onTutupUmpanBalik,
   umpanBalik,
 }: DaftarIzinAsistenProps) {
-  const jumlahMenunggu = daftarIzin.filter((izin) => izin.status === 'menunggu').length;
+  // Jumlah menunggu harus dihitung dari SELURUH izin, bukan dari daftar yang
+  // sudah difilter, supaya angkanya tidak selalu 0 saat filter lain aktif.
+  const jumlahMenunggu = semuaIzin.filter((izin) => izin.status === 'menunggu').length;
 
   return (
     <Screen padded={false}>
@@ -94,8 +121,8 @@ export function DaftarIzinAsisten({
           {status === 'siap' && daftarIzin.length === 0 ? (
             <Card className="mt-four">
               <EmptyState
-                judul="Belum ada pengajuan izin"
-                deskripsi="Pengajuan dari praktikan di sesimu akan muncul di sini."
+                judul={judulKosong(filter, semuaIzin.length)}
+                deskripsi={deskripsiKosong(filter, semuaIzin.length)}
               />
             </Card>
           ) : null}

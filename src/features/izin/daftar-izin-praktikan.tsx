@@ -4,6 +4,7 @@ import { FlatList, Text, View } from 'react-native';
 import { AppButton, Banner, Card, EmptyState, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { KartuIzin } from '@/features/izin/kartu-izin';
+import { BATAS_SESI_PRAKTIKAN } from '@/features/izin/use-izin-praktikan';
 import type { Izin } from '@/features/izin/types';
 import type { SesiPraktikan } from '@/lib/izin-sesi';
 
@@ -16,6 +17,8 @@ type DaftarIzinPraktikanProps = {
   /** Digabung dari status sesi dan status izin oleh pemanggil. */
   status: StatusDaftar;
   pesanGalat?: string;
+  /** Riwayat dipotong ke batas sesi; diberi tahu, bukan dipotong diam-diam. */
+  terpotong?: boolean;
   onAjukan: () => void;
   profil?: ReactNode;
 };
@@ -34,6 +37,7 @@ export function DaftarIzinPraktikan({
   sesiById,
   status,
   pesanGalat,
+  terpotong = false,
   onAjukan,
   profil,
 }: DaftarIzinPraktikanProps) {
@@ -68,6 +72,13 @@ export function DaftarIzinPraktikan({
               </View>
 
               <AppButton className="mt-four" label="Ajukan izin" onPress={onAjukan} />
+
+              {terpotong ? (
+                <Text className="mt-three text-caption text-textSecondary">
+                  Menampilkan {BATAS_SESI_PRAKTIKAN} sesi terbaru saja. Riwayat izin pada sesi
+                  lama tidak dimuat.
+                </Text>
+              ) : null}
 
               {pesanGalat ? (
                 <Banner className="mt-three" jenis="gagal" pesan={pesanGalat} />
