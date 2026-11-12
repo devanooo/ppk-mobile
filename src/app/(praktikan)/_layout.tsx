@@ -45,6 +45,18 @@ export default function PraktikanLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="izin"
+        options={{
+          title: 'Izin',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: 'doc.text', android: 'description' }}
+              tintColor={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
