@@ -18,9 +18,15 @@ type HasilIzin = {
 };
 
 /**
- * Mendengarkan izin dari semua sesi yang diampu asisten. Jumlah sesi dibatasi
- * 20 supaya jumlah listener tetap wajar (sprint-2 bagian 8.4); sesi di urutan
- * awal adalah yang paling relevan menurut pemanggil.
+ * Batas jumlah sesi yang didengarkan sekaligus. Setiap sesi menambah satu
+ * listener, jadi jumlahnya harus dibatasi (sprint-2 bagian 8.4).
+ */
+export const BATAS_SESI_ASISTEN = 20;
+
+/**
+ * Mendengarkan izin dari sesi yang diampu asisten, maksimal
+ * `BATAS_SESI_ASISTEN` sesi. Pemanggil mengurutkan sesi dari yang paling
+ * relevan, karena hanya bagian awal yang didengarkan.
  */
 export function useIzinAsisten(
   db: Firestore | null,
@@ -28,23 +34,17 @@ export function useIzinAsisten(
   sesiIds: string[],
 ): HasilIzin {
   const [hasil, setHasil] = useState<HasilIzin>({ izin: [], status: 'memuat' });
-  const kunci = sesiIds.join('|');
+  const kunci = sesiIds.slice(0, BATAS_SESI_ASISTEN).join('|');
 
   useEffect(() => {
     if (!db || !asistenId || !kunci) return;
 
     const daftar = kunci.split('|');
     const terkumpul = new Map<string, IzinAsisten>();
-    let gagal = false;
-
-    const kirim = () => {
-      if (!gagal) setHasil({ izin: [...terkumpul.values()], status: 'siap' });
-    };
 
     const pembersih = daftar.map((sesiId) =>
       dengarkanIzinSesi(db, sesiId, (data) => {
         if (!data.ok) {
-          gagal = true;
           setHasil({ izin: [], status: 'gagal', pesanGalat: data.pesan });
           return;
         }
@@ -62,7 +62,9 @@ export function useIzinAsisten(
           }
         }
 
-        kirim();
+        // Status selalu ditulis ulang dari snapshot terbaru, sehingga listener
+        // yang pulih setelah gangguan tetap dipakai (bukan terkunci di "gagal").
+        setHasil({ izin: [...terkumpul.values()], status: 'siap' });
       }),
     );
 
