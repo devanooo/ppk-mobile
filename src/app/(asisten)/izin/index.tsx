@@ -37,6 +37,9 @@ export default function IzinAsistenScreen() {
     return filter === 'semua' ? terurut : terurut.filter((item) => item.status === filter);
   }, [izin, filter]);
 
+  // Seluruh izin tanpa filter, dipakai menghitung antrean di subtitle.
+  const semuaIzin = useMemo(() => urutkanIzin(izin), [izin]);
+
   const idPraktikan = useMemo(
     () => [...new Set(izin.map((item) => item.praktikanId))].sort().join(','),
     [izin],
@@ -77,6 +80,7 @@ export default function IzinAsistenScreen() {
       pesanGalat={statusSesi === 'gagal' ? galatSesi : pesanGalat}
       profil={<MenuProfilAsisten />}
       sesiById={sesiById}
+      semuaIzin={semuaIzin}
       status={statusSesi === 'gagal' ? 'gagal' : status}
     />
   );

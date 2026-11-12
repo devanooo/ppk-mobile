@@ -25,7 +25,7 @@ export default function IzinPraktikanScreen() {
   const praktikanId = user?.id;
   const { sesi, status: statusSesi, pesanGalat: galatSesi } = useSesiPraktikan(db, praktikanId);
   const sesiIds = useMemo(() => sesi.map((item) => item.id), [sesi]);
-  const { izin, status, pesanGalat } = useIzinPraktikan(db, praktikanId, sesiIds);
+  const { izin, status, pesanGalat, terpotong } = useIzinPraktikan(db, praktikanId, sesiIds);
 
   const daftar = useMemo(() => urutkanIzin(izin), [izin]);
   const sesiById = useMemo(
@@ -74,6 +74,12 @@ export default function IzinPraktikanScreen() {
                 label="Ajukan izin"
                 onPress={() => router.push('/(praktikan)/izin/ajukan')}
               />
+
+              {terpotong ? (
+                <Text className="mt-three text-caption text-textSecondary">
+                  Menampilkan 20 sesi terbaru saja. Riwayat izin pada sesi lama tidak dimuat.
+                </Text>
+              ) : null}
 
               {galat ? (
                 <Banner className="mt-three" jenis="gagal" pesan={galat} />
