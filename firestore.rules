@@ -1,0 +1,164 @@
+rules_version = '2';
+
+// Security Rules PraktikumKU — baseline docs/sprints/sprint-2.md bagian 8.6,
+// ditambah tiga aturan izin yang disepakati dari laporan P2:
+//   (a) praktikan pemilik boleh menulis kategoriAi, klasifikasiStatus, diprosesPada
+//   (b) create izin ditolak bila sesi berstatus "ditutup"
+//   (c) create izin ditolak bila uid bukan peserta kelas dari sesi itu
+//
+// Aturan hanya diubah lewat PR, lalu deploy dengan:
+//   npx firebase-tools deploy --only firestore:rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Tolak semua yang tidak diizinkan secara eksplisit.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function masuk() {
+      return request.auth != null;
+    }
+
+    function peranSaya() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.peran;
+    }
+
+    function asisten() {
+      return masuk() && peranSaya() == 'asisten';
+    }
+
+    function praktikan() {
+      return masuk() && peranSaya() == 'praktikan';
+    }
+
+    // Praktikan terdaftar sebagai peserta kelas tertentu.
+    function pesertaKelas(kelasId) {
+      return masuk()
+        && request.auth.uid in get(/databases/$(database)/documents/kelas/$(kelasId))
+          .data.pesertaIds;
+    }
+
+    // ==== users ====
+    // Baca: diri sendiri; asisten boleh membaca profil praktikan (layar detail
+    // izin). Tulis: hanya diri sendiri, peran tidak boleh berubah setelah dibuat.
+    match /users/{userId} {
+      allow read: if request.auth.uid == userId
+        || (asisten() && resource.data.peran == 'praktikan');
+
+      allow create: if request.auth.uid == userId
+        && request.resource.data.peran == 'praktikan'
+        && request.resource.data.keys().hasOnly(['nama', 'nomorInduk', 'peran', 'dibuatPada']);
+
+      allow update: if request.auth.uid == userId
+        && request.resource.data.peran == resource.data.peran;
+
+      allow delete: if false;
+    }
+
+    // ==== kelas ====
+    // Baca: asisten pengampu dan praktikan yang ada di pesertaIds.
+    // Tulis: hanya asisten pengampu, dan kepemilikan tidak boleh dipindah.
+    match /kelas/{kelasId} {
+      allow read: if masuk()
+        && (resource.data.asistenId == request.auth.uid
+          || request.auth.uid in resource.data.pesertaIds);
+
+      allow create: if asisten()
+        && request.resource.data.asistenId == request.auth.uid;
+
+      allow update: if asisten()
+        && resource.data.asistenId == request.auth.uid
+        && request.resource.data.asistenId == request.auth.uid;
+
+      allow delete: if false;
+    }
+
+    // ==== sesi ====
+    // Baca: asisten pengampu dan praktikan peserta kelasnya.
+    // Tulis: hanya asisten pengampu; sesi "ditutup" tidak bisa dibuka kembali.
+    match /sesi/{sesiId} {
+      allow read: if masuk()
+        && (resource.data.asistenId == request.auth.uid
+          || pesertaKelas(resource.data.kelasId));
+
+      allow create: if asisten()
+        && request.resource.data.asistenId == request.auth.uid
+        && request.resource.data.status in ['belum-dibuka', 'dibuka', 'ditutup']
+        && get(/databases/$(database)/documents/kelas/$(request.resource.data.kelasId))
+          .data.asistenId == request.auth.uid;
+
+      allow update: if asisten()
+        && resource.data.asistenId == request.auth.uid
+        && request.resource.data.asistenId == request.auth.uid
+        && request.resource.data.status in ['belum-dibuka', 'dibuka', 'ditutup']
+        && !(resource.data.status == 'ditutup' && request.resource.data.status != 'ditutup');
+
+      allow delete: if false;
+
+      // ==== sesi/{sesiId}/presensi ====
+      // Create hanya praktikan pemilik, hanya saat sesi "dibuka" dan ia peserta.
+      // Update dan delete ditolak.
+      match /presensi/{praktikanId} {
+        function sesiInduk() {
+          return get(/databases/$(database)/documents/sesi/$(sesiId)).data;
+        }
+
+        allow read: if request.auth.uid == praktikanId
+          || (asisten() && sesiInduk().asistenId == request.auth.uid);
+
+        allow create: if request.auth.uid == praktikanId
+          && sesiInduk().status == 'dibuka'
+          && pesertaKelas(sesiInduk().kelasId);
+
+        allow update, delete: if false;
+      }
+
+      // ==== sesi/{sesiId}/izin ====
+      match /izin/{praktikanId} {
+        function sesiInduk() {
+          return get(/databases/$(database)/documents/sesi/$(sesiId)).data;
+        }
+
+        function pemilik() {
+          return request.auth.uid == praktikanId;
+        }
+
+        allow read: if pemilik()
+          || (asisten() && sesiInduk().asistenId == request.auth.uid);
+
+        // Tanpa akses: praktikan tidak bisa membuat izin di sesi kelas lain,
+        // di sesi yang sudah ditutup, atau dengan status selain "menunggu".
+        allow create: if pemilik()
+          && request.resource.data.praktikanId == praktikanId
+          && request.resource.data.status == 'menunggu'
+          && request.resource.data.klasifikasiStatus == 'menunggu'
+          && request.resource.data.keys().hasOnly(
+               ['praktikanId', 'alasan', 'status', 'klasifikasiStatus', 'dibuatPada'])
+          && sesiInduk().status != 'ditutup'
+          && pesertaKelas(sesiInduk().kelasId);
+
+        // Praktikan pemilik: hanya field hasil AI, status izin tidak berubah.
+        // Asisten pengampu: hanya field keputusan, hanya dari "menunggu".
+        allow update: if (pemilik() && hanyaFieldAi())
+          || (asisten() && sesiInduk().asistenId == request.auth.uid && hanyaKeputusan());
+
+        allow delete: if false;
+
+        function hanyaFieldAi() {
+          return request.resource.data.status == resource.data.status
+            && request.resource.data.diff(resource.data).changedKeys().hasOnly(
+                 ['kategoriAi', 'klasifikasiStatus', 'diprosesPada']);
+        }
+
+        function hanyaKeputusan() {
+          return resource.data.status == 'menunggu'
+            && request.resource.data.status in ['disetujui', 'ditolak']
+            && request.resource.data.diff(resource.data).changedKeys().hasOnly(
+                 ['status', 'diputuskanPada', 'diputuskanOleh']);
+        }
+      }
+    }
+  }
+}
