@@ -39,6 +39,9 @@
 /src/app/(praktikan)/           @anggitakirana @nashwanashwa @devanooo
 /src/features/praktikan/        @anggitakirana @nashwanashwa
 
+# Fitur izin (form, daftar, detail, hook) dikerjakan P2
+/src/features/izin/             @devanooo
+
 # Area asisten: P2 pemilik shell dan izin, P3 mengerjakan kelas, sesi,
 # jadwal, dan rekap
 /src/app/(asisten)/             @devanooo @nashwanashwa
