@@ -41,11 +41,11 @@ service cloud.firestore {
     }
 
     // ==== users ====
-    // Baca: diri sendiri; asisten boleh membaca profil praktikan (layar detail
-    // izin). Tulis: hanya diri sendiri, peran tidak boleh berubah setelah dibuat.
+    // Baca dan tulis hanya diri sendiri. Brief sprint-2 hanya mensyaratkan
+    // akses sesuai identitas dan peran; tidak ada kebutuhan asisten membaca
+    // profil praktikan.
     match /users/{userId} {
-      allow read: if request.auth.uid == userId
-        || (asisten() && resource.data.peran == 'praktikan');
+      allow read: if request.auth.uid == userId;
 
       allow create: if request.auth.uid == userId
         && request.resource.data.peran == 'praktikan'
@@ -72,7 +72,9 @@ service cloud.firestore {
         && resource.data.asistenId == request.auth.uid
         && request.resource.data.asistenId == request.auth.uid;
 
-      allow delete: if false;
+      // Brief sprint-2 nomor 2: asisten melakukan CRUD, termasuk hapus.
+      allow delete: if asisten()
+        && resource.data.asistenId == request.auth.uid;
     }
 
     // ==== sesi ====
@@ -95,7 +97,9 @@ service cloud.firestore {
         && request.resource.data.status in ['belum-dibuka', 'dibuka', 'ditutup']
         && !(resource.data.status == 'ditutup' && request.resource.data.status != 'ditutup');
 
-      allow delete: if false;
+      // Brief sprint-2 nomor 2: asisten melakukan CRUD, termasuk hapus.
+      allow delete: if asisten()
+        && resource.data.asistenId == request.auth.uid;
 
       // ==== sesi/{sesiId}/presensi ====
       // Create hanya praktikan pemilik, hanya saat sesi "dibuka" dan ia peserta.
