@@ -98,16 +98,37 @@ export async function bacaNamaPraktikan(
   praktikanIds: string[],
 ): Promise<Map<string, string>> {
   const peta = new Map<string, string>();
+  const profil = await bacaProfilPraktikan(db, praktikanIds);
+
+  profil.forEach((data, id) => {
+    if (data.nama) peta.set(id, data.nama);
+  });
+
+  return peta;
+}
+
+export type ProfilPraktikan = { nama?: string; nomorInduk?: string };
+
+/**
+ * TODO(p1): ganti dengan `src/lib/firestore.ts` (T-018) begitu tersedia.
+ * Membaca nama dan nomor induk sekaligus, karena layar detail asisten
+ * membutuhkan keduanya. Kegagalan per dokumen tidak menggagalkan keseluruhan.
+ */
+export async function bacaProfilPraktikan(
+  db: Firestore,
+  praktikanIds: string[],
+): Promise<Map<string, ProfilPraktikan>> {
+  const peta = new Map<string, ProfilPraktikan>();
 
   await Promise.all(
     [...new Set(praktikanIds)].map(async (praktikanId) => {
       try {
         const dokumen = await getDoc(doc(db, 'users', praktikanId));
-        const data = dokumen.data() as { nama?: string } | undefined;
+        const data = dokumen.data() as ProfilPraktikan | undefined;
 
-        if (data?.nama) peta.set(praktikanId, data.nama);
+        if (data) peta.set(praktikanId, data);
       } catch {
-        // Nama hanya pelengkap tampilan; kartu tetap tampil tanpa nama.
+        // Identitas hanya pelengkap tampilan; kartu tetap tampil tanpanya.
       }
     }),
   );

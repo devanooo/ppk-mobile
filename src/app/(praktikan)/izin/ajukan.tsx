@@ -137,9 +137,11 @@ export default function AjukanIzinScreen() {
         onPilihSesi={setSesiTerpilih}
         onTutupUmpanBalik={() => setUmpanBalik(null)}
         onUbahAlasan={setAlasan}
+        pesanGalatSesi={pesanGalat}
         profil={<MenuProfilPraktikan />}
         sedangKirim={sedangKirim}
         sesiTerpilih={sesiTerpilih}
+        statusSesi={status}
         tampilkanGalatAlasan={tampilkanGalatAlasan}
         umpanBalik={umpanBalik}
       />
