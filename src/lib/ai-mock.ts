@@ -1,22 +1,18 @@
 /**
  * Klasifikasi alasan izin untuk pengembangan (T-045).
  *
- * Dipakai saat `EXPO_PUBLIC_AI_MOCK=1` atau sebelum endpoint AI dari pengajar
- * tersedia. Hasilnya deterministik supaya UI dan jalur penyimpanan bisa diuji
- * tanpa memanggil jaringan. Daftar kategori di sini BELUM final: pengajar belum
- * mengonfirmasi daftar kategori resmi (docs/sprints/sprint-2.md bagian 8.5).
+ * Dipakai saat `EXPO_PUBLIC_AI_MOCK=1`. Hasilnya deterministik supaya UI dan
+ * jalur penyimpanan bisa diuji tanpa memanggil jaringan maupun memakai kuota.
+ *
+ * Modul ini sengaja tidak punya impor runtime: `src/lib/ai-logic.assert.mjs`
+ * mengimpornya langsung lewat Node. Tipe kategori diambil sebagai `import type`
+ * (dihapus saat transpilasi) supaya daftar kategori tetap satu sumber di
+ * `ai-pemetaan.ts`.
  */
 
-export const KATEGORI_MOCK = [
-  'sakit',
-  'keadaan-keluarga',
-  'kegiatan-kampus',
-  'lainnya',
-] as const;
+import type { KategoriIzin } from './ai-pemetaan';
 
-export type KategoriMock = (typeof KATEGORI_MOCK)[number];
-
-const KATA_KUNCI: { kategori: KategoriMock; kata: string[] }[] = [
+const KATA_KUNCI: { kategori: KategoriIzin; kata: string[] }[] = [
   {
     kategori: 'sakit',
     kata: ['sakit', 'demam', 'opname', 'rumah sakit', 'dokter', 'vaksin', 'klinik'],
@@ -31,7 +27,7 @@ const KATA_KUNCI: { kategori: KategoriMock; kata: string[] }[] = [
   },
 ];
 
-export function klasifikasiAlasanMock(alasan: string): KategoriMock {
+export function klasifikasiAlasanMock(alasan: string): KategoriIzin {
   const teks = alasan.toLowerCase();
 
   for (const { kategori, kata } of KATA_KUNCI) {
