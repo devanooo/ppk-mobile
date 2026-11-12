@@ -14,6 +14,9 @@ type FormAjukanIzinProps = {
   sesiTerpilih?: string;
   alasan: string;
   sedangKirim: boolean;
+  /** Membedakan "gagal dimuat" dari "memang belum ada sesi" (NFR-02). */
+  statusSesi?: 'memuat' | 'siap' | 'gagal';
+  pesanGalatSesi?: string;
   /** Alasan tambahan kenapa tombol Ajukan nonaktif, mis. sesi sudah ditutup. */
   alasanNonaktif?: string;
   tampilkanGalatAlasan?: boolean;
@@ -33,6 +36,8 @@ export function FormAjukanIzin({
   sesiTerpilih,
   alasan,
   sedangKirim,
+  statusSesi = 'siap',
+  pesanGalatSesi,
   alasanNonaktif,
   tampilkanGalatAlasan = false,
   umpanBalik,
@@ -46,6 +51,8 @@ export function FormAjukanIzin({
   profil,
 }: FormAjukanIzinProps) {
   const adaSesi = daftarSesi.length > 0;
+  const sedangMemuat = statusSesi === 'memuat';
+  const gagalMemuat = statusSesi === 'gagal';
 
   return (
     <Screen padded={false}>
@@ -109,10 +116,19 @@ export function FormAjukanIzin({
             </>
           ) : (
             <Card className="mt-four">
-              <EmptyState
-                judul="Belum ada sesi"
-                deskripsi="Izin hanya dapat diajukan untuk sesi dari kelas yang kamu ikuti."
-              />
+              {sedangMemuat ? (
+                <EmptyState judul="Memuat sesi..." deskripsi="Daftar sesi sedang diambil." />
+              ) : gagalMemuat ? (
+                <EmptyState
+                  judul="Sesi gagal dimuat"
+                  deskripsi={pesanGalatSesi ?? 'Tidak dapat memuat daftar sesi.'}
+                />
+              ) : (
+                <EmptyState
+                  judul="Belum ada sesi"
+                  deskripsi="Izin hanya dapat diajukan untuk sesi dari kelas yang kamu ikuti."
+                />
+              )}
             </Card>
           )}
         </View>
