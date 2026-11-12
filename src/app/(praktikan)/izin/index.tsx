@@ -1,6 +1,7 @@
+import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 
-import { Card, EmptyState, Screen } from '@/components/ui';
+import { AppButton, Card, EmptyState, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
 
@@ -8,6 +9,7 @@ import { useSession } from '@/store/session-store';
 
 export default function IzinPraktikanScreen() {
   const { user } = useSession();
+  const router = useRouter();
 
   if (!user) {
     return null;
@@ -28,6 +30,12 @@ export default function IzinPraktikanScreen() {
           </View>
           <MenuProfilPraktikan />
         </View>
+
+        <AppButton
+          className="mt-four"
+          label="Ajukan izin"
+          onPress={() => router.push('/(praktikan)/izin/ajukan')}
+        />
 
         <Card className="mt-four">
           <EmptyState
