@@ -46,6 +46,18 @@ export default function AsistenLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="izin"
+        options={{
+          title: 'Izin',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: 'checklist', android: 'checklist' }}
+              tintColor={color}
+            />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
