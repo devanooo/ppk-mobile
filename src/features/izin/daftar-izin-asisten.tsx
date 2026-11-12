@@ -56,7 +56,7 @@ export function DaftarIzinAsisten({
               <Text className="mt-one text-small text-textSecondary">
                 {jumlahMenunggu > 0
                   ? `${jumlahMenunggu} pengajuan menunggu keputusan`
-                  : 'Tidak ada pengajuan yang menunggu.'}
+                  : 'Daftar pengajuan izin dari sesi yang kamu ampu.'}
               </Text>
             </View>
             {profil}
