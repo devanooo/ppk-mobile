@@ -45,7 +45,9 @@ export default function IzinPraktikanScreen() {
         <FlatList
           contentContainerClassName="px-three pb-five"
           data={daftar}
-          keyExtractor={(item) => item.id}
+          // ID dokumen izin = uid praktikan, jadi tidak unik lintas sesi.
+          // Kunci harus menyertakan sesiId, sama seperti di daftar asisten.
+          keyExtractor={(item) => `${item.sesiId}:${item.id}`}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <>
