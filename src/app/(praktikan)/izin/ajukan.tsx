@@ -30,7 +30,8 @@ export default function AjukanIzinScreen() {
   const [umpanBalik, setUmpanBalik] = useState<UmpanBalik | null>(null);
   const [konfirmasiTerbuka, setKonfirmasiTerbuka] = useState(false);
   const [tampilkanGalatAlasan, setTampilkanGalatAlasan] = useState(false);
-  const [klasifikasiGagal, setKlasifikasiGagal] = useState(false);
+  // Pengajuan sudah tersimpan tetapi hasil AI belum masuk, jadi masih bisa diulang.
+  const [perluUlangKlasifikasi, setPerluUlangKlasifikasi] = useState(false);
 
   // Sesi pertama dipakai sebagai pilihan awal tanpa setState di effect, supaya
   // tidak ada render berantai saat daftar sesi tiba.
@@ -104,24 +105,80 @@ export default function AjukanIzinScreen() {
 
     // Pengajuan sudah tersimpan. Kegagalan AI tidak boleh membatalkannya
     // (AC US-10 nomor 4), jadi hasilnya hanya memengaruhi badge klasifikasi.
-    const kategori = await klasifikasiAlasan(alasan);
-    const simpan = await simpanHasilKlasifikasi({
-      db,
-      sesiId: sesiTerpilih,
-      praktikanId,
-      kategoriAi: kategori.ok ? kategori.kategori : undefined,
-      klasifikasiStatus: kategori.ok ? 'selesai' : 'gagal',
-    });
+    const klasifikasi = await jalankanKlasifikasi({ sesiTerpilih, praktikanId, alasan });
 
     setSedangKirim(false);
-    setKlasifikasiGagal(!kategori.ok);
 
-    if (simpan.ok) {
+    if (klasifikasi.tersimpan) {
       router.back();
       return;
     }
 
-    setUmpanBalik({ jenis: 'sukses', pesan: hasil.pesan });
+    // Pengajuan tetap tersimpan, tetapi hasil AI belum masuk. Banner tidak boleh
+    // mengaku sukses penuh karena pengguna perlu tahu ada yang belum lengkap.
+    setUmpanBalik({
+      jenis: 'gagal',
+      pesan: `Pengajuan izin terkirim, tetapi hasil klasifikasi AI belum tersimpan. ${klasifikasi.pesan}`,
+    });
+  }
+
+  /**
+   * Mengulang klasifikasi untuk pengajuan yang SUDAH tersimpan. Tidak memanggil
+   * `ajukanIzin`, jadi tidak memicu penolakan duplikat dan tidak menimpa alasan.
+   */
+  async function ulangKlasifikasi() {
+    if (!db || !sesiTerpilih || !praktikanId) return;
+
+    setSedangKirim(true);
+    setUmpanBalik(null);
+
+    const klasifikasi = await jalankanKlasifikasi({ sesiTerpilih, praktikanId, alasan });
+
+    setSedangKirim(false);
+
+    if (!klasifikasi.tersimpan) {
+      setUmpanBalik({ jenis: 'gagal', pesan: klasifikasi.pesan });
+      return;
+    }
+
+    if (klasifikasi.kategoriOk) {
+      setUmpanBalik({ jenis: 'sukses', pesan: 'Alasan berhasil diklasifikasikan ulang' });
+      return;
+    }
+
+    setUmpanBalik({ jenis: 'gagal', pesan: klasifikasi.pesan });
+  }
+
+  /** Klasifikasi + simpan. Dipakai alur kirim maupun ulang, supaya hasilnya sama. */
+  async function jalankanKlasifikasi({
+    sesiTerpilih: sesiId,
+    praktikanId: uid,
+    alasan: teks,
+  }: {
+    sesiTerpilih: string;
+    praktikanId: string;
+    alasan: string;
+  }) {
+    if (!db) {
+      return { tersimpan: false, kategoriOk: false, pesan: 'Data sesi belum tersedia' };
+    }
+
+    const kategori = await klasifikasiAlasan(teks);
+    const simpan = await simpanHasilKlasifikasi({
+      db,
+      sesiId,
+      praktikanId: uid,
+      kategoriAi: kategori.ok ? kategori.kategori : undefined,
+      klasifikasiStatus: kategori.ok ? 'selesai' : 'gagal',
+    });
+
+    setPerluUlangKlasifikasi(!kategori.ok || !simpan.ok);
+
+    return {
+      tersimpan: simpan.ok,
+      kategoriOk: kategori.ok,
+      pesan: simpan.ok ? simpan.pesan : (kategori.ok ? simpan.pesan : kategori.pesan),
+    };
   }
 
   return (
@@ -129,10 +186,10 @@ export default function AjukanIzinScreen() {
       <FormAjukanIzin
         alasan={alasan}
         alasanNonaktif={alasanNonaktif}
-        bolehCobaLagi={klasifikasiGagal}
+        bolehCobaLagi={perluUlangKlasifikasi}
         daftarSesi={sesi}
         onAjukan={cobaAjukan}
-        onCobaLagi={kirim}
+        onCobaLagi={ulangKlasifikasi}
         onKembali={() => router.back()}
         onPilihSesi={setSesiTerpilih}
         onTutupUmpanBalik={() => setUmpanBalik(null)}
