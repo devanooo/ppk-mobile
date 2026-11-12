@@ -20,10 +20,9 @@
 import {
   collection,
   doc,
-  getDoc,
   onSnapshot,
+  runTransaction,
   serverTimestamp,
-  setDoc,
   updateDoc,
   type Firestore,
 } from 'firebase/firestore';
@@ -132,6 +131,10 @@ export function dengarkanIzinSaya(
  * Menyimpan pengajuan baru. ID dokumen = uid praktikan, sehingga pengajuan
  * kedua pada sesi yang sama menimpa jalur yang sama dan ditolak di sini
  * (AC US-09 nomor 3).
+ *
+ * Cek keberadaan dan penulisan dilakukan dalam satu transaksi. Pola getDoc lalu
+ * setDoc tanpa transaksi membuka celah: dua pengajuan bersamaan sama-sama
+ * membaca "belum ada", lalu saling menimpa.
  */
 export async function ajukanIzin({
   db,
@@ -150,24 +153,36 @@ export async function ajukanIzin({
 
   try {
     const rujukan = doc(db, 'sesi', sesiId, 'izin', praktikanId);
-    const lama = await getDoc(rujukan);
 
-    if (lama.exists()) {
+    const sudahAda = await runTransaction(db, async (transaksi) => {
+      const lama = await transaksi.get(rujukan);
+
+      if (lama.exists()) return true;
+
+      const dokumen: IzinDokumen = {
+        praktikanId,
+        alasan: alasan.trim(),
+        status: 'menunggu',
+        klasifikasiStatus: 'menunggu',
+        dibuatPada: serverTimestamp() as unknown as Date,
+      };
+
+      transaksi.set(rujukan, dokumen);
+
+      return false;
+    });
+
+    if (sudahAda) {
       return { ok: false, pesan: PESAN_IZIN.pengajuanGanda };
     }
 
-    const dokumen: IzinDokumen = {
-      praktikanId,
-      alasan: alasan.trim(),
-      status: 'menunggu',
-      klasifikasiStatus: 'menunggu',
-      dibuatPada: serverTimestamp() as unknown as Date,
-    };
-
-    await setDoc(rujukan, dokumen);
-
     return { ok: true, pesan: 'Pengajuan izin terkirim' };
   } catch (galat) {
+    // Transaksi bisa gagal karena dokumen lebih dulu dibuat proses lain.
+    if ((galat as { code?: string })?.code === 'already-exists') {
+      return { ok: false, pesan: PESAN_IZIN.pengajuanGanda };
+    }
+
     return { ok: false, pesan: pesanDariGalat(galat, PESAN_IZIN.gagalSimpan) };
   }
 }
@@ -175,6 +190,9 @@ export async function ajukanIzin({
 /**
  * Menyimpan keputusan asisten. Hanya untuk pengajuan berstatus `menunggu`;
  * field yang ditulis dibatasi pada tiga field keputusan (AC US-11 nomor 3).
+ *
+ * Pemeriksaan status dan penulisan berada dalam satu transaksi, supaya dua
+ * asisten yang memutuskan bersamaan tidak saling menimpa keputusan.
  */
 export async function putuskanIzin({
   db,
@@ -191,22 +209,31 @@ export async function putuskanIzin({
 }): Promise<{ ok: boolean; pesan: string }> {
   try {
     const rujukan = doc(db, 'sesi', sesiId, 'izin', praktikanId);
-    const sekarang = await getDoc(rujukan);
 
-    if (!sekarang.exists()) {
-      return { ok: false, pesan: PESAN_IZIN.izinTidakDitemukan };
-    }
+    const hasil = await runTransaction(db, async (transaksi) => {
+      const sekarang = await transaksi.get(rujukan);
 
-    const data = sekarang.data() as { status?: StatusIzin };
-    const boleh = bolehDiputuskan(data.status ?? 'menunggu');
+      if (!sekarang.exists()) {
+        return PESAN_IZIN.izinTidakDitemukan;
+      }
 
-    if (!boleh.ok) return boleh;
+      const data = sekarang.data() as { status?: StatusIzin };
+      const boleh = bolehDiputuskan(data.status ?? 'menunggu');
 
-    await updateDoc(rujukan, {
-      status: keputusan,
-      diputuskanPada: serverTimestamp(),
-      diputuskanOleh: asistenId,
+      if (!boleh.ok) return boleh.pesan;
+
+      transaksi.update(rujukan, {
+        status: keputusan,
+        diputuskanPada: serverTimestamp(),
+        diputuskanOleh: asistenId,
+      });
+
+      return undefined;
     });
+
+    if (hasil) {
+      return { ok: false, pesan: hasil };
+    }
 
     return {
       ok: true,
