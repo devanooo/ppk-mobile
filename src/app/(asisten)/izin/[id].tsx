@@ -1,9 +1,9 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { useMemo, useState } from 'react';
 
 import { DetailIzinAsisten } from '@/features/izin/detail-izin-asisten';
 import { useIzinSesi } from '@/features/izin/use-izin-sesi';
+import { useProfilPraktikan } from '@/features/izin/use-profil-praktikan';
 import { useSesiAsisten } from '@/features/izin/use-sesi-asisten';
 import { ambilDbSementara } from '@/lib/db-sementara';
 import { putuskanIzin } from '@/lib/izin';
@@ -31,36 +31,14 @@ export default function DetailIzinAsistenScreen() {
   const [umpanBalik, setUmpanBalik] = useState<{ jenis: 'sukses' | 'gagal'; pesan: string } | null>(
     null,
   );
-  const [profilPraktikan, setProfilPraktikan] = useState<{ nama?: string; nomorInduk?: string }>({});
 
   const sesiAktif: SesiPraktikan | undefined = useMemo(
     () => sesi.find((item) => item.id === sesiId),
     [sesi, sesiId],
   );
 
-  const idUntukProfil = praktikanId ?? izin?.praktikanId;
-
-  useEffect(() => {
-    if (!db || !idUntukProfil) return;
-
-    let dibatalkan = false;
-
-    getDoc(doc(db, 'users', idUntukProfil))
-      .then((dokumen) => {
-        if (dibatalkan) return;
-
-        const data = dokumen.data() as { nama?: string; nomorInduk?: string } | undefined;
-
-        setProfilPraktikan({ nama: data?.nama, nomorInduk: data?.nomorInduk });
-      })
-      .catch(() => {
-        if (!dibatalkan) setProfilPraktikan({});
-      });
-
-    return () => {
-      dibatalkan = true;
-    };
-  }, [idUntukProfil]);
+  // Firestore tidak dipanggil langsung dari route (AC US-04 nomor 5).
+  const profilAktif = useProfilPraktikan(db, praktikanId ?? izin?.praktikanId);
 
   if (!user || user.peran !== 'asisten') {
     return null;
@@ -89,8 +67,8 @@ export default function DetailIzinAsistenScreen() {
   return (
     <DetailIzinAsisten
       izin={izin}
-      namaPraktikan={profilPraktikan.nama}
-      nomorInduk={profilPraktikan.nomorInduk}
+      namaPraktikan={profilAktif.nama}
+      nomorInduk={profilAktif.nomorInduk}
       onKembali={() => router.back()}
       onSetujui={() => putuskan('disetujui')}
       onTolak={() => putuskan('ditolak')}
