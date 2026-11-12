@@ -1,20 +1,29 @@
-import { readFileSync, existsSync } from 'node:fs';
+/**
+ * Seed data uji PraktikumKU menggunakan Firebase Admin SDK.
+ *
+ * Alasan memakai Admin SDK: seed menulis dokumen untuk beberapa pengguna
+ * sekaligus (asisten, praktikan) dan membuat akun asisten — hal yang dilarang
+ * Security Rules, dan memang seharusnya dilarang. Admin SDK melewati rules,
+ * jadi rules tidak pernah dilonggarkan hanya untuk seed.
+ *
+ * Kredensial: file service account JSON di luar repo. Dicari lewat env
+ * GOOGLE_APPLICATION_CREDENTIALS, atau file *firebase-adminsdk*.json di folder
+ * induk repo.
+ *
+ * Jalankan: node scripts/seed.mjs
+ */
+
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { initializeApp } from 'firebase/app';
-import {
-  createUserWithEmailAndPassword,
-  getAuth,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
-import {
-  Timestamp,
-  doc,
-  getFirestore,
-  setDoc,
-} from 'firebase/firestore';
+import { cert, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore, Timestamp } from 'firebase-admin/firestore';
 
-const envPath = fileURLToPath(new URL('../.env', import.meta.url));
+const akarRepo = dirname(dirname(fileURLToPath(import.meta.url)));
+
+const envPath = join(akarRepo, '.env');
 
 if (!existsSync(envPath)) {
   console.error('File .env tidak ditemukan. Salin .env.example menjadi .env lalu isi nilainya.');
@@ -29,10 +38,6 @@ for (const baris of readFileSync(envPath, 'utf8').split(/\r?\n/)) {
 }
 
 const wajib = [
-  'EXPO_PUBLIC_FIREBASE_API_KEY',
-  'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
-  'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
-  'EXPO_PUBLIC_FIREBASE_APP_ID',
   'SEED_ASISTEN_1_EMAIL',
   'SEED_ASISTEN_1_PASSWORD',
   'SEED_ASISTEN_2_EMAIL',
@@ -47,35 +52,65 @@ if (hilang.length > 0) {
   process.exit(1);
 }
 
-const app = initializeApp({
-  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+/** Temukan service account JSON di luar repo. */
+function temukanKredensial() {
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    return process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  }
+
+  const induk = dirname(akarRepo);
+
+  try {
+    const kandidat = readdirSync(induk).filter(
+      (nama) => nama.includes('firebase-adminsdk') && nama.endsWith('.json'),
+    );
+
+    if (kandidat.length > 0) return join(induk, kandidat[0]);
+  } catch {
+    // Folder induk tidak terbaca; biarkan pesan error di bawah yang menjelaskan.
+  }
+
+  return undefined;
+}
+
+const pathKredensial = temukanKredensial();
+
+if (!pathKredensial || !existsSync(pathKredensial)) {
+  console.error(
+    'Service account tidak ditemukan. Unduh dari Firebase Console > Project Settings >',
+    'Service accounts, lalu set env GOOGLE_APPLICATION_CREDENTIALS ke path file JSON.',
+  );
+  process.exit(1);
+}
+
+const projectId = process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID;
+
+initializeApp({
+  credential: cert(pathKredensial),
+  ...(projectId ? { projectId } : {}),
 });
 
-const auth = getAuth(app);
-const db = getFirestore(app);
+const auth = getAuth();
+const db = getFirestore();
 
 /** Akun dibuat kalau belum ada, lalu uid dikembalikan. */
 async function pastikanAkun(email, password) {
   try {
-    const kredensial = await createUserWithEmailAndPassword(auth, email, password);
-    return kredensial.user.uid;
+    const pengguna = await auth.getUserByEmail(email);
+    return pengguna.uid;
   } catch (error) {
-    if (error?.code !== 'auth/email-already-in-use') throw error;
-    const kredensial = await signInWithEmailAndPassword(auth, email, password);
-    return kredensial.user.uid;
+    if (error?.code !== 'auth/user-not-found') throw error;
+
+    const pengguna = await auth.createUser({ email, password });
+    return pengguna.uid;
   }
 }
 
 async function tulisUsers(uid, data) {
-  await setDoc(doc(db, 'users', uid), {
-    ...data,
-    dibuatPada: Timestamp.now(),
-  });
+  await db
+    .collection('users')
+    .doc(uid)
+    .set({ ...data, dibuatPada: Timestamp.now() });
 }
 
 const uidAsisten1 = await pastikanAkun(
@@ -108,13 +143,6 @@ await tulisUsers(uidPraktikan1, {
   peran: 'praktikan',
 });
 
-// Seed kelas dan sesi ditulis sebagai asisten pertama agar aturan kepemilikan terpenuhi.
-await signInWithEmailAndPassword(
-  auth,
-  process.env.SEED_ASISTEN_1_EMAIL,
-  process.env.SEED_ASISTEN_1_PASSWORD,
-);
-
 const kelas = [
   {
     id: 'kelas-dasar-pemrograman',
@@ -133,7 +161,7 @@ const kelas = [
 ];
 
 for (const item of kelas) {
-  await setDoc(doc(db, 'kelas', item.id), {
+  await db.collection('kelas').doc(item.id).set({
     nama: item.nama,
     lab: item.lab,
     asistenId: item.asistenId,
@@ -197,7 +225,7 @@ const sesi = [
 ];
 
 for (const item of sesi) {
-  await setDoc(doc(db, 'sesi', item.id), {
+  await db.collection('sesi').doc(item.id).set({
     kelasId: item.kelasId,
     asistenId: uidAsisten1,
     hari: item.hari,
@@ -212,10 +240,15 @@ for (const item of sesi) {
 }
 
 // Satu presensi pada sesi yang sudah ditutup, supaya riwayat dan rekap tidak kosong.
-await setDoc(doc(db, 'sesi', 'sesi-1', 'presensi', uidPraktikan1), {
-  praktikanId: uidPraktikan1,
-  waktu: waktu('2026-11-12T13:05:00+07:00'),
-});
+await db
+  .collection('sesi')
+  .doc('sesi-1')
+  .collection('presensi')
+  .doc(uidPraktikan1)
+  .set({
+    praktikanId: uidPraktikan1,
+    waktu: waktu('2026-11-12T13:05:00+07:00'),
+  });
 
 console.log('Seed selesai. Akun uji:');
 console.log(`- Asisten 1 (Budi): ${process.env.SEED_ASISTEN_1_EMAIL}`);
