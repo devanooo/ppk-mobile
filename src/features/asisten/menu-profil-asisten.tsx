@@ -1,3 +1,4 @@
+import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 
@@ -5,66 +6,43 @@ import { BottomSheet, ProfileMenu } from '@/components/ui';
 import { berandaUntuk } from '@/features/auth/beranda';
 import { useSession } from '@/store/session-store';
 
-type Lembar = 'keluar' | 'peran' | null;
-
 export function MenuProfilAsisten() {
-  const { user, logout, gantiPeranDemo } = useSession();
+  const { user, logout } = useSession();
   const router = useRouter();
-  const [lembar, setLembar] = useState<Lembar>(null);
+  const [lembarTerbuka, setLembarTerbuka] = useState(false);
 
   if (!user || user.peran !== 'asisten') {
     return null;
   }
 
-  const labelGantiPeran = 'Beralih ke Praktikan (Demo)';
+  async function keluar() {
+    const hasil = await logout();
 
-  function bukaLembar(nilai: Lembar) {
-    setTimeout(() => setLembar(nilai), 0);
-  }
-
-  function keluar() {
-    setLembar(null);
-    logout();
-    router.replace('/');
-  }
-
-  function beralihPeran() {
-    const penggunaBaru = gantiPeranDemo();
-
-    setLembar(null);
-
-    if (penggunaBaru) {
-      router.replace(berandaUntuk(penggunaBaru.peran));
+    if (!hasil.ok) {
+      Alert.alert('Gagal keluar', hasil.pesan);
+      return;
     }
+
+    setLembarTerbuka(false);
+    router.replace('/');
   }
 
   return (
     <>
       <ProfileMenu
         user={user}
-        labelGantiPeran={labelGantiPeran}
         onHome={() => router.replace(berandaUntuk(user.peran))}
-        onLogout={() => bukaLembar('keluar')}
-        onSwitchRole={() => bukaLembar('peran')}
+        onLogout={() => setLembarTerbuka(true)}
       />
 
       <BottomSheet
-        visible={lembar === 'keluar'}
-        onClose={() => setLembar(null)}
+        visible={lembarTerbuka}
+        onClose={() => setLembarTerbuka(false)}
         judul="Keluar akun?"
-        deskripsi="Kamu akan kembali ke halaman awal. Sesi dan presensi tetap tersimpan selama aplikasi berjalan."
+        deskripsi="Kamu akan kembali ke halaman awal. Data sesi dan presensi tidak dihapus oleh proses logout."
         labelKonfirmasi="Keluar"
         onKonfirmasi={keluar}
         bahaya
-      />
-
-      <BottomSheet
-        visible={lembar === 'peran'}
-        onClose={() => setLembar(null)}
-        judul="Beralih ke Praktikan?"
-        deskripsi="Identitas aktif akan berganti ke akun demo Praktikan. Sesi dan presensi tetap tersimpan."
-        labelKonfirmasi="Beralih"
-        onKonfirmasi={beralihPeran}
       />
     </>
   );

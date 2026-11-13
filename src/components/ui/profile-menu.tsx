@@ -17,17 +17,13 @@ const LABEL_PERAN: Record<Peran, string> = {
 type ProfileMenuProps = {
   user: User;
   onHome: () => void;
-  onSwitchRole: () => void;
   onLogout: () => void;
-  labelGantiPeran?: string;
 };
 
 export function ProfileMenu({
   user,
   onHome,
-  onSwitchRole,
   onLogout,
-  labelGantiPeran = 'Ganti peran (demo)',
 }: ProfileMenuProps) {
   const [terbuka, setTerbuka] = useState(false);
   const [posisi, setPosisi] = useState({ atas: 0, kanan: 0 });
@@ -92,7 +88,6 @@ export function ProfileMenu({
           <View className="my-two h-half bg-border" />
 
           <ItemMenu label="Beranda" onPress={() => tutupLalu(onHome)} />
-          <ItemMenu label={labelGantiPeran} onPress={() => tutupLalu(onSwitchRole)} />
           <ItemMenu label="Keluar akun" onPress={() => tutupLalu(onLogout)} bahaya />
         </Animated.View>
       </Modal>

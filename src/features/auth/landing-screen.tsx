@@ -5,9 +5,10 @@ import { MaxContentWidth } from '@/constants/theme';
 
 type LandingScreenProps = {
   onMasuk: () => void;
+  onDaftar: () => void;
 };
 
-export function LandingScreen({ onMasuk }: LandingScreenProps) {
+export function LandingScreen({ onMasuk, onDaftar }: LandingScreenProps) {
   return (
     <Screen padded={false}>
       <ScrollView
@@ -36,6 +37,12 @@ export function LandingScreen({ onMasuk }: LandingScreenProps) {
             accessibilityLabel="Masuk ke akun PraktikumKU"
             label="Masuk"
             onPress={onMasuk}
+          />
+          <AppButton
+            className="mt-two"
+            label="Daftar sebagai Praktikan"
+            onPress={onDaftar}
+            variant="secondary"
           />
         </View>
       </ScrollView>

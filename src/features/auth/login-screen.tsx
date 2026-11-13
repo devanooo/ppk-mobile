@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import {
   KeyboardAvoidingView,
@@ -14,46 +15,44 @@ import type { HasilLogin } from '@/store/session-store';
 import type { User } from '@/types';
 
 type LoginScreenProps = {
-  onMasuk: (username: string, password: string) => HasilLogin;
+  onMasuk: (email: string, password: string) => Promise<HasilLogin>;
   onBerhasil: (user: User) => void;
   onKembali: () => void;
 };
 
-export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps) {
-  const [username, setUsername] = useState('');
+export function LoginScreen({
+  onMasuk,
+  onBerhasil,
+  onKembali,
+}: LoginScreenProps) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [pesanGagal, setPesanGagal] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const bisaMasuk = username.trim().length > 0 && password.length > 0;
-  const alasanTombol =
-    username.trim().length === 0 && password.length === 0
-      ? 'Isi username dan kata sandi'
-      : username.trim().length === 0
-        ? 'Isi username'
-        : password.length === 0
-          ? 'Isi kata sandi'
-          : undefined;
+  const bisaMasuk =
+    email.trim().length > 0 && password.length > 0 && !loading;
 
-  function ubahUsername(nilai: string) {
-    setUsername(nilai);
-    if (pesanGagal) setPesanGagal(null);
-  }
-
-  function ubahPassword(nilai: string) {
-    setPassword(nilai);
-    if (pesanGagal) setPesanGagal(null);
-  }
-
-  function kirim() {
+  async function kirim() {
     if (!bisaMasuk) return;
 
-    const hasil = onMasuk(username.trim(), password);
-    if (!hasil.ok) {
-      setPesanGagal(hasil.pesan);
-      return;
-    }
+    setLoading(true);
+    setPesanGagal(null);
 
-    onBerhasil(hasil.user);
+    try {
+      const hasil = await onMasuk(email.trim(), password);
+
+      if (!hasil.ok) {
+        setPesanGagal(hasil.pesan);
+        return;
+      }
+
+      onBerhasil(hasil.user);
+    } catch {
+      setPesanGagal('Terjadi kesalahan. Silakan coba kembali.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -68,7 +67,10 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <View className="w-full self-center pt-three" style={{ maxWidth: MaxContentWidth }}>
+          <View
+            className="w-full self-center pt-three"
+            style={{ maxWidth: MaxContentWidth }}
+          >
             <Pressable
               accessibilityLabel="Kembali ke halaman awal"
               accessibilityRole="button"
@@ -80,7 +82,10 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
             </Pressable>
 
             <View className="mt-four">
-              <Text accessibilityRole="header" className="text-title font-semibold text-text">
+              <Text
+                accessibilityRole="header"
+                className="text-title font-semibold text-text"
+              >
                 Masuk
               </Text>
               <Text className="mt-two text-body text-textSecondary">
@@ -90,16 +95,23 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
 
             <View className="mt-five gap-three">
               <TextField
-                accessibilityLabel="Username"
-                label="Username"
-                onChangeText={ubahUsername}
-                placeholder="Masukkan username"
-                value={username}
+                accessibilityLabel="Email"
+                label="Email"
+                onChangeText={(nilai) => {
+                  setEmail(nilai);
+                  setPesanGagal(null);
+                }}
+                placeholder="Masukkan email"
+                value={email}
               />
+
               <TextField
                 accessibilityLabel="Kata sandi"
                 label="Kata sandi"
-                onChangeText={ubahPassword}
+                onChangeText={(nilai) => {
+                  setPassword(nilai);
+                  setPesanGagal(null);
+                }}
                 placeholder="Masukkan kata sandi"
                 secureTextEntry
                 showPasswordToggle
@@ -107,14 +119,19 @@ export function LoginScreen({ onMasuk, onBerhasil, onKembali }: LoginScreenProps
               />
             </View>
 
-            {pesanGagal ? <Banner className="mt-three" jenis="gagal" pesan={pesanGagal} /> : null}
+            {pesanGagal ? (
+              <Banner
+                className="mt-three"
+                jenis="gagal"
+                pesan={pesanGagal}
+              />
+            ) : null}
 
             <AppButton
               accessibilityLabel="Masuk"
               className="mt-four"
               disabled={!bisaMasuk}
-              disabledReason={alasanTombol}
-              label="Masuk"
+              label={loading ? 'Memproses...' : 'Masuk'}
               onPress={kirim}
             />
           </View>
