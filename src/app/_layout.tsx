@@ -1,3 +1,4 @@
+
 import '@/global.css';
 
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
@@ -24,7 +25,13 @@ export default function RootLayout() {
 }
 
 function NavigasiAkar() {
-  const { user } = useSession();
+  const { user, authLoading } = useSession();
+
+  // Tunggu Firebase menyelesaikan pemulihan sesi.
+  if (authLoading) {
+    return null;
+  }
+
   const beranda = user ? berandaUntuk(user.peran) : '/';
 
   return (
@@ -32,6 +39,7 @@ function NavigasiAkar() {
       <Stack.Protected guard={user === null} redirectTo={beranda}>
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
+        <Stack.Screen name="register" />
       </Stack.Protected>
 
       <Stack.Protected guard={user?.peran === 'praktikan'} redirectTo={beranda}>

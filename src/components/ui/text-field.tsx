@@ -1,6 +1,14 @@
+
 import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Pressable, Text, TextInput, View, useColorScheme, type TextInputProps } from 'react-native';
+import {
+  Pressable,
+  Text,
+  TextInput,
+  View,
+  useColorScheme,
+  type TextInputProps,
+} from 'react-native';
 
 import { Colors } from '@/constants/theme';
 
@@ -15,6 +23,9 @@ type TextFieldProps = {
   inputMode?: TextInputProps['inputMode'];
   accessibilityLabel?: string;
   className?: string;
+  error?: string;
+  maxLength?: number;
+  onFocus?: () => void;
 };
 
 export function TextField({
@@ -28,28 +39,38 @@ export function TextField({
   inputMode = 'text',
   accessibilityLabel,
   className = '',
+  error,
+  maxLength,
+  onFocus,
 }: TextFieldProps) {
   const skema = useColorScheme();
   const warnaSekunder = (skema === 'dark' ? Colors.dark : Colors.light).textSecondary;
   const [kataSandiTerlihat, setKataSandiTerlihat] = useState(false);
+
   const tampilkanToggle = secureTextEntry && showPasswordToggle;
 
   return (
     <View className={className}>
-      <Text className="mb-two text-caption text-textSecondary">{label}</Text>
+      <Text className="mb-two text-caption text-textSecondary">
+        {label}
+      </Text>
+
       <View>
         <TextInput
           accessibilityLabel={accessibilityLabel ?? label}
+          accessibilityHint={error}
           autoCapitalize={autoCapitalize}
           inputMode={inputMode}
+          maxLength={maxLength}
           onChangeText={onChangeText}
+          onFocus={onFocus}
           placeholder={placeholder}
           placeholderTextColor={warnaSekunder}
           secureTextEntry={secureTextEntry && !kataSandiTerlihat}
           value={value}
-          className={`min-h-touch rounded-md border border-border bg-backgroundElement text-body text-text ${
-            tampilkanToggle ? 'pl-twoHalf pr-six' : 'px-twoHalf'
-          }`}
+          className={`min-h-touch rounded-md border bg-backgroundElement text-body text-text ${
+            error ? 'border-danger' : 'border-border'
+          } ${tampilkanToggle ? 'pl-twoHalf pr-six' : 'px-twoHalf'}`}
         />
 
         {tampilkanToggle ? (
@@ -72,6 +93,15 @@ export function TextField({
           </Pressable>
         ) : null}
       </View>
+
+      {error ? (
+        <Text
+          accessibilityRole="alert"
+          className="mt-one text-caption text-danger"
+        >
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 }

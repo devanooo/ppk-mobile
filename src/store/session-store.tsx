@@ -1,22 +1,21 @@
+
 import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from 'react';
 
-import { kredensial } from '@/data/credentials';
-import { presensi as presensiAwal, sesi as sesiAwal, users } from '@/data/dummy';
+import { users } from '@/data/dummy';
+import { ambilProfil, keluarAkun, masukDenganEmail, pantauAuth } from '@/lib/auth';
 import type { Presensi, Sesi, User } from '@/types';
 
 import {
   bukaSesi as bukaSesiLogika,
   catatPresensi as catatPresensiLogika,
-  gantiPeran as gantiPeranLogika,
-  keluar as keluarLogika,
-  masuk as masukLogika,
   presensiSaya as presensiSayaLogika,
   rekapSesi as rekapSesiLogika,
   sesiUntuk as sesiUntukLogika,
@@ -31,12 +30,11 @@ export type { HasilAksi, HasilLogin } from './session-logic';
 
 type Store = {
   user: User | null;
+  authLoading: boolean;
   sesi: Sesi[];
   presensi: Presensi[];
-  login: (username: string, password: string) => HasilLogin;
-  logout: () => void;
-  setUser: (pengguna: User | null) => void;
-  gantiPeranDemo: (userId?: string) => User | null;
+  login: (email: string, password: string) => Promise<HasilLogin>;
+  logout: () => Promise<HasilAksi>;
   sesiById: (sesiId: string) => Sesi | undefined;
   sesiUntuk: (user: User) => Sesi[];
   bukaSesi: (sesiId: string) => HasilAksi;
@@ -47,49 +45,110 @@ type Store = {
   sudahPresensi: (sesiId: string, praktikanId: string) => boolean;
 };
 
-const AWAL: StateAplikasi = { user: null, sesi: sesiAwal, presensi: presensiAwal };
+// Data sesi dan presensi masih sementara menunggu integrasi P3.
+const AWAL: StateAplikasi = {
+  user: null,
+  sesi: [],
+  presensi: [],
+};
 
 const SessionContext = createContext<Store | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<StateAplikasi>(AWAL);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // ========================================
+  // FIREBASE AUTH STATE LISTENER
+
+  useEffect(() => {
+    let aktif = true;
+
+    const unsubscribe = pantauAuth(async (firebaseUser) => {
+      if (!firebaseUser) {
+        if (aktif) {
+          setState((lama) => ({ ...lama, user: null }));
+          setAuthLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const profil = await ambilProfil(firebaseUser);
+
+        if (aktif) {
+          setState((lama) => ({ ...lama, user: profil }));
+        }
+      } catch (error) {
+        console.error('Gagal memulihkan profil:', error);
+
+        // Akun tanpa profil Firestore tidak boleh masuk aplikasi.
+        await keluarAkun();
+
+        if (aktif) {
+          setState((lama) => ({ ...lama, user: null }));
+        }
+      } finally {
+        if (aktif) {
+          setAuthLoading(false);
+        }
+      }
+    });
+
+    return () => {
+      aktif = false;
+      unsubscribe();
+    };
+  }, []);
+
+  // ========================================
+  // LOGIN
 
   const login = useCallback(
-    (username: string, password: string): HasilLogin => {
-      const hasil = masukLogika(state, kredensial, users, username, password);
-      if (!hasil.ok) return hasil;
+    async (email: string, password: string): Promise<HasilLogin> => {
+      if (!email.trim() || !password) {
+        return {
+          ok: false,
+          pesan: 'Email dan kata sandi wajib diisi.',
+        };
+      }
 
-      setState(hasil.state);
-      return { ok: true, user: hasil.user };
+      return masukDenganEmail(email.trim(), password);
     },
-    [state],
-  );
-
-  const logout = useCallback(() => setState(keluarLogika), []);
-
-  const setUser = useCallback(
-    (pengguna: User | null) => setState((lama) => ({ ...lama, user: pengguna })),
     [],
   );
 
-  const gantiPeranDemo = useCallback(
-    (userId?: string): User | null => {
-      const hasil = gantiPeranLogika(state, users, userId);
-      if (!hasil.ok) return null;
+  // ========================================
+  // LOGOUT
 
-      setState(hasil.state);
-      return hasil.user;
-    },
-    [state],
+  const logout = useCallback(async (): Promise<HasilAksi> => {
+    const hasil = await keluarAkun();
+
+    if (hasil.ok) {
+      setState((lama) => ({ ...lama, user: null }));
+    }
+
+    return hasil;
+  }, []);
+
+  // ========================================
+  // SESSION AND ATTENDANCE
+  // Sementara menggunakan logika Sprint 1.
+  // Menunggu migrasi Firestore oleh P3.
+
+  const sesiById = useCallback(
+    (sesiId: string) => state.sesi.find((s) => s.id === sesiId),
+    [state.sesi],
   );
-
-  const sesiById = useCallback((sesiId: string) => state.sesi.find((s) => s.id === sesiId), [
-    state.sesi,
-  ]);
 
   const bukaSesi = useCallback(
     (sesiId: string): HasilAksi => {
-      const hasil = bukaSesiLogika(state, sesiId, new Date().toISOString());
+      const hasil = bukaSesiLogika(
+        state,
+        sesiId,
+        new Date().toISOString(),
+      );
+
       if (!hasil.ok) return hasil;
 
       setState(hasil.state);
@@ -100,7 +159,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const tutupSesi = useCallback(
     (sesiId: string): HasilAksi => {
-      const hasil = tutupSesiLogika(state, sesiId, new Date().toISOString());
+      const hasil = tutupSesiLogika(
+        state,
+        sesiId,
+        new Date().toISOString(),
+      );
+
       if (!hasil.ok) return hasil;
 
       setState(hasil.state);
@@ -111,7 +175,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const catatPresensi = useCallback(
     (sesiId: string, praktikanId: string): HasilAksi => {
-      const hasil = catatPresensiLogika(state, sesiId, praktikanId, new Date().toISOString());
+      const hasil = catatPresensiLogika(
+        state,
+        sesiId,
+        praktikanId,
+        new Date().toISOString(),
+      );
+
       if (!hasil.ok) return hasil;
 
       setState(hasil.state);
@@ -121,12 +191,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   );
 
   const presensiSaya = useCallback(
-    (praktikanId: string) => presensiSayaLogika(state.presensi, praktikanId),
+    (praktikanId: string) =>
+      presensiSayaLogika(state.presensi, praktikanId),
     [state.presensi],
   );
 
   const rekapSesi = useCallback(
-    (sesiId: string) => rekapSesiLogika(sesiId, state.presensi, users),
+    (sesiId: string) =>
+      rekapSesiLogika(sesiId, state.presensi, users),
     [state.presensi],
   );
 
@@ -136,17 +208,20 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [state.presensi],
   );
 
+  // ========================================
+  // STORE
+
   const store = useMemo<Store>(
     () => ({
       user: state.user,
+      authLoading,
       sesi: state.sesi,
       presensi: state.presensi,
       login,
       logout,
-      setUser,
-      gantiPeranDemo,
       sesiById,
-      sesiUntuk: (pengguna: User) => sesiUntukLogika(state.sesi, pengguna),
+      sesiUntuk: (pengguna: User) =>
+        sesiUntukLogika(state.sesi, pengguna),
       bukaSesi,
       tutupSesi,
       catatPresensi,
@@ -156,10 +231,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }),
     [
       state,
+      authLoading,
       login,
       logout,
-      setUser,
-      gantiPeranDemo,
       sesiById,
       bukaSesi,
       tutupSesi,
@@ -170,11 +244,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  return <SessionContext.Provider value={store}>{children}</SessionContext.Provider>;
+  return (
+    <SessionContext.Provider value={store}>
+      {children}
+    </SessionContext.Provider>
+  );
 }
 
 export function useSession(): Store {
   const store = useContext(SessionContext);
-  if (!store) throw new Error('useSession harus dipakai di dalam SessionProvider');
+
+  if (!store) {
+    throw new Error('useSession harus dipakai di dalam SessionProvider');
+  }
+
   return store;
 }
