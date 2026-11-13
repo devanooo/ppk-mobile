@@ -683,15 +683,15 @@ Sampai informasi tersedia, T-045 menyediakan mock. Semua pemetaan field AI dikum
 
 ### 8.6 Security Rules
 
-Baseline yang harus disiapkan PM (bukan implementasi penuh di dokumen ini):
+Baseline yang sudah diterapkan di `firestore.rules`. Kolom tulis mencakup create, update, dan delete.
 
 | Koleksi | Baca | Tulis |
 |---|---|---|
-| `users` | Diri sendiri; asisten boleh membaca dokumen praktikan yang menjadi peserta kelasnya. Penentuan akhir ada di keputusan PM | Hanya diri sendiri saat registrasi; `peran` tidak boleh diubah setelah dibuat |
-| `kelas` | Asisten pengampu; praktikan yang ada di `pesertaIds` (hanya field yang diperlukan) | Hanya asisten pengampu, dengan validasi `asistenId == uid` |
-| `sesi` | Asisten pengampu; praktikan peserta kelas | Hanya asisten pengampu. Transisi status divalidasi terhadap nilai lama |
-| `sesi/{id}/presensi` | Praktikan pemilik dokumen; asisten pengampu sesi | Create hanya oleh praktikan pemilik, hanya jika sesi `dibuka` dan ia peserta. Update dan delete ditolak |
-| `sesi/{id}/izin` | Praktikan pemilik; asisten pengampu | Create oleh praktikan pemilik dengan `status: "menunggu"`. Update keputusan hanya oleh asisten pengampu dan hanya untuk field keputusan |
+| `users` | Diri sendiri; asisten boleh membaca profil praktikan untuk rekap dan pemeriksaan izin | Hanya diri sendiri; `peran` tidak boleh diubah. `nama` dan `nomorInduk` boleh diperbarui pemiliknya |
+| `kelas` | Asisten pengampu; praktikan yang ada di `pesertaIds` | Hanya asisten pengampu dengan `asistenId == uid`, termasuk delete. Kelas yang masih punya sesi dicek di lapisan data karena rules tidak bisa query koleksi `sesi` |
+| `sesi` | Asisten pengampu; praktikan peserta kelas | Hanya asisten pengampu. Create selalu `belum-dibuka`; transisi hanya `belum-dibuka` ke `dibuka` ke `ditutup`; sesi `ditutup` tidak dapat diubah; `kelasId` tidak dapat dipindah |
+| `sesi/{id}/presensi` | Praktikan pemilik dokumen; asisten pengampu sesi | Create hanya oleh praktikan pemilik, hanya jika sesi `dibuka` dan ia peserta, dengan `waktu` timestamp server. Update dan delete ditolak |
+| `sesi/{id}/izin` | Praktikan pemilik; asisten pengampu | Create oleh praktikan pemilik dengan `status: "menunggu"` dan `klasifikasiStatus: "menunggu"`, hanya bila sesi belum ditutup. Update field AI hanya selama `menunggu`; keputusan hanya oleh asisten pengampu dengan `diputuskanOleh` = uid-nya |
 
 Prinsip yang wajib diuji:
 
@@ -699,7 +699,7 @@ Prinsip yang wajib diuji:
 2. Praktikan tidak dapat membaca data praktikan lain.
 3. Asisten tidak dapat mengubah sesi asisten lain.
 4. Sesi `ditutup` tidak dapat dibuka kembali.
-5. Validasi status dan kepemilikan dilakukan di server, bukan hanya di UI.
+5. Validasi status dan kepemilikan dilakukan di server. Pengecekan yang tidak bisa dilakukan rules, yaitu kelas yang masih punya sesi dan hapus berantai subkoleksi, dilakukan di lapisan data.
 
 ### 8.7 Environment dan konfigurasi
 
@@ -736,9 +736,10 @@ PM-01..PM-07 (infrastruktur)
 |---|---|
 | Detail API AI (endpoint, skema, kategori) | Implementasi klasifikasi memakai mock, demo B tidak bisa memakai model asli |
 | Pembaruan dokumentasi lama yang masih menyatakan web bukan target dan backend non-goal | Kontradiksi aturan bagi programmer dan reviewer. Sudah diperbarui; PM cukup memeriksa ulang sebelum D1 |
-| Apakah asisten boleh membaca semua dokumen praktikan atau hanya peserta kelasnya | Baseline rules dan uji akses |
 | Pengujian rules memakai emulator atau manual | Waktu D4 dan kebutuhan dependency |
 | Registrasi Android dan iOS di konsol meski SDK JS tidak memerlukannya | Hanya kelengkapan administrasi |
+
+**Sudah diputuskan.** Asisten boleh membaca semua dokumen `users` berperan praktikan, termasuk yang bukan peserta kelasnya. Batasan per kelas tidak dapat ditegakkan karena Security Rules tidak bisa query relasi kelas. Akses ini dipakai untuk rekap presensi dan pemeriksaan izin.
 
 ## 9. Testing Strategy
 

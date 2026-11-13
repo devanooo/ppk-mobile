@@ -1,10 +1,9 @@
 rules_version = '2';
 
-// Security Rules PraktikumKU — baseline docs/sprints/sprint-2.md bagian 8.6,
-// ditambah tiga aturan izin yang disepakati dari laporan P2:
-//   (a) praktikan pemilik boleh menulis kategoriAi, klasifikasiStatus, diprosesPada
-//   (b) create izin ditolak bila sesi berstatus "ditutup"
-//   (c) create izin ditolak bila uid bukan peserta kelas dari sesi itu
+// Security Rules PraktikumKU.
+// Sumber kebenaran: docs/sprints/sprint-2.md bagian 8.6 dan brief Sprint 2.
+// Yang tidak bisa ditegakkan Security Rules (validasi lintas koleksi dan baca
+// per field) ditegakkan di lapisan data dan UI, lihat catatan di 8.6.
 //
 // Aturan hanya diubah lewat PR, lalu deploy dengan:
 //   npx firebase-tools deploy --only firestore:rules
@@ -41,45 +40,62 @@ service cloud.firestore {
     }
 
     // ==== users ====
-    // Baca dan tulis hanya diri sendiri. Brief sprint-2 hanya mensyaratkan
-    // akses sesuai identitas dan peran; tidak ada kebutuhan asisten membaca
-    // profil praktikan.
+    // Baca: diri sendiri, atau asisten membaca profil praktikan. Rekap presensi
+    // dan pemeriksaan izin menampilkan nama serta NIM (US-11 AC 2).
+    // Batasan "hanya peserta kelasnya" tidak bisa ditegakkan di sini karena
+    // rules tidak bisa query relasi kelas. Pembatasan ketat butuh salinan nama
+    // dan nomorInduk di dokumen presensi dan izin.
+    // Tulis: hanya diri sendiri; peran tidak boleh berubah setelah dibuat.
     match /users/{userId} {
-      allow read: if request.auth.uid == userId;
+      allow get: if request.auth.uid == userId
+        || (asisten() && resource.data.peran == 'praktikan');
+
+      allow list: if asisten() && resource.data.peran == 'praktikan';
 
       allow create: if request.auth.uid == userId
         && request.resource.data.peran == 'praktikan'
+        && request.resource.data.keys().hasAll(['nama', 'nomorInduk', 'peran', 'dibuatPada'])
         && request.resource.data.keys().hasOnly(['nama', 'nomorInduk', 'peran', 'dibuatPada']);
 
       allow update: if request.auth.uid == userId
-        && request.resource.data.peran == resource.data.peran;
+        && request.resource.data.peran == resource.data.peran
+        && request.resource.data.diff(resource.data).changedKeys()
+             .hasOnly(['nama', 'nomorInduk']);
 
       allow delete: if false;
     }
 
     // ==== kelas ====
     // Baca: asisten pengampu dan praktikan yang ada di pesertaIds.
-    // Tulis: hanya asisten pengampu, dan kepemilikan tidak boleh dipindah.
+    // Tulis: hanya asisten pengampu. Aturan "kelas dengan sesi tidak boleh
+    // dihapus" dicek di lapisan data karena rules tidak bisa query koleksi sesi.
     match /kelas/{kelasId} {
       allow read: if masuk()
         && (resource.data.asistenId == request.auth.uid
           || request.auth.uid in resource.data.pesertaIds);
 
       allow create: if asisten()
-        && request.resource.data.asistenId == request.auth.uid;
+        && request.resource.data.asistenId == request.auth.uid
+        && request.resource.data.keys().hasAll(
+             ['nama', 'lab', 'asistenId', 'pesertaIds', 'dibuatPada'])
+        && request.resource.data.nama is string
+        && request.resource.data.nama.size() > 0
+        && request.resource.data.lab is string
+        && request.resource.data.lab.size() > 0
+        && request.resource.data.pesertaIds is list;
 
       allow update: if asisten()
         && resource.data.asistenId == request.auth.uid
         && request.resource.data.asistenId == request.auth.uid;
 
-      // Brief sprint-2 nomor 2: asisten melakukan CRUD, termasuk hapus.
       allow delete: if asisten()
         && resource.data.asistenId == request.auth.uid;
     }
 
     // ==== sesi ====
     // Baca: asisten pengampu dan praktikan peserta kelasnya.
-    // Tulis: hanya asisten pengampu; sesi "ditutup" tidak bisa dibuka kembali.
+    // Create selalu "belum-dibuka". Transisi hanya belum-dibuka -> dibuka,
+    // lalu dibuka -> ditutup. Sesi ditutup tidak dapat diubah lagi.
     match /sesi/{sesiId} {
       allow read: if masuk()
         && (resource.data.asistenId == request.auth.uid
@@ -87,23 +103,30 @@ service cloud.firestore {
 
       allow create: if asisten()
         && request.resource.data.asistenId == request.auth.uid
-        && request.resource.data.status in ['belum-dibuka', 'dibuka', 'ditutup']
+        && request.resource.data.status == 'belum-dibuka'
+        && request.resource.data.keys().hasAll(
+             ['kelasId', 'asistenId', 'hari', 'tanggal', 'jamMulai', 'jamSelesai',
+              'status', 'dibuatPada'])
         && get(/databases/$(database)/documents/kelas/$(request.resource.data.kelasId))
-          .data.asistenId == request.auth.uid;
+             .data.asistenId == request.auth.uid;
 
       allow update: if asisten()
         && resource.data.asistenId == request.auth.uid
         && request.resource.data.asistenId == request.auth.uid
-        && request.resource.data.status in ['belum-dibuka', 'dibuka', 'ditutup']
-        && !(resource.data.status == 'ditutup' && request.resource.data.status != 'ditutup');
+        && request.resource.data.kelasId == resource.data.kelasId
+        && (
+          (resource.data.status == 'belum-dibuka'
+            && request.resource.data.status in ['belum-dibuka', 'dibuka'])
+          || (resource.data.status == 'dibuka'
+            && request.resource.data.status in ['dibuka', 'ditutup'])
+        );
 
-      // Brief sprint-2 nomor 2: asisten melakukan CRUD, termasuk hapus.
       allow delete: if asisten()
         && resource.data.asistenId == request.auth.uid;
 
       // ==== sesi/{sesiId}/presensi ====
-      // Create hanya praktikan pemilik, hanya saat sesi "dibuka" dan ia peserta.
-      // Update dan delete ditolak.
+      // Create hanya praktikan pemilik, hanya saat sesi "dibuka", waktu wajib
+      // timestamp server. Update dan delete ditolak.
       match /presensi/{praktikanId} {
         function sesiInduk() {
           return get(/databases/$(database)/documents/sesi/$(sesiId)).data;
@@ -113,6 +136,10 @@ service cloud.firestore {
           || (asisten() && sesiInduk().asistenId == request.auth.uid);
 
         allow create: if request.auth.uid == praktikanId
+          && request.resource.data.keys().hasAll(['praktikanId', 'waktu'])
+          && request.resource.data.keys().hasOnly(['praktikanId', 'waktu'])
+          && request.resource.data.praktikanId == praktikanId
+          && request.resource.data.waktu == request.time
           && sesiInduk().status == 'dibuka'
           && pesertaKelas(sesiInduk().kelasId);
 
@@ -132,36 +159,41 @@ service cloud.firestore {
         allow read: if pemilik()
           || (asisten() && sesiInduk().asistenId == request.auth.uid);
 
-        // Tanpa akses: praktikan tidak bisa membuat izin di sesi kelas lain,
-        // di sesi yang sudah ditutup, atau dengan status selain "menunggu".
+        // Praktikan pemilik saja, status awal "menunggu", hanya untuk sesi yang
+        // belum ditutup dan kelas yang ia ikuti.
         allow create: if pemilik()
+          && request.resource.data.keys().hasAll(
+               ['praktikanId', 'alasan', 'status', 'klasifikasiStatus', 'dibuatPada'])
+          && request.resource.data.keys().hasOnly(
+               ['praktikanId', 'alasan', 'status', 'klasifikasiStatus', 'dibuatPada'])
           && request.resource.data.praktikanId == praktikanId
           && request.resource.data.status == 'menunggu'
           && request.resource.data.klasifikasiStatus == 'menunggu'
-          && request.resource.data.keys().hasOnly(
-               ['praktikanId', 'alasan', 'status', 'klasifikasiStatus', 'dibuatPada'])
+          && request.resource.data.dibuatPada == request.time
+          && request.resource.data.alasan is string
+          && request.resource.data.alasan.size() >= 5
+          && request.resource.data.alasan.size() <= 500
           && sesiInduk().status != 'ditutup'
           && pesertaKelas(sesiInduk().kelasId);
 
-        // Praktikan pemilik: hanya field hasil AI, status izin tidak berubah.
-        // Asisten pengampu: hanya field keputusan, hanya dari "menunggu".
-        allow update: if (pemilik() && hanyaFieldAi())
-          || (asisten() && sesiInduk().asistenId == request.auth.uid && hanyaKeputusan());
+        // Praktikan pemilik: hanya field hasil AI, hanya selama status masih
+        // "menunggu", status izin tidak boleh berubah.
+        // Asisten pengampu: hanya field keputusan, hanya dari "menunggu", dan
+        // diputuskanOleh wajib dirinya sendiri.
+        allow update: if (pemilik()
+            && resource.data.status == 'menunggu'
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.diff(resource.data).changedKeys()
+                 .hasOnly(['kategoriAi', 'klasifikasiStatus', 'diprosesPada']))
+          || (asisten()
+            && sesiInduk().asistenId == request.auth.uid
+            && resource.data.status == 'menunggu'
+            && request.resource.data.status in ['disetujui', 'ditolak']
+            && request.resource.data.diputuskanOleh == request.auth.uid
+            && request.resource.data.diff(resource.data).changedKeys()
+                 .hasOnly(['status', 'diputuskanPada', 'diputuskanOleh']));
 
         allow delete: if false;
-
-        function hanyaFieldAi() {
-          return request.resource.data.status == resource.data.status
-            && request.resource.data.diff(resource.data).changedKeys().hasOnly(
-                 ['kategoriAi', 'klasifikasiStatus', 'diprosesPada']);
-        }
-
-        function hanyaKeputusan() {
-          return resource.data.status == 'menunggu'
-            && request.resource.data.status in ['disetujui', 'ditolak']
-            && request.resource.data.diff(resource.data).changedKeys().hasOnly(
-                 ['status', 'diputuskanPada', 'diputuskanOleh']);
-        }
       }
     }
   }
