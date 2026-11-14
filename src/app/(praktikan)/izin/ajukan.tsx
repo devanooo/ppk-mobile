@@ -9,7 +9,7 @@ import { useSesiPeserta } from '@/features/izin/use-sesi-peserta';
 import { useSesiPraktikan } from '@/features/izin/use-sesi-praktikan';
 import { klasifikasiAlasan } from '@/lib/ai';
 import { db } from '@/lib/firebase';
-import { ajukanIzin, simpanHasilKlasifikasi } from '@/lib/izin';
+import { ajukanIzin, klasifikasiUlangIzin, simpanHasilKlasifikasi } from '@/lib/izin';
 import { bolehDiajukan, validasiAlasan } from '@/lib/izin-aturan';
 import { useSession } from '@/store/session-store';
 
@@ -117,8 +117,11 @@ export default function AjukanIzinScreen() {
   }
 
   /**
-   * Mengulang klasifikasi untuk pengajuan yang SUDAH tersimpan. Tidak memanggil
-   * `ajukanIzin`, jadi tidak memicu penolakan duplikat dan tidak menimpa alasan.
+   * Mengulang klasifikasi untuk pengajuan yang SUDAH tersimpan.
+   *
+   * `klasifikasiUlangIzin` membaca `alasan` dari dokumen, bukan dari state form.
+   * Bila memakai teks form, hasil AI bisa mengklasifikasi teks yang berbeda dari
+   * isi pengajuan setelah pengguna mengedit field.
    */
   async function ulangKlasifikasi() {
     if (!sesiTerpilih || !praktikanId) return;
@@ -126,21 +129,18 @@ export default function AjukanIzinScreen() {
     setSedangKirim(true);
     setUmpanBalik(null);
 
-    const klasifikasi = await jalankanKlasifikasi({ sesiTerpilih, praktikanId, alasan });
+    const hasil = await klasifikasiUlangIzin({
+      db,
+      sesiId: sesiTerpilih,
+      praktikanId,
+    });
 
     setSedangKirim(false);
-
-    if (!klasifikasi.tersimpan) {
-      setUmpanBalik({ jenis: 'gagal', pesan: klasifikasi.pesan });
-      return;
-    }
-
-    if (klasifikasi.kategoriOk) {
-      setUmpanBalik({ jenis: 'sukses', pesan: 'Alasan berhasil diklasifikasikan ulang' });
-      return;
-    }
-
-    setUmpanBalik({ jenis: 'gagal', pesan: klasifikasi.pesan });
+    setPerluUlangKlasifikasi(!hasil.ok);
+    setUmpanBalik({
+      jenis: hasil.ok ? 'sukses' : 'gagal',
+      pesan: hasil.ok ? 'Alasan berhasil diklasifikasikan ulang' : hasil.pesan,
+    });
   }
 
   /** Klasifikasi + simpan. Dipakai alur kirim maupun ulang, supaya hasilnya sama. */
