@@ -7,6 +7,7 @@
 import {
   PESAN_IZIN,
   bolehDiajukan,
+  bolehDiklasifikasiUlang,
   bolehDiputuskan,
   pesanDariGalat,
   validasiAlasan,
@@ -43,6 +44,19 @@ pastikan(!bolehDiputuskan('ditolak').ok, 'status ditolak tidak boleh diputuskan 
 pastikan(
   bolehDiputuskan('disetujui').pesan === PESAN_IZIN.sudahDiputuskan,
   'pesan keputusan ganda harus spesifik',
+);
+
+// 3b. Klasifikasi ulang hanya selama pengajuan belum diputuskan, karena Security
+// Rules membatasi update field AI pada status menunggu.
+pastikan(bolehDiklasifikasiUlang('menunggu').ok, 'status menunggu harus bisa diklasifikasi ulang');
+pastikan(
+  !bolehDiklasifikasiUlang('disetujui').ok,
+  'status disetujui tidak boleh diklasifikasi ulang',
+);
+pastikan(!bolehDiklasifikasiUlang('ditolak').ok, 'status ditolak tidak boleh diklasifikasi ulang');
+pastikan(
+  bolehDiklasifikasiUlang('disetujui').pesan === PESAN_IZIN.sudahDiputuskan,
+  'pesan klasifikasi ulang harus spesifik',
 );
 
 // 4. Aturan pengajuan: peserta, status sesi, dan duplikat.

@@ -57,6 +57,20 @@ export function bolehDiputuskan(status: StatusIzin): HasilAksi {
 }
 
 /**
+ * Klasifikasi ulang hanya berguna selama pengajuan belum diputuskan. Security
+ * Rules membatasi update field AI pada status `menunggu`, jadi pengajuan yang
+ * sudah disetujui atau ditolak akan ditolak server dan tidak perlu ditawari
+ * tombolnya.
+ */
+export function bolehDiklasifikasiUlang(status: StatusIzin): HasilAksi {
+  if (status !== 'menunggu') {
+    return { ok: false, pesan: PESAN_IZIN.sudahDiputuskan };
+  }
+
+  return { ok: true, pesan: 'Klasifikasi AI dapat diulang' };
+}
+
+/**
  * Pengajuan hanya untuk sesi yang belum ditutup dan oleh peserta kelasnya
  * (AC US-09 nomor 2 dan 5). Aturan yang sama tetap ditegakkan Security Rules;
  * ini hanya lapisan pesan yang ramah.

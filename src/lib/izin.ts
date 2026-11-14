@@ -19,7 +19,9 @@
 
 import {
   collection,
+  deleteField,
   doc,
+  getDoc,
   onSnapshot,
   runTransaction,
   serverTimestamp,
@@ -31,9 +33,25 @@ import type { Izin, IzinDokumen, KlasifikasiStatus, StatusIzin } from '@/feature
 import { izinConverter } from '@/lib/konversi';
 import type { IzinFirestore } from '@/types/firestore';
 
-import { PESAN_IZIN, bolehDiputuskan, pesanDariGalat, validasiAlasan } from './izin-aturan';
+import type { HasilKlasifikasi } from './ai-pemetaan';
+import { klasifikasiAlasan } from './ai';
+import {
+  PESAN_IZIN,
+  bolehDiklasifikasiUlang,
+  bolehDiputuskan,
+  pesanDariGalat,
+  validasiAlasan,
+} from './izin-aturan';
 
-export { PESAN_IZIN, PANJANG_ALASAN, bolehDiajukan, bolehDiputuskan, pesanDariGalat, validasiAlasan } from './izin-aturan';
+export {
+  PESAN_IZIN,
+  PANJANG_ALASAN,
+  bolehDiajukan,
+  bolehDiklasifikasiUlang,
+  bolehDiputuskan,
+  pesanDariGalat,
+  validasiAlasan,
+} from './izin-aturan';
 export type HasilMuat<T> = { ok: true; data: T } | { ok: false; pesan: string };
 
 function keTanggal(nilai: unknown): Date | undefined {
@@ -250,6 +268,10 @@ export async function putuskanIzin({
 /**
  * Menulis hasil klasifikasi AI. Tidak pernah menyentuh `status`, karena hasil
  * AI hanya informasi pendukung (AC US-10 nomor 5).
+ *
+ * Saat klasifikasi gagal, `kategoriAi` lama dihapus. Tanpa itu badge akan
+ * menampilkan kategori dari percobaan sebelumnya bersama status `gagal`, sehingga
+ * kategori basi terbaca sebagai hasil yang masih berlaku.
  */
 export async function simpanHasilKlasifikasi({
   db,
@@ -267,7 +289,7 @@ export async function simpanHasilKlasifikasi({
   try {
     await updateDoc(doc(db, 'sesi', sesiId, 'izin', praktikanId), {
       klasifikasiStatus,
-      ...(kategoriAi ? { kategoriAi } : {}),
+      kategoriAi: kategoriAi ?? deleteField(),
       diprosesPada: serverTimestamp(),
     });
 
@@ -278,6 +300,58 @@ export async function simpanHasilKlasifikasi({
           ? 'Alasan berhasil diklasifikasikan'
           : 'Klasifikasi AI gagal',
     };
+  } catch (galat) {
+    return { ok: false, pesan: pesanDariGalat(galat, PESAN_IZIN.gagalKlasifikasi) };
+  }
+}
+
+/**
+ * Mengulang klasifikasi untuk pengajuan yang SUDAH tersimpan.
+ *
+ * `alasan` selalu dibaca dari dokumen, bukan dari state form. Kalau layar
+ * mengirim teks yang sedang diketik, hasil AI bisa mengklasifikasi teks yang
+ * berbeda dari isi pengajuan, dan `simpanHasilKlasifikasi` akan menimpanya.
+ *
+ * Tidak memanggil `ajukanIzin`, jadi tidak memicu penolakan duplikat dan tidak
+ * menyentuh alasan.
+ */
+export async function klasifikasiUlangIzin({
+  db,
+  sesiId,
+  praktikanId,
+}: {
+  db: Firestore;
+  sesiId: string;
+  praktikanId: string;
+}): Promise<HasilKlasifikasi> {
+  try {
+    const dokumen = await getDoc(doc(db, 'sesi', sesiId, 'izin', praktikanId));
+
+    if (!dokumen.exists()) {
+      return { ok: false, pesan: PESAN_IZIN.izinTidakDitemukan };
+    }
+
+    const data = dokumen.data() as IzinDokumen;
+    const boleh = bolehDiklasifikasiUlang(data.status);
+
+    if (!boleh.ok) {
+      return { ok: false, pesan: boleh.pesan };
+    }
+
+    const hasil = await klasifikasiAlasan(data.alasan);
+    const simpan = await simpanHasilKlasifikasi({
+      db,
+      sesiId,
+      praktikanId,
+      kategoriAi: hasil.ok ? hasil.kategori : undefined,
+      klasifikasiStatus: hasil.ok ? 'selesai' : 'gagal',
+    });
+
+    if (!simpan.ok) {
+      return { ok: false, pesan: simpan.pesan };
+    }
+
+    return hasil;
   } catch (galat) {
     return { ok: false, pesan: pesanDariGalat(galat, PESAN_IZIN.gagalKlasifikasi) };
   }

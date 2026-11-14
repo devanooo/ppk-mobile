@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import { Card } from '@/components/ui';
+import { AppButton, Card } from '@/components/ui';
 import { formatTanggal } from '@/features/praktikan/format-sesi';
 import type { SesiPraktikan } from '@/lib/izin-sesi';
 import type { Izin } from '@/features/izin/types';
@@ -14,12 +14,29 @@ type KartuIzinProps = {
   namaPraktikan?: string;
   sesi?: SesiPraktikan;
   onPress?: () => void;
+  /**
+   * Hanya dikirim sisi praktikan. Klasifikasi yang gagal atau menggantung bisa
+   * diulang dari daftar tanpa membuat pengajuan baru (satu pengajuan per sesi).
+   */
+  onKlasifikasiUlang?: () => void;
+  sedangKlasifikasi?: boolean;
 };
 
-export function KartuIzin({ izin, namaPraktikan, sesi, onPress }: KartuIzinProps) {
+export function KartuIzin({
+  izin,
+  namaPraktikan,
+  sesi,
+  onPress,
+  onKlasifikasiUlang,
+  sedangKlasifikasi = false,
+}: KartuIzinProps) {
   const judul = namaPraktikan ?? sesi?.namaKelas ?? 'Pengajuan izin';
   const waktuKirim = formatWaktuIzin(izin.dibuatPada);
   const waktuPutus = formatWaktuIzin(izin.diputuskanPada);
+  // Hasil klasifikasi hanya bisa diubah selama pengajuan masih menunggu, sama
+  // dengan batasan Security Rules.
+  const bisaKlasifikasiUlang =
+    Boolean(onKlasifikasiUlang) && izin.klasifikasiStatus !== 'selesai' && izin.status === 'menunggu';
 
   const isi = (
     <>
@@ -41,7 +58,21 @@ export function KartuIzin({ izin, namaPraktikan, sesi, onPress }: KartuIzinProps
         <Text className="mt-two text-small text-textSecondary">Diajukan pukul {waktuKirim}</Text>
       ) : null}
 
-      <BadgeKlasifikasiAi className="mt-three" kategori={izin.kategoriAi} status={izin.klasifikasiStatus} />
+      <BadgeKlasifikasiAi
+        className="mt-three"
+        kategori={izin.kategoriAi}
+        status={izin.klasifikasiStatus}
+      />
+
+      {bisaKlasifikasiUlang ? (
+        <AppButton
+          className="mt-three"
+          disabled={sedangKlasifikasi}
+          label={sedangKlasifikasi ? 'Mengklasifikasi...' : 'Klasifikasi ulang'}
+          onPress={onKlasifikasiUlang as () => void}
+          variant="secondary"
+        />
+      ) : null}
 
       {waktuPutus ? (
         <Text className="mt-three border-t border-border pt-three text-small text-textSecondary">

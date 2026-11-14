@@ -21,6 +21,11 @@ type DaftarIzinPraktikanProps = {
   terpotong?: boolean;
   onAjukan: () => void;
   profil?: ReactNode;
+  /** Diisi hanya bila daftar boleh menawarkan klasifikasi ulang. */
+  onKlasifikasiUlang?: (izin: Izin) => void;
+  idSedangKlasifikasi?: string;
+  /** Hasil klasifikasi ulang, ditampilkan sebagai banner di atas daftar. */
+  umpanBalik?: { jenis: 'sukses' | 'gagal'; pesan: string } | null;
 };
 
 function pesanBantuan(jumlah: number, status: StatusDaftar): string {
@@ -40,6 +45,9 @@ export function DaftarIzinPraktikan({
   terpotong = false,
   onAjukan,
   profil,
+  onKlasifikasiUlang,
+  idSedangKlasifikasi,
+  umpanBalik,
 }: DaftarIzinPraktikanProps) {
   const sedangMemuat = status === 'memuat';
   const gagal = status === 'gagal';
@@ -84,6 +92,14 @@ export function DaftarIzinPraktikan({
                 <Banner className="mt-three" jenis="gagal" pesan={pesanGalat} />
               ) : null}
 
+              {umpanBalik ? (
+                <Banner
+                  className="mt-three"
+                  jenis={umpanBalik.jenis}
+                  pesan={umpanBalik.pesan}
+                />
+              ) : null}
+
               {sedangMemuat ? (
                 <Text className="mt-four text-small text-textSecondary">
                   Memuat pengajuan izin...
@@ -106,7 +122,16 @@ export function DaftarIzinPraktikan({
             )
           }
           ItemSeparatorComponent={() => <View className="h-twoHalf" />}
-          renderItem={({ item }) => <KartuIzin izin={item} sesi={sesiById.get(item.sesiId)} />}
+          renderItem={({ item }) => (
+            <KartuIzin
+              izin={item}
+              onKlasifikasiUlang={
+                onKlasifikasiUlang ? () => onKlasifikasiUlang(item) : undefined
+              }
+              sedangKlasifikasi={idSedangKlasifikasi === `${item.sesiId}:${item.id}`}
+              sesi={sesiById.get(item.sesiId)}
+            />
+          )}
         />
       </View>
     </Screen>
