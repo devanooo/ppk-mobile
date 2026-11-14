@@ -46,6 +46,8 @@ service cloud.firestore {
     // rules tidak bisa query relasi kelas. Pembatasan ketat butuh salinan nama
     // dan nomorInduk di dokumen presensi dan izin.
     // Tulis: hanya diri sendiri; peran tidak boleh berubah setelah dibuat.
+    // Registrasi mandiri boleh memilih peran praktikan atau asisten, verifikasi
+    // akun asisten ditunda ke Sprint 3 (docs/sprints/sprint-2.md bagian 8.11).
     match /users/{userId} {
       allow get: if request.auth.uid == userId
         || (asisten() && resource.data.peran == 'praktikan');
@@ -53,7 +55,7 @@ service cloud.firestore {
       allow list: if asisten() && resource.data.peran == 'praktikan';
 
       allow create: if request.auth.uid == userId
-        && request.resource.data.peran == 'praktikan'
+        && request.resource.data.peran in ['praktikan', 'asisten']
         && request.resource.data.keys().hasAll(['nama', 'nomorInduk', 'peran', 'dibuatPada'])
         && request.resource.data.keys().hasOnly(['nama', 'nomorInduk', 'peran', 'dibuatPada']);
 
