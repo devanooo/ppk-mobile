@@ -1,3 +1,4 @@
+
 import { SymbolView } from 'expo-symbols';
 import type { ReactNode } from 'react';
 import { FlatList, Text, View } from 'react-native';
@@ -5,18 +6,27 @@ import { FlatList, Text, View } from 'react-native';
 import { Card, EmptyState, Screen, StatusBadge, teksKosong } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { Sesi } from '@/types';
+import type { JadwalPraktikan } from './use-jadwal-praktikan';
 
 import { labelJadwal, rentangJam, urutkanSesi } from './format-sesi';
 
 type JadwalScreenProps = {
-  sesi: Sesi[];
+  sesi: JadwalPraktikan[];
+  status: 'memuat' | 'siap' | 'gagal';
+  pesanGalat?: string;
   namaPraktikan?: string;
   onBukaSesi: (sesiId: string) => void;
   profil?: ReactNode;
 };
 
-export function JadwalScreen({ sesi, namaPraktikan, onBukaSesi, profil }: JadwalScreenProps) {
+export function JadwalScreen({
+  sesi,
+  status,
+  pesanGalat,
+  namaPraktikan,
+  onBukaSesi,
+  profil,
+}: JadwalScreenProps) {
   const theme = useTheme();
   const jadwal = urutkanSesi(sesi);
 
@@ -32,17 +42,27 @@ export function JadwalScreen({ sesi, namaPraktikan, onBukaSesi, profil }: Jadwal
             <JudulJadwal jumlah={jadwal.length} namaPraktikan={namaPraktikan} profil={profil} />
           }
           ListEmptyComponent={
-            <EmptyState
-              ikon={
-                <SymbolView
-                  name={{ ios: 'calendar', android: 'calendar_today' }}
-                  size={32}
-                  tintColor={theme.textSecondary}
-                />
-              }
-              judul={teksKosong.jadwal.judul}
-              deskripsi={teksKosong.jadwal.deskripsi}
-            />
+            status === 'memuat' ? (
+              <Text className="py-five text-center text-small text-textSecondary">
+                Memuat jadwal...
+              </Text>
+            ) : status === 'gagal' ? (
+              <Text className="py-five text-center text-small text-textSecondary">
+                {pesanGalat ?? 'Gagal memuat jadwal.'}
+              </Text>
+            ) : (
+              <EmptyState
+                ikon={
+                  <SymbolView
+                    name={{ ios: 'calendar', android: 'calendar_today' }}
+                    size={32}
+                    tintColor={theme.textSecondary}
+                  />
+                }
+                judul={teksKosong.jadwal.judul}
+                deskripsi={teksKosong.jadwal.deskripsi}
+              />
+            )
           }
           renderItem={({ item }) => (
             <KartuJadwal onPress={() => onBukaSesi(item.id)} sesi={item} />
@@ -75,7 +95,9 @@ function JudulJadwal({
           Jadwal
         </Text>
         {jumlah > 0 ? (
-          <Text className="mt-one text-small text-textSecondary">{jumlah} sesi praktikum</Text>
+          <Text className="mt-one text-small text-textSecondary">
+            {jumlah} sesi praktikum
+          </Text>
         ) : null}
       </View>
       {profil}
@@ -83,19 +105,27 @@ function JudulJadwal({
   );
 }
 
-function KartuJadwal({ sesi, onPress }: { sesi: Sesi; onPress: () => void }) {
+function KartuJadwal({
+  sesi,
+  onPress,
+}: {
+  sesi: JadwalPraktikan;
+  onPress: () => void;
+}) {
   return (
     <Card
-      accessibilityLabel={`Buka detail ${sesi.namaPraktikum}, ${labelStatus(sesi.status)}, ${labelJadwal(sesi)}, pukul ${rentangJam(sesi)}, kelas ${sesi.kelas}, ${sesi.lab}`}
+      accessibilityLabel={`Buka detail ${sesi.namaKelas}, ${labelStatus(sesi.status)}, ${labelJadwal(sesi)}, pukul ${rentangJam(sesi)}, ${sesi.lab}`}
       onPress={onPress}
     >
       <View className="flex-row items-start justify-between gap-two">
-        <Text className="flex-1 text-subtitle font-semibold text-text">{sesi.namaPraktikum}</Text>
+        <Text className="flex-1 text-subtitle font-semibold text-text">
+          {sesi.namaKelas}
+        </Text>
         <StatusBadge className="shrink-0" status={sesi.status} />
       </View>
 
       <Text className="mt-one text-small text-textSecondary">
-        Kelas {sesi.kelas} · {sesi.lab}
+        {sesi.lab}
       </Text>
 
       <View className="mt-three flex-row flex-wrap items-center justify-between gap-two">
@@ -108,7 +138,7 @@ function KartuJadwal({ sesi, onPress }: { sesi: Sesi; onPress: () => void }) {
   );
 }
 
-function labelStatus(status: Sesi['status']): string {
+function labelStatus(status: JadwalPraktikan['status']): string {
   if (status === 'belum-dibuka') return 'Belum dibuka';
   if (status === 'dibuka') return 'Dibuka';
   return 'Ditutup';
