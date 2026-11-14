@@ -1,22 +1,27 @@
+
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
-import { users } from '@/data/dummy';
 import { DetailSesiScreen } from '@/features/praktikan/detail-sesi-screen';
+import { useDetailSesiPraktikan } from '@/features/praktikan/use-detail-sesi-praktikan';
 import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
+import { catatPresensi } from '@/lib/presensi';
+import { db } from '@/lib/firebase';
 import { useSession } from '@/store/session-store';
 
 export default function DetailSesiPraktikanRoute() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { catatPresensi, presensiSaya, sesiById, user } = useSession();
+  const { user } = useSession();
 
-  if (!user) {
-    return null;
-  }
+  const sesiId = Array.isArray(id) ? id[0] : id;
 
-  const sesi = sesiById(id);
-  const asisten = sesi ? users.find((pengguna) => pengguna.id === sesi.asistenId) : undefined;
-  const waktuHadir = presensiSaya(user.id).find((item) => item.sesiId === id)?.waktu;
+  const hasil = useDetailSesiPraktikan(
+    db,
+    sesiId ?? '',
+    user?.id ?? '',
+  );
+
+  if (!user || !sesiId) return null;
 
   function kembali() {
     if (router.canGoBack()) {
@@ -29,13 +34,20 @@ export default function DetailSesiPraktikanRoute() {
 
   return (
     <DetailSesiScreen
-      namaAsisten={asisten?.nama}
-      onCatatKehadiran={() => catatPresensi(id, user.id)}
+      onCatatKehadiran={() =>
+        catatPresensi({
+          db,
+          sesiId,
+          praktikanId: user.id,
+        })
+      }
       onKembali={kembali}
       praktikan={user}
       profil={<MenuProfilPraktikan />}
-      sesi={sesi ?? null}
-      waktuHadir={waktuHadir}
+      sesi={hasil.sesi}
+      status={hasil.status}
+      pesanGalat={hasil.pesanGalat}
+      waktuHadir={hasil.waktuHadir}
     />
   );
 }

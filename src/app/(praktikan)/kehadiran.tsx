@@ -1,27 +1,27 @@
-import { KehadiranScreen, type RiwayatKehadiran } from '@/features/praktikan/kehadiran-screen';
+
+import { KehadiranScreen } from '@/features/praktikan/kehadiran-screen';
+import { useRiwayatKehadiran } from '@/features/praktikan/use-riwayat-kehadiran';
 import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
+import { db } from '@/lib/firebase';
 import { useSession } from '@/store/session-store';
 
 export default function KehadiranPraktikanRoute() {
-  const { user, presensiSaya, sesiById } = useSession();
+  const { user } = useSession();
 
-  if (!user) {
-    return null;
-  }
+  const hasil = useRiwayatKehadiran(
+    db,
+    user?.peran === 'praktikan' ? user.id : undefined,
+  );
 
-  const riwayat: RiwayatKehadiran[] = presensiSaya(user.id)
-    .flatMap((presensi) => {
-      const sesi = sesiById(presensi.sesiId);
-
-      return sesi ? [{ sesi, waktu: presensi.waktu }] : [];
-    })
-    .sort((a, b) => b.waktu.localeCompare(a.waktu));
+  if (!user) return null;
 
   return (
     <KehadiranScreen
       namaPraktikan={user.nama}
       profil={<MenuProfilPraktikan />}
-      riwayat={riwayat}
+      riwayat={hasil.riwayat}
+      status={hasil.status}
+      pesanGalat={hasil.pesanGalat}
     />
   );
 }
