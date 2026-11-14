@@ -11,7 +11,7 @@ import {
 
 import { AppButton, Banner, Screen, TextField } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
-import { daftarPraktikan } from '@/lib/auth';
+import { useSession } from '@/store/session-store';
 
 type RegisterScreenProps = {
   onBerhasil: () => void;
@@ -32,6 +32,7 @@ export function RegisterScreen({
 }: RegisterScreenProps) {
   // Ref untuk mengontrol ScrollView.
   const scrollRef = useRef<ComponentRef<typeof ScrollView> | null>(null);
+  const { daftarPraktikan } = useSession();
 
   const [nama, setNama] = useState('');
   const [nomorInduk, setNomorInduk] = useState('');

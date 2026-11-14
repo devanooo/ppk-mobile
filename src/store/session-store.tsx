@@ -5,12 +5,21 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
 
 import { users } from '@/data/dummy';
-import { ambilProfil, keluarAkun, masukDenganEmail, pantauAuth } from '@/lib/auth';
+import {
+  ambilProfil,
+  daftarPraktikan as daftarPraktikanFirebase,
+  keluarAkun,
+  masukDenganEmail,
+  pantauAuth,
+  type InputDaftarPraktikan,
+  type HasilAuth,
+} from '@/lib/auth';
 import type { Presensi, Sesi, User } from '@/types';
 
 import {
@@ -34,6 +43,9 @@ type Store = {
   sesi: Sesi[];
   presensi: Presensi[];
   login: (email: string, password: string) => Promise<HasilLogin>;
+  daftarPraktikan: (
+    input: InputDaftarPraktikan,
+  ) => Promise<HasilAuth>;
   logout: () => Promise<HasilAksi>;
   sesiById: (sesiId: string) => Sesi | undefined;
   sesiUntuk: (user: User) => Sesi[];
@@ -58,6 +70,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<StateAplikasi>(AWAL);
   const [authLoading, setAuthLoading] = useState(true);
 
+  // Menandai proses registrasi agar tidak bertabrakan
+  // dengan Firebase Auth State Listener.
+  const registrasiAktif = useRef(false);
+
   // ========================================
   // FIREBASE AUTH STATE LISTENER
 
@@ -65,6 +81,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     let aktif = true;
 
     const unsubscribe = pantauAuth(async (firebaseUser) => {
+      // Lewati perubahan Auth selama registrasi berlangsung.
+      // Profil Firestore masih dalam proses penyimpanan.
+      if (registrasiAktif.current) {
+        return;
+      }
+
       if (!firebaseUser) {
         if (aktif) {
           setState((lama) => ({ ...lama, user: null }));
@@ -114,6 +136,45 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       }
 
       return masukDenganEmail(email.trim(), password);
+    },
+    [],
+  );
+
+  // ========================================
+  // REGISTER
+
+  const daftarPraktikan = useCallback(
+    async (
+      input: InputDaftarPraktikan,
+    ): Promise<HasilAuth> => {
+      // Mencegah proses registrasi ganda.
+      if (registrasiAktif.current) {
+        return {
+          ok: false,
+          pesan: 'Registrasi sedang diproses. Silakan tunggu.',
+        };
+      }
+
+      registrasiAktif.current = true;
+
+      try {
+        const hasil = await daftarPraktikanFirebase(input);
+
+        if (!hasil.ok) {
+          return hasil;
+        }
+
+        // State diperbarui hanya setelah Authentication
+        // dan Firestore berhasil menyimpan data.
+        setState((lama) => ({
+          ...lama,
+          user: hasil.user,
+        }));
+
+        return hasil;
+      } finally {
+        registrasiAktif.current = false;
+      }
     },
     [],
   );
@@ -218,6 +279,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       sesi: state.sesi,
       presensi: state.presensi,
       login,
+      daftarPraktikan,
       logout,
       sesiById,
       sesiUntuk: (pengguna: User) =>
@@ -233,6 +295,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       state,
       authLoading,
       login,
+      daftarPraktikan,
       logout,
       sesiById,
       bukaSesi,

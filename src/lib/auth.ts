@@ -12,7 +12,7 @@ import {
   doc,
   getDoc,
   serverTimestamp,
-  setDoc,
+  writeBatch,
 } from 'firebase/firestore';
 
 import { auth, db } from '@/lib/firebase';
@@ -29,33 +29,61 @@ export type HasilAksiAuth =
   | { ok: true; pesan: string }
   | { ok: false; pesan: string };
 
+export type InputDaftarPraktikan = {
+  nama: string;
+  nomorInduk: string;
+  email: string;
+  password: string;
+};
+
+// ========================================
+// ERROR HANDLING
+
 function pesanError(error: unknown): string {
-  if (typeof error !== 'object' || error === null || !('code' in error)) {
+  if (
+    typeof error !== 'object' ||
+    error === null ||
+    !('code' in error)
+  ) {
     return 'Terjadi kesalahan. Silakan coba kembali.';
   }
 
-  switch (error.code) {
+  const code = error.code;
+
+  switch (code) {
     case 'auth/email-already-in-use':
-      return 'Email sudah terdaftar.';
+      return 'Email sudah terdaftar. Gunakan email lain.';
+
     case 'auth/invalid-email':
       return 'Format email tidak valid.';
+
     case 'auth/weak-password':
       return 'Kata sandi minimal 6 karakter.';
+
     case 'auth/invalid-credential':
     case 'auth/user-not-found':
     case 'auth/wrong-password':
       return 'Email atau kata sandi salah.';
+
     case 'auth/network-request-failed':
       return 'Koneksi internet bermasalah.';
+
     case 'permission-denied':
     case 'firestore/permission-denied':
-      return 'Tidak memiliki izin mengakses profil.';
+      return 'Registrasi ditolak oleh Firestore. NIM mungkin sudah digunakan atau aturan akses tidak terpenuhi.';
+
     default:
       return 'Terjadi kesalahan saat menghubungi Firebase.';
   }
 }
 
-function konversiUser(uid: string, data: UserFirestore): User {
+// ========================================
+// USER CONVERTER
+
+function konversiUser(
+  uid: string,
+  data: UserFirestore,
+): User {
   return {
     id: uid,
     nama: data.nama,
@@ -64,47 +92,75 @@ function konversiUser(uid: string, data: UserFirestore): User {
   };
 }
 
+// ========================================
+// GET USER PROFILE
+
 /**
  * Mengambil profil pengguna dari Firestore.
  */
 export async function ambilProfil(
   pengguna: FirebaseUser,
 ): Promise<User> {
-  const referensi = doc(db, 'users', pengguna.uid).withConverter(userConverter);
+  const referensi = doc(
+    db,
+    'users',
+    pengguna.uid,
+  ).withConverter(userConverter);
+
   const snapshot = await getDoc(referensi);
 
   if (!snapshot.exists()) {
-    throw new Error('Profil pengguna tidak ditemukan di Firestore.');
+    throw new Error(
+      'Profil pengguna tidak ditemukan di Firestore.',
+    );
   }
 
-  return konversiUser(pengguna.uid, snapshot.data());
+  return konversiUser(
+    pengguna.uid,
+    snapshot.data(),
+  );
 }
+
+// ========================================
+// REGISTER
 
 /**
  * Registrasi akun praktikan.
- * Akun asisten dibuat melalui proses administrasi, bukan registrasi publik.
+ * Akun asisten dibuat melalui proses administrasi,
+ * bukan registrasi publik.
  */
-export async function daftarPraktikan(input: {
-  nama: string;
-  nomorInduk: string;
-  email: string;
-  password: string;
-}): Promise<HasilAuth> {
+export async function daftarPraktikan(
+  input: InputDaftarPraktikan,
+): Promise<HasilAuth> {
   const nama = input.nama.trim();
   const nomorInduk = input.nomorInduk.trim();
-  const email = input.email.trim();
+  const email = input.email.trim().toLowerCase();
 
   if (!nama || !nomorInduk || !email || !input.password) {
-    return { ok: false, pesan: 'Semua kolom wajib diisi.' };
+    return {
+      ok: false,
+      pesan: 'Semua kolom wajib diisi.',
+    };
+  }
+
+  if (!/^\d{10}$/.test(nomorInduk)) {
+    return {
+      ok: false,
+      pesan: 'NIM harus terdiri dari tepat 10 digit angka.',
+    };
   }
 
   if (input.password.length < 6) {
-    return { ok: false, pesan: 'Kata sandi minimal 6 karakter.' };
+    return {
+      ok: false,
+      pesan: 'Kata sandi minimal 6 karakter.',
+    };
   }
 
   let pengguna: FirebaseUser | null = null;
 
   try {
+    // 1. Membuat akun Firebase Authentication
     const hasil = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -113,9 +169,22 @@ export async function daftarPraktikan(input: {
 
     pengguna = hasil.user;
 
-    const referensi = doc(db, 'users', pengguna.uid)
-      .withConverter(userConverter);
+    // 2. Menyiapkan referensi dokumen Firestore
+    const batch = writeBatch(db);
 
+    const referensiUser = doc(
+      db,
+      'users',
+      pengguna.uid,
+    );
+
+    const referensiNim = doc(
+      db,
+      'nomorInduk',
+      nomorInduk,
+    );
+
+    // 3. Membuat profil pengguna
     const profil: UserFirestore = {
       nama,
       nomorInduk,
@@ -123,25 +192,56 @@ export async function daftarPraktikan(input: {
       dibuatPada: serverTimestamp() as UserFirestore['dibuatPada'],
     };
 
-    await setDoc(referensi, profil);
+    // 4. Menyimpan profil pengguna
+    batch.set(referensiUser, profil);
+
+    // 5. Menyimpan reservasi NIM
+    batch.set(referensiNim, {
+      uid: pengguna.uid,
+    });
+
+    // 6. Menyimpan kedua dokumen secara atomik
+    await batch.commit();
 
     return {
       ok: true,
       user: konversiUser(pengguna.uid, profil),
     };
   } catch (error) {
-    // Jika pembuatan profil gagal, jangan tinggalkan akun Auth yatim.
+    // 7. Rollback jika penyimpanan Firestore gagal
     if (pengguna) {
       try {
         await deleteUser(pengguna);
-      } catch {
-        // Kegagalan rollback perlu ditangani melalui pemeriksaan akun.
+      } catch (rollbackError) {
+        console.error(
+          'Gagal menghapus akun Authentication sementara:',
+          rollbackError,
+        );
       }
     }
 
-    return { ok: false, pesan: pesanError(error) };
+    // 8. Penanganan pesan jika NIM sudah digunakan
+    if (
+        typeof error === 'object' &&
+        error !== null &&
+        'code' in error &&
+        error.code === 'permission-denied'
+    ) {
+        return {
+        ok: false,
+        pesan: 'NIM sudah terdaftar. Silakan gunakan NIM lain.',
+        };
+    }
+
+    return {
+      ok: false,
+      pesan: pesanError(error),
+    };
   }
 }
+
+// ========================================
+// LOGIN
 
 /**
  * Login menggunakan email dan password Firebase Authentication.
@@ -153,18 +253,28 @@ export async function masukDenganEmail(
   try {
     const hasil = await signInWithEmailAndPassword(
       auth,
-      email.trim(),
+      email.trim().toLowerCase(),
       password,
     );
 
     const user = await ambilProfil(hasil.user);
 
-    return { ok: true, user };
+    return {
+      ok: true,
+      user,
+    };
   } catch (error) {
     await signOut(auth).catch(() => undefined);
-    return { ok: false, pesan: pesanError(error) };
+
+    return {
+      ok: false,
+      pesan: pesanError(error),
+    };
   }
 }
+
+// ========================================
+// LOGOUT
 
 /**
  * Logout Firebase Authentication.
@@ -172,14 +282,21 @@ export async function masukDenganEmail(
 export async function keluarAkun(): Promise<HasilAksiAuth> {
   try {
     await signOut(auth);
+
     return {
       ok: true,
       pesan: 'Berhasil keluar dari akun.',
     };
   } catch (error) {
-    return { ok: false, pesan: pesanError(error) };
+    return {
+      ok: false,
+      pesan: pesanError(error),
+    };
   }
 }
+
+// ========================================
+// AUTH STATE LISTENER
 
 /**
  * Memantau perubahan status autentikasi.
@@ -189,5 +306,3 @@ export function pantauAuth(
 ) {
   return onAuthStateChanged(auth, onBerubah);
 }
-
-
