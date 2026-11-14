@@ -7,15 +7,9 @@ import { urutkanIzin } from '@/features/izin/format-izin';
 import { useIzinAsisten } from '@/features/izin/use-izin-asisten';
 import { useSesiAsisten } from '@/features/izin/use-sesi-asisten';
 import type { Izin, StatusIzin } from '@/features/izin/types';
-import { ambilDbSementara } from '@/lib/db-sementara';
+import { db } from '@/lib/firebase';
 import { bacaNamaPraktikan } from '@/lib/izin-sesi';
 import { useSession } from '@/store/session-store';
-
-/**
- * TODO(p1): ganti `ambilDbSementara()` dengan `db` dari `@/lib/firebase`
- * begitu T-016 merge, lalu hapus `src/lib/db-sementara.ts`.
- */
-const db = ambilDbSementara();
 
 export default function IzinAsistenScreen() {
   const { user } = useSession();
@@ -46,7 +40,7 @@ export default function IzinAsistenScreen() {
   );
 
   useEffect(() => {
-    if (!db || !idPraktikan) return;
+    if (!idPraktikan) return;
 
     let dibatalkan = false;
 
