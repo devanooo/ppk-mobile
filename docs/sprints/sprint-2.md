@@ -29,7 +29,7 @@ Data bertahan setelah aplikasi ditutup dan dibuka kembali. Pengguna tanpa hak ti
 
 | ID | Requirement | User story | Prioritas |
 |---|---|---|---|
-| FR-01 | Registrasi akun praktikan dengan email dan kata sandi; profil disimpan di Firestore dengan role `praktikan` | US-01 | High |
+| FR-01 | Registrasi akun dengan email, kata sandi, dan pilihan peran `praktikan` atau `asisten`; profil disimpan di Firestore dengan peran sesuai pilihan | US-01 | High |
 | FR-02 | Login dan logout Firebase Authentication; sesi bertahan setelah reload atau aplikasi dibuka ulang | US-02 | High |
 | FR-03 | Role dan identitas dibaca dari dokumen `users`; route dilindungi sesuai role | US-03 | High |
 | FR-04 | Satu lapisan akses Firestore dipakai semua fitur, termasuk pemetaan error dan listener real-time | US-04 | High |
@@ -99,7 +99,7 @@ Estimasi memakai ukuran S (setengah hari), M (satu hari), L (dua hari) untuk sat
 
 | ID | Judul | Owner | Prioritas | Estimasi | Dependensi | Status |
 |---|---|---|---|---|---|---|
-| US-01 | Registrasi akun praktikan | Programmer 1 | High | M | PM-01, PM-03, PM-05 | Belum dimulai |
+| US-01 | Registrasi akun dengan pilihan peran | Programmer 1 | High | M | PM-01, PM-03, PM-05 | Belum dimulai |
 | US-02 | Login, logout, dan sesi persisten | Programmer 1 | High | M | US-01 | Belum dimulai |
 | US-03 | Role dari Firestore dan profil tanpa ganti peran demo | Programmer 1 | High | S | US-02 | Belum dimulai |
 | US-04 | Lapisan akses Firestore bersama | Programmer 1 | High | M | PM-04, PM-05 | Belum dimulai |
@@ -116,22 +116,22 @@ Total 12 user story, 53 technical task. Rincian task ada di bagian 5.
 
 ### 4.2 Rincian user story
 
-#### US-01 Registrasi akun praktikan
+#### US-01 Registrasi akun dengan pilihan peran
 
-**User story.** Sebagai calon pengguna, saya ingin membuat akun praktikan dengan email dan kata sandi, supaya saya dapat masuk dan tercatat atas nama saya sendiri.
+**User story.** Sebagai calon pengguna, saya ingin membuat akun dengan email dan kata sandi serta memilih peran praktikan atau asisten, supaya saya dapat masuk ke beranda yang sesuai dengan peran saya.
 
-**Deskripsi.** Registrasi publik hanya membuat akun dengan role `praktikan`. Akun asisten dibuat PM (lihat bagian 7). Setelah registrasi berhasil, dokumen `users/{uid}` dibuat dan pengguna langsung masuk ke beranda praktikan.
+**Deskripsi.** Registrasi terbuka untuk dua peran dan pengguna memilih perannya saat mendaftar. Field nomor induk memakai label NIM untuk kedua peran karena asisten juga mahasiswa. Setelah registrasi berhasil, dokumen `users/{uid}` dibuat dan pengguna langsung masuk ke beranda sesuai peran. Verifikasi asisten dan perubahan peran akun ditunda ke Sprint 3 (bagian 8.11).
 
 **Priority.** High.
 
 **Acceptance criteria.**
 
-1. Form registrasi meminta email, kata sandi, nama lengkap, dan NIM. Tombol Daftar nonaktif sampai semua field terisi, dengan alasan yang terlihat.
+1. Form registrasi meminta email, kata sandi, nama lengkap, NIM, dan pilihan peran. Tombol Daftar nonaktif sampai semua field terisi dan peran dipilih, dengan alasan yang terlihat.
 2. Email tidak valid atau kata sandi kurang dari 6 karakter ditolak dengan pesan spesifik sebelum dikirim.
-3. Registrasi berhasil membuat akun Firebase Auth dan dokumen `users/{uid}` berisi `nama`, `nomorInduk`, `peran: "praktikan"`, `dibuatPada`.
+3. Registrasi berhasil membuat akun Firebase Auth dan dokumen `users/{uid}` berisi `nama`, `nomorInduk`, `peran` sesuai pilihan (`praktikan` atau `asisten`), `dibuatPada`.
 4. Email yang sudah terdaftar menampilkan pesan "Email sudah terdaftar" tanpa membuat dokumen baru.
-5. Setelah berhasil, pengguna diarahkan ke `/(praktikan)/jadwal` tanpa login ulang.
-6. Security Rules menolak pembuatan dokumen `users` dengan role `asisten`.
+5. Setelah berhasil, pengguna diarahkan ke beranda sesuai peran: `/(praktikan)/jadwal` untuk praktikan dan `/(asisten)/jadwal` untuk asisten, tanpa login ulang.
+6. Security Rules menolak dokumen `users` dengan nilai `peran` di luar dua opsi dan menolak perubahan `peran` setelah dokumen dibuat.
 
 **Estimasi.** M. **Owner.** Programmer 1. **Dependensi.** PM-01, PM-03, PM-05. **Status.** Belum dimulai.
 
@@ -166,7 +166,7 @@ Total 12 user story, 53 technical task. Rincian task ada di bagian 5.
 
 1. Route publik hanya tersedia saat belum login; route `(praktikan)` hanya untuk role praktikan; route `(asisten)` hanya untuk role asisten.
 2. Membuka route role lain mengarahkan ke beranda role yang benar.
-3. Menu profil menampilkan nama, NIM/NIP, dan role dari Firestore.
+3. Menu profil menampilkan nama, NIM, dan role dari Firestore.
 4. Menu profil tidak lagi memuat aksi ganti peran demo.
 5. Perubahan nama pada dokumen `users` tampil di menu profil tanpa reload.
 
@@ -345,11 +345,11 @@ Kolom owner memakai kode programmer. Semua task mewarisi Definition of Done bagi
 
 | Task | Deskripsi | Deliverable | Kriteria selesai | Owner | Dependensi |
 |---|---|---|---|---|---|
-| T-001 | Buat route `src/app/register.tsx` dan komponen `src/features/auth/register-screen.tsx` dengan field email, kata sandi, nama, NIM; pakai `TextField`, `AppButton`, `Banner` | Layar registrasi | Form tampil, validasi inline, tombol nonaktif punya alasan | P1 | PM-04 |
-| T-002 | Implementasi `daftarPraktikan()` di `src/lib/auth.ts`: `createUserWithEmailAndPassword`, `updateProfile`, tulis `users/{uid}` | Fungsi registrasi | Dokumen users terbentuk dengan role praktikan | P1 | T-001 |
+| T-001 | Buat route `src/app/register.tsx` dan komponen `src/features/auth/register-screen.tsx` dengan field email, kata sandi, nama, NIM, dan pemilih peran praktikan atau asisten; pakai `TextField`, `AppButton`, `Banner` | Layar registrasi | Form tampil, validasi inline, peran wajib dipilih, tombol nonaktif punya alasan | P1 | PM-04 |
+| T-002 | Implementasi `daftarAkun(peran)` di `src/lib/auth.ts`: `createUserWithEmailAndPassword`, `updateProfile`, tulis `users/{uid}` | Fungsi registrasi | Dokumen users terbentuk dengan peran sesuai pilihan | P1 | T-001 |
 | T-003 | Petakan kode error Auth (`email-already-in-use`, `weak-password`, `invalid-email`, `network-request-failed`) ke pesan Indonesia | Modul pesan error | Semua kode di atas punya pesan | P1 | T-002 |
 | T-004 | Tambah tautan "Buat akun" di halaman login dan tombol kembali ke landing | Navigasi registrasi | Dua arah navigasi berjalan | P1 | T-001 |
-| T-005 | Uji registrasi di Android, iOS, dan Web, termasuk penolakan role asisten oleh rules | Catatan uji | Tiga platform lulus | P1 | PM-07 |
+| T-005 | Uji registrasi praktikan dan asisten di Android, iOS, dan Web, termasuk penolakan perubahan `peran` oleh rules | Catatan uji | Tiga platform lulus | P1 | PM-07 |
 
 ### US-02 Login, logout, persisten
 
@@ -469,14 +469,14 @@ Pembagian memakai pendekatan vertical slicing: satu programmer memiliki satu alu
 
 | User Story | Technical Tasks | Expected Deliverable |
 |---|---|---|
-| US-01 | T-001, T-002, T-003, T-004, T-005 | Registrasi praktikan berjalan end-to-end dengan dokumen users otomatis |
+| US-01 | T-001, T-002, T-003, T-004, T-005 | Registrasi praktikan dan asisten berjalan end-to-end dengan dokumen users otomatis |
 | US-02 | T-006, T-007, T-008, T-009, T-010, T-011, T-053 | Login email, logout, sesi persisten di tiga platform, data dummy dihapus |
 | US-03 | T-012, T-013, T-014, T-015 | Guard berbasis Firestore, profil tanpa aksi demo |
 | US-04 | T-016, T-017, T-018, T-019 | Modul `src/lib/firebase.ts`, `konversi.ts`, `firestore.ts` dan tipe Firestore |
 
 **Dependencies.** Membutuhkan PM-01 sampai PM-05 sebelum D1 berakhir. P2 dan P3 menunggu T-016 sampai T-019. Jika fondasi belum siap pada D1, P2 dan P3 tetap mengerjakan lapisan UI terhadap tipe dan kontrak di bagian 8.3.
 
-**Testing responsibility.** Registrasi, login, logout, pemulihan sesi, guard semua kombinasi role, dan penolakan rules untuk role asisten. Diuji di Android, iOS, dan Web.
+**Testing responsibility.** Registrasi kedua peran, login, logout, pemulihan sesi, guard semua kombinasi role, dan penolakan rules untuk perubahan `peran`. Diuji di Android, iOS, dan Web.
 
 ### 6.2 Programmer 2: Devano Trestanto
 
@@ -548,7 +548,7 @@ Pekerjaan PM terpisah dari backlog programmer dan wajib selesai sebelum atau ber
 | PM-05 | Menyiapkan `.env` lokal dan `.env.example`, menambahkan `.env` ke `.gitignore`, mendokumentasikan variabel `EXPO_PUBLIC_*` | Konfigurasi environment | Variabel terbaca di bundel | D1 siang |
 | PM-06 | Mengaktifkan platform web di `app.json` dan memastikan build web berjalan | Konfigurasi platform | `npx expo export -p web` berhasil | D1 sore |
 | PM-07 | Menyusun baseline Security Rules sesuai bagian 8.6 dan memasangnya ke project | Rules aktif | Uji dasar baca dan tulis sesuai role | D1 sore |
-| PM-08 | Seed data: 2 akun asisten Auth beserta dokumen `users`, 2 kelas, 5 sesi, 1 akun praktikan uji | Data seed | Login asisten dan praktikan berhasil | D1 sore |
+| PM-08 | Seed data demo: 2 kelas, 5 sesi, 1 akun praktikan uji, dan opsional 1 akun asisten; akun asisten juga boleh dibuat lewat registrasi | Data seed | Login asisten dan praktikan berhasil | D1 sore |
 | PM-09 | Verifikasi koneksi dari Android, iOS, dan Web: baca daftar sesi dan tulis satu presensi uji | Catatan verifikasi | Tiga platform terhubung | D2 pagi |
 | PM-10 | Tentukan apakah uji Security Rules memakai Firebase Emulator Suite (menambah dependency `firebase-tools` dan `@firebase/rules-unit-testing`) | Keputusan | Tercatat di deskripsi PR | D2 pagi |
 
@@ -580,7 +580,9 @@ Konsekuensi yang harus diterima: autentikasi mobile memerlukan `@react-native-as
 ### 8.2 Autentikasi dan otorisasi
 
 - Identifier login: email dan kata sandi.
-- Registrasi publik hanya untuk role `praktikan`. Akun asisten dibuat PM lewat Firebase Console, lalu dokumen `users` ditulis dengan `peran: "asisten"`.
+- Registrasi terbuka untuk role `praktikan` dan `asisten`. Pengguna memilih peran saat mendaftar dan langsung masuk ke beranda sesuai peran.
+- Satu akun satu peran. `peran` tidak dapat diubah setelah dokumen `users` dibuat; perubahan peran dan verifikasi asisten masuk Sprint 3 (bagian 8.11).
+- Akun asisten buatan PM tetap sah untuk data demo, tetapi bukan lagi satu-satunya cara membuat akun asisten.
 - Role tidak disimpan di custom claims, tetapi di dokumen `users/{uid}`. Alasan: lebih mudah diubah saat pengembangan dan dapat dibaca langsung oleh UI. Risiko: Security Rules perlu membaca dokumen tambahan.
 - Guard aplikasi memakai `Stack.Protected` seperti Sprint 1, dengan sumber `status auth` dan `peran` dari Firestore.
 - "Ganti peran (demo)" dihapus dari menu profil.
@@ -687,7 +689,7 @@ Baseline yang sudah diterapkan di `firestore.rules`. Kolom tulis mencakup create
 
 | Koleksi | Baca | Tulis |
 |---|---|---|
-| `users` | Diri sendiri; asisten boleh membaca profil praktikan untuk rekap dan pemeriksaan izin | Hanya diri sendiri; `peran` tidak boleh diubah. `nama` dan `nomorInduk` boleh diperbarui pemiliknya |
+| `users` | Diri sendiri; asisten boleh membaca profil praktikan untuk rekap dan pemeriksaan izin | Create oleh pemilik dengan `peran` `praktikan` atau `asisten`; update hanya `nama` dan `nomorInduk`, `peran` tidak boleh diubah |
 | `kelas` | Asisten pengampu; praktikan yang ada di `pesertaIds` | Hanya asisten pengampu dengan `asistenId == uid`, termasuk delete. Kelas yang masih punya sesi dicek di lapisan data karena rules tidak bisa query koleksi `sesi` |
 | `sesi` | Asisten pengampu; praktikan peserta kelas | Hanya asisten pengampu. Create selalu `belum-dibuka`; transisi hanya `belum-dibuka` ke `dibuka` ke `ditutup`; sesi `ditutup` tidak dapat diubah; `kelasId` tidak dapat dipindah |
 | `sesi/{id}/presensi` | Praktikan pemilik dokumen; asisten pengampu sesi | Create hanya oleh praktikan pemilik, hanya jika sesi `dibuka` dan ia peserta, dengan `waktu` timestamp server. Update dan delete ditolak |
@@ -741,13 +743,24 @@ PM-01..PM-07 (infrastruktur)
 
 **Sudah diputuskan.** Asisten boleh membaca semua dokumen `users` berperan praktikan, termasuk yang bukan peserta kelasnya. Batasan per kelas tidak dapat ditegakkan karena Security Rules tidak bisa query relasi kelas. Akses ini dipakai untuk rekap presensi dan pemeriksaan izin.
 
+### 8.11 Ditunda ke Sprint 3
+
+Registrasi mandiri untuk dua peran adalah keputusan sementara agar tim tidak memblokir pengujian. Mekanisme berikut tidak dikerjakan di Sprint 2 dan dicatat sebagai backlog Sprint 3:
+
+| Item | Alasan ditunda |
+|---|---|
+| Verifikasi akun asisten (kode undangan atau persetujuan PM) | Butuh alur dan data tambahan di luar scope Sprint 2 |
+| Perubahan peran pada akun yang sudah ada | Registrasi hanya menetapkan peran satu kali |
+| Pengetatan akses baca profil praktikan | Aturan saat ini mengizinkan asisten membaca seluruh dokumen `users` berperan praktikan, lihat bagian 11 |
+| Pencabutan atau penonaktifan akun asisten | Belum ada kebutuhan sampai verifikasi tersedia |
+
 ## 9. Testing Strategy
 
 | Jenis | Cakupan | Pelaksana | Kapan |
 |---|---|---|---|
 | Unit (node assert) | Fungsi murni yang tidak bergantung SDK: validasi alasan izin, pemetaan error, transformasi data sesi dan rekap | Pemilik story | Setiap story selesai |
 | Integration | Modul `src/lib/*` terhadap project Firebase nyata atau emulator: registrasi, login, CRUD kelas dan sesi, presensi, izin | Pemilik story | D2 sampai D4 |
-| Authentication | Registrasi, login salah, sesi persisten, logout, akun tanpa dokumen users | P1 | D2 dan D4 |
+| Authentication | Registrasi praktikan dan asisten, login salah, sesi persisten, logout, akun tanpa dokumen users | P1 | D2 dan D4 |
 | Authorization | Praktikan membuka data praktikan lain, asisten membuka sesi asisten lain, praktikan mengubah keputusan izin | P2 dan P3, difasilitasi PM | D3 dan D4 |
 | Security Rules | Seluruh tabel di bagian 8.6, dijalankan dengan emulator bila PM-10 disetujui | PM dan pemilik story | D2 sampai D4 |
 | Real-time | Presensi dari dua perangkat, status sesi berubah saat detail praktikan terbuka, keputusan izin di sisi praktikan | P2 dan P3 | D3 dan D4 |
@@ -805,6 +818,8 @@ Catatan pengujian lintas platform:
 | PM baru belum pernah menyiapkan infrastruktur Firebase | Setup D1 terlambat dan seluruh tim menunggu | Dehar mulai membuat project sebelum D1; Devano (PM Sprint 1) mendampingi serah terima |
 | Dokumentasi lama menyatakan web bukan target | Review dan aturan kerja bertentangan | PM memperbarui `README.md`, `docs/PRD.md`, `AGENTS.md`, dan `docs/PEMBAGIAN-TUGAS.md` sebelum D1 |
 | Data seed dan akun asisten tidak siap D1 | P2 dan P3 tidak bisa menguji | PM-08 diselesaikan D1 sore; seed ditulis sebagai data, bukan lewat UI |
+| Pendaftar asisten palsu membaca direktori profil praktikan | Nama dan NIM praktikan terekspos ke akun yang belum diverifikasi | Diterima sementara dan dicatat di bagian 8.11; akses baca dipersempit di Sprint 3 setelah verifikasi asisten tersedia |
+| Pengguna salah memilih peran saat registrasi | Akun tidak sesuai kebutuhan dan tidak dapat diubah sendiri | Label peran dan NIM dibuat jelas; perubahan peran masuk backlog Sprint 3; PM dapat memperbaiki data demo lewat Console |
 
 ## 12. Sprint Review
 

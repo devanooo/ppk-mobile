@@ -507,4 +507,4 @@ Seluruh langkah berjalan tanpa reload (AC-15). Penolakan presensi ganda diuji pa
 | Token Apple belum diterjemahkan ke `tokens.js` | P3 mengganti warna, radius, dan tipografi di `tokens.js` serta channel warna di `global.css` sebelum styling dimulai |
 | Scope melebar ke backend | Non-goals eksplisit. Perubahan scope lewat PM |
 
-**Backlog setelah Sprint 2:** lupa password, presensi via kode sesi/QR, rekap per semester + export CSV, notifikasi pengingat jadwal, membuka ulang sesi, dan penutupan otomatis berdasarkan jadwal. Backend, database, autentikasi, dan registrasi sudah menjadi scope Sprint 2, lihat `docs/sprints/sprint-2.md`.
+**Backlog setelah Sprint 2:** verifikasi pendaftaran asisten, perubahan peran akun, lupa password, presensi via kode sesi/QR, rekap per semester + export CSV, notifikasi pengingat jadwal, membuka ulang sesi, dan penutupan otomatis berdasarkan jadwal. Backend, database, autentikasi, dan registrasi sudah menjadi scope Sprint 2, lihat `docs/sprints/sprint-2.md`.
