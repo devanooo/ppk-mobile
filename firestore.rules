@@ -45,26 +45,81 @@ service cloud.firestore {
     // Batasan "hanya peserta kelasnya" tidak bisa ditegakkan di sini karena
     // rules tidak bisa query relasi kelas. Pembatasan ketat butuh salinan nama
     // dan nomorInduk di dokumen presensi dan izin.
-    // Tulis: hanya diri sendiri; peran tidak boleh berubah setelah dibuat.
+    //
+    // Tulis: hanya diri sendiri; peran dan nomor induk tidak boleh berubah
+    // setelah dibuat.
     // Registrasi mandiri boleh memilih peran praktikan atau asisten, verifikasi
     // akun asisten ditunda ke Sprint 3 (docs/sprints/sprint-2.md bagian 8.11).
+
     match /users/{userId} {
+
       allow get: if request.auth.uid == userId
         || (asisten() && resource.data.peran == 'praktikan');
 
-      allow list: if asisten() && resource.data.peran == 'praktikan';
+      allow list: if asisten()
+        && resource.data.peran == 'praktikan';
 
-      allow create: if request.auth.uid == userId
+      allow create: if masuk()
+        && request.auth.uid == userId
         && request.resource.data.peran in ['praktikan', 'asisten']
-        && request.resource.data.keys().hasAll(['nama', 'nomorInduk', 'peran', 'dibuatPada'])
-        && request.resource.data.keys().hasOnly(['nama', 'nomorInduk', 'peran', 'dibuatPada']);
+        && request.resource.data.keys().hasAll(
+            ['nama', 'nomorInduk', 'peran', 'dibuatPada'])
+        && request.resource.data.keys().hasOnly(
+            ['nama', 'nomorInduk', 'peran', 'dibuatPada'])
 
-      allow update: if request.auth.uid == userId
+        // Nomor induk wajib berupa 10 digit angka.
+        && request.resource.data.nomorInduk is string
+        && request.resource.data.nomorInduk.matches('^[0-9]{10}$')
+
+        // Reservasi nomor induk wajib dibuat dalam batch yang sama.
+        && getAfter(
+          /databases/$(database)/documents/nomorInduk/$(request.resource.data.nomorInduk)
+        ).data.uid == request.auth.uid;
+
+      allow update: if masuk()
+        && request.auth.uid == userId
+
+        // Role dan nomor induk tidak boleh diubah.
         && request.resource.data.peran == resource.data.peran
-        && request.resource.data.diff(resource.data).changedKeys()
-             .hasOnly(['nama', 'nomorInduk']);
+        && request.resource.data.nomorInduk == resource.data.nomorInduk
+
+        // Hanya nama yang boleh diperbarui.
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['nama'])
+
+        // Struktur field tetap harus sesuai.
+        && request.resource.data.keys().hasAll(
+            ['nama', 'nomorInduk', 'peran', 'dibuatPada'])
+        && request.resource.data.keys().hasOnly(
+            ['nama', 'nomorInduk', 'peran', 'dibuatPada']);
 
       allow delete: if false;
+    }
+
+    // ==== NOMOR INDUK ====
+    // Indeks unik nomor induk praktikan dan asisten.
+    // Setiap nomor induk hanya dapat digunakan satu kali.
+    // Profil pengguna dan reservasi nomor induk wajib dibuat
+    // dalam satu operasi Firestore WriteBatch.
+
+    match /nomorInduk/{nim} {
+
+      allow create: if masuk()
+        && nim.matches('^[0-9]{10}$')
+        && !exists(
+          /databases/$(database)/documents/nomorInduk/$(nim)
+        )
+        && request.resource.data.keys().hasAll(['uid'])
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+
+        // Profil pengguna harus ikut dibuat dalam batch yang sama.
+        && getAfter(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.nomorInduk == nim;
+
+      // Indeks tidak boleh dibaca, diubah, atau dihapus langsung.
+      allow get, list, update, delete: if false;
     }
 
     // ==== kelas ====
