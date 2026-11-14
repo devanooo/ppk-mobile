@@ -40,7 +40,7 @@ export function LandingScreen({ onMasuk, onDaftar }: LandingScreenProps) {
           />
           <AppButton
             className="mt-two"
-            label="Daftar sebagai Praktikan"
+            label="Buat Akun"
             onPress={onDaftar}
             variant="secondary"
           />
