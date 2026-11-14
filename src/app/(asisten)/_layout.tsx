@@ -35,6 +35,19 @@ export default function AsistenLayout() {
       />
 
       <Tabs.Screen
+        name="kelas"
+        options={{
+          title: 'Kelas',
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: 'person.3', android: 'groups' }}
+              tintColor={color}
+            />
+          ),
+        }}
+      />
+
+      <Tabs.Screen
         name="rekap"
         options={{
           title: 'Rekap',
@@ -46,6 +59,7 @@ export default function AsistenLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="izin"
         options={{
