@@ -18,7 +18,7 @@ import {
 import { auth, db } from '@/lib/firebase';
 import { userConverter } from '@/lib/konversi';
 
-import type { User } from '@/types';
+import type { User, Peran } from '@/types';
 import type { UserFirestore } from '@/types/firestore';
 
 export type HasilAuth =
@@ -29,11 +29,12 @@ export type HasilAksiAuth =
   | { ok: true; pesan: string }
   | { ok: false; pesan: string };
 
-export type InputDaftarPraktikan = {
+export type InputDaftarAkun = {
   nama: string;
   nomorInduk: string;
   email: string;
   password: string;
+  peran: Peran;
 };
 
 // ========================================
@@ -129,8 +130,8 @@ export async function ambilProfil(
  * Akun asisten dibuat melalui proses administrasi,
  * bukan registrasi publik.
  */
-export async function daftarPraktikan(
-  input: InputDaftarPraktikan,
+export async function daftarAkun(
+  input: InputDaftarAkun,
 ): Promise<HasilAuth> {
   const nama = input.nama.trim();
   const nomorInduk = input.nomorInduk.trim();
@@ -143,10 +144,25 @@ export async function daftarPraktikan(
     };
   }
 
-  if (!/^\d{10}$/.test(nomorInduk)) {
+  if (!['praktikan', 'asisten'].includes(input.peran)) {
     return {
       ok: false,
-      pesan: 'NIM harus terdiri dari tepat 10 digit angka.',
+      pesan: 'Silakan pilih peran akun.',
+    };
+  }
+
+  const validNomorInduk =
+    input.peran === 'praktikan'
+      ? /^\d{10}$/.test(nomorInduk)
+      : /^\d{18}$/.test(nomorInduk);
+
+  if (!validNomorInduk) {
+    return {
+      ok: false,
+      pesan:
+        input.peran === 'praktikan'
+          ? 'NIM harus terdiri dari tepat 10 digit angka.'
+          : 'NIP harus terdiri dari tepat 18 digit angka.',
     };
   }
 
@@ -160,7 +176,7 @@ export async function daftarPraktikan(
   let pengguna: FirebaseUser | null = null;
 
   try {
-    // 1. Membuat akun Firebase Authentication
+    // 1. Membuat akun Firebase Authentication.
     const hasil = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -169,7 +185,7 @@ export async function daftarPraktikan(
 
     pengguna = hasil.user;
 
-    // 2. Menyiapkan referensi dokumen Firestore
+    // 2. Menyiapkan referensi dokumen Firestore.
     const batch = writeBatch(db);
 
     const referensiUser = doc(
@@ -184,23 +200,23 @@ export async function daftarPraktikan(
       nomorInduk,
     );
 
-    // 3. Membuat profil pengguna
+    // 3. Membuat profil sesuai role pilihan pengguna.
     const profil: UserFirestore = {
       nama,
       nomorInduk,
-      peran: 'praktikan',
+      peran: input.peran,
       dibuatPada: serverTimestamp() as UserFirestore['dibuatPada'],
     };
 
-    // 4. Menyimpan profil pengguna
+    // 4. Menyimpan profil pengguna.
     batch.set(referensiUser, profil);
 
-    // 5. Menyimpan reservasi NIM
+    // 5. Menyimpan reservasi nomor induk.
     batch.set(referensiNim, {
       uid: pengguna.uid,
     });
 
-    // 6. Menyimpan kedua dokumen secara atomik
+    // 6. Menyimpan kedua dokumen secara atomik.
     await batch.commit();
 
     return {
@@ -208,7 +224,7 @@ export async function daftarPraktikan(
       user: konversiUser(pengguna.uid, profil),
     };
   } catch (error) {
-    // 7. Rollback jika penyimpanan Firestore gagal
+    // 7. Rollback jika penyimpanan Firestore gagal.
     if (pengguna) {
       try {
         await deleteUser(pengguna);
@@ -220,17 +236,18 @@ export async function daftarPraktikan(
       }
     }
 
-    // 8. Penanganan pesan jika NIM sudah digunakan
+    // 8. Penanganan kegagalan registrasi Firestore.
     if (
-        typeof error === 'object' &&
-        error !== null &&
-        'code' in error &&
-        error.code === 'permission-denied'
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      error.code === 'permission-denied'
     ) {
-        return {
+      return {
         ok: false,
-        pesan: 'NIM sudah terdaftar. Silakan gunakan NIM lain.',
-        };
+        pesan:
+          'Nomor induk sudah digunakan atau data registrasi tidak memenuhi aturan.',
+      };
     }
 
     return {

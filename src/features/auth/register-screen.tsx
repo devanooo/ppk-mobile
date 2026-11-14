@@ -12,6 +12,7 @@ import {
 import { AppButton, Banner, Screen, TextField } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { useSession } from '@/store/session-store';
+import type { Peran } from '@/types';
 
 type RegisterScreenProps = {
   onBerhasil: () => void;
@@ -32,10 +33,12 @@ export function RegisterScreen({
 }: RegisterScreenProps) {
   // Ref untuk mengontrol ScrollView.
   const scrollRef = useRef<ComponentRef<typeof ScrollView> | null>(null);
-  const { daftarPraktikan } = useSession();
+  const { daftarAkun } = useSession();
 
   const [nama, setNama] = useState('');
   const [nomorInduk, setNomorInduk] = useState('');
+  const [peran, setPeran] = useState<Peran>('praktikan');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [konfirmasiPassword, setKonfirmasiPassword] = useState('');
@@ -63,9 +66,16 @@ export function RegisterScreen({
       errorBaru.nama = 'Nama lengkap wajib diisi.';
     }
 
-    if (!/^\d{10}$/.test(nomorInduk)) {
+    const validNomorInduk =
+      peran === 'praktikan'
+        ? /^\d{10}$/.test(nomorInduk)
+        : /^\d{18}$/.test(nomorInduk);
+
+    if (!validNomorInduk) {
       errorBaru.nomorInduk =
-        'NIM harus terdiri dari tepat 10 digit angka.';
+        peran === 'praktikan'
+          ? 'NIM harus terdiri dari tepat 10 digit angka.'
+          : 'NIP harus terdiri dari tepat 18 digit angka.';
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -107,9 +117,21 @@ export function RegisterScreen({
   }
 
   function ubahNim(nilai: string) {
-    const angka = nilai.replace(/\D/g, '').slice(0, 10);
+    const batasDigit = peran === 'praktikan' ? 10 : 18;
+    const angka = nilai.replace(/\D/g, '').slice(0, batasDigit);
 
     setNomorInduk(angka);
+    setErrors((sebelumnya) => ({
+      ...sebelumnya,
+      nomorInduk: undefined,
+    }));
+    setPesanGagal(null);
+  }
+
+  // TAMBAHKAN DI SINI
+  function ubahPeran(nilai: Peran) {
+    setPeran(nilai);
+    setNomorInduk('');
     setErrors((sebelumnya) => ({
       ...sebelumnya,
       nomorInduk: undefined,
@@ -155,11 +177,12 @@ export function RegisterScreen({
     setPesanGagal(null);
 
     try {
-      const hasil = await daftarPraktikan({
+      const hasil = await daftarAkun({
         nama: nama.trim(),
         nomorInduk,
         email: email.trim().toLowerCase(),
         password,
+        peran,
       });
 
       if (!hasil.ok) {
@@ -224,8 +247,64 @@ export function RegisterScreen({
               </Text>
 
               <Text className="mt-two text-body text-textSecondary">
-                Daftarkan akun praktikan untuk menggunakan PraktikumKU.
+                Daftarkan akun untuk menggunakan PraktikumKU sebagai praktikan atau asisten.
               </Text>
+            </View>
+
+            <View className="mt-four gap-two">
+              <Text className="text-body font-semibold text-text">
+                Daftar sebagai
+              </Text>
+
+              <View className="flex-row gap-two">
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: peran === 'praktikan' }}
+                  onPress={() => ubahPeran('praktikan')}
+                  className={`flex-1 rounded-xl border p-three ${
+                    peran === 'praktikan'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border bg-surface'
+                  }`}
+                >
+                  <Text
+                    className={`font-semibold ${
+                      peran === 'praktikan'
+                        ? 'text-primary'
+                        : 'text-text'
+                    }`}
+                  >
+                    Praktikan
+                  </Text>
+                  <Text className="mt-one text-caption text-textSecondary">
+                    Mengikuti kegiatan praktikum.
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: peran === 'asisten' }}
+                  onPress={() => ubahPeran('asisten')}
+                  className={`flex-1 rounded-xl border p-three ${
+                    peran === 'asisten'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border bg-surface'
+                  }`}
+                >
+                  <Text
+                    className={`font-semibold ${
+                      peran === 'asisten'
+                        ? 'text-primary'
+                        : 'text-text'
+                    }`}
+                  >
+                    Asisten
+                  </Text>
+                  <Text className="mt-one text-caption text-textSecondary">
+                    Mengelola kegiatan praktikum.
+                  </Text>
+                </Pressable>
+              </View>
             </View>
 
             <View className="mt-five gap-three">
@@ -240,14 +319,20 @@ export function RegisterScreen({
               />
 
               <TextField
-                label="NIM"
-                placeholder="10 digit angka"
+                label={peran === 'praktikan' ? 'NIM' : 'Nomor induk'}
+                placeholder={
+                  peran === 'praktikan'
+                    ? 'Masukkan NIM (10 digit)'
+                    : 'Masukkan NIP (18 digit)'
+                }
                 value={nomorInduk}
                 onChangeText={ubahNim}
                 error={errors.nomorInduk}
                 inputMode="numeric"
-                maxLength={10}
-                accessibilityLabel="Nomor induk mahasiswa"
+                maxLength={peran === 'praktikan' ? 10 : 18}
+                accessibilityLabel={
+                  peran === 'praktikan' ? 'Nomor induk mahasiswa' : 'Nomor induk asisten'
+                }
               />
 
               <TextField
