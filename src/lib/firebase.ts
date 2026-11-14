@@ -1,6 +1,7 @@
 
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FirebaseAuth from 'firebase/auth';
 
 import {
   getApp,
@@ -59,13 +60,11 @@ function inisialisasiAuth(): Auth {
 
   // Android dan iOS menggunakan AsyncStorage.
   // Firebase RN runtime menyediakan getReactNativePersistence.
-  const getReactNativePersistence = (
-    require('firebase/auth') as typeof import('firebase/auth') & {
-      getReactNativePersistence: (
-        storage: typeof AsyncStorage,
-      ) => import('firebase/auth').Persistence;
-    }
-  ).getReactNativePersistence;
+  const { getReactNativePersistence } = FirebaseAuth as typeof FirebaseAuth & {
+    getReactNativePersistence: (
+      storage: typeof AsyncStorage,
+    ) => import('firebase/auth').Persistence;
+  };
 
   try {
     return initializeAuth(app, {
