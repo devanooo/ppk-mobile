@@ -67,9 +67,15 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(
             ['nama', 'nomorInduk', 'peran', 'dibuatPada'])
 
-        // Nomor induk wajib berupa 10 digit angka.
+        // Nomor induk menyesuaikan role.
         && request.resource.data.nomorInduk is string
-        && request.resource.data.nomorInduk.matches('^[0-9]{10}$')
+        && (
+          (request.resource.data.peran == 'praktikan'
+            && request.resource.data.nomorInduk.matches('^[0-9]{10}$'))
+          ||
+          (request.resource.data.peran == 'asisten'
+            && request.resource.data.nomorInduk.matches('^[0-9]{18}$'))
+        )
 
         // Reservasi nomor induk wajib dibuat dalam batch yang sama.
         && getAfter(
@@ -105,10 +111,25 @@ service cloud.firestore {
     match /nomorInduk/{nim} {
 
       allow create: if masuk()
-        && nim.matches('^[0-9]{10}$')
+
+        // Format nomor induk berdasarkan role pengguna.
+        && (
+          (nim.matches('^[0-9]{10}$')
+            && getAfter(
+              /databases/$(database)/documents/users/$(request.auth.uid)
+            ).data.peran == 'praktikan')
+          ||
+          (nim.matches('^[0-9]{18}$')
+            && getAfter(
+              /databases/$(database)/documents/users/$(request.auth.uid)
+            ).data.peran == 'asisten')
+        )
+
+        // Nomor induk tidak boleh sudah digunakan.
         && !exists(
           /databases/$(database)/documents/nomorInduk/$(nim)
         )
+
         && request.resource.data.keys().hasAll(['uid'])
         && request.resource.data.keys().hasOnly(['uid'])
         && request.resource.data.uid == request.auth.uid
