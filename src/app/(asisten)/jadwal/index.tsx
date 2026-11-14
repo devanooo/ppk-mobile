@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useMemo } from 'react';
 import { FlatList, Text, View } from 'react-native';
 
 import {
@@ -12,23 +11,19 @@ import {
 import { MaxContentWidth } from '@/constants/theme';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import {
-  labelJadwal,
-  rentangJam,
-  urutkanSesi,
-} from '@/features/praktikan/format-sesi';
+  useSesiAsisten,
+  type SesiAsisten,
+} from '@/features/asisten/use-sesi-asisten';
+import { db } from '@/lib/firebase';
 import { useSession } from '@/store/session-store';
-import type { Sesi } from '@/types';
 
 export default function JadwalAsistenScreen() {
-  const { user, sesiUntuk } = useSession();
+  const { user } = useSession();
 
-  const jadwal = useMemo(() => {
-    if (!user || user.peran !== 'asisten') {
-      return [];
-    }
-
-    return urutkanSesi(sesiUntuk(user));
-  }, [user, sesiUntuk]);
+  const hasil = useSesiAsisten(
+    db,
+    user?.peran === 'asisten' ? user.id : undefined,
+  );
 
   const namaAsisten = user?.nama?.trim() || 'Asisten';
 
@@ -39,7 +34,7 @@ export default function JadwalAsistenScreen() {
         style={{ maxWidth: MaxContentWidth }}
       >
         <FlatList
-          data={jadwal}
+          data={hasil.sesi}
           keyExtractor={(item) => item.id}
           contentContainerClassName="gap-twoHalf px-three pb-five"
           showsVerticalScrollIndicator={false}
@@ -58,37 +53,52 @@ export default function JadwalAsistenScreen() {
                 </Text>
 
                 <Text className="mt-one text-small text-textSecondary">
-                  {jadwal.length > 0
-                    ? `${jadwal.length} sesi praktikum`
-                    : 'Lihat sesi praktikum yang menjadi tanggung jawabmu.'}
+                  {hasil.status === 'siap'
+                    ? `${hasil.sesi.length} sesi praktikum`
+                    : 'Memuat jadwal praktikum...'}
                 </Text>
               </View>
 
-              {user ? <MenuProfilAsisten /> : null}
+              {user?.peran === 'asisten' ? (
+                <MenuProfilAsisten />
+              ) : null}
             </View>
           }
           ListEmptyComponent={
-           <EmptyState
-              judul={
-                user?.peran === 'asisten'
-                ? teksKosong.jadwal.judul
-                : 'Akun asisten belum aktif'
-              }
-              deskripsi={
-                user?.peran === 'asisten'
-                  ? teksKosong.jadwal.deskripsi
-                  : 'Gunakan akun asisten untuk melihat jadwal.'
-              }
-            />
+            <View className="pt-three">
+              {hasil.status === 'memuat' ? (
+                <EmptyState
+                  judul="Memuat jadwal"
+                  deskripsi="Sedang mengambil data jadwal dari Firebase."
+                />
+              ) : hasil.status === 'gagal' ? (
+                <EmptyState
+                  judul="Jadwal gagal dimuat"
+                  deskripsi={hasil.pesanGalat ?? 'Terjadi kesalahan saat mengambil jadwal.'}
+                />
+              ) : user?.peran !== 'asisten' ? (
+                <EmptyState
+                  judul="Akun asisten belum aktif"
+                  deskripsi="Gunakan akun asisten untuk melihat jadwal."
+                />
+              ) : (
+                <EmptyState
+                  judul={teksKosong.jadwal.judul}
+                  deskripsi={teksKosong.jadwal.deskripsi}
+                />
+              )}
+            </View>
           }
-          renderItem={({ item }) => <KartuJadwal sesi={item} />}
+          renderItem={({ item }) => (
+            <KartuJadwal sesi={item} />
+          )}
         />
       </View>
     </Screen>
   );
 }
 
-function KartuJadwal({ sesi }: { sesi: Sesi }) {
+function KartuJadwal({ sesi }: { sesi: SesiAsisten }) {
   return (
     <Card
       onPress={() =>
@@ -97,35 +107,52 @@ function KartuJadwal({ sesi }: { sesi: Sesi }) {
           params: { id: sesi.id },
         })
       }
-      accessibilityLabel={`Buka detail ${sesi.namaPraktikum}, ${labelStatus(sesi.status)}, ${labelJadwal(sesi)}, pukul ${rentangJam(sesi)}, kelas ${sesi.kelas}, ${sesi.lab}`}
+      accessibilityLabel={`Buka detail sesi ${sesi.namaKelas}, status ${labelStatus(sesi.status)}, ${sesi.hari}, kelas ${sesi.namaKelas}, ${sesi.lab}`}
     >
       <View className="flex-row items-start justify-between gap-two">
         <Text className="flex-1 text-subtitle font-semibold text-text">
-          {sesi.namaPraktikum}
+          {sesi.namaKelas}
         </Text>
 
-        <StatusBadge className="shrink-0" status={sesi.status} />
+        <StatusBadge
+          className="shrink-0"
+          status={sesi.status}
+        />
       </View>
 
       <Text className="mt-one text-small text-textSecondary">
-        Kelas {sesi.kelas} · {sesi.lab}
+        Kelas {sesi.namaKelas} · {sesi.lab}
       </Text>
 
       <View className="mt-three flex-row flex-wrap items-center justify-between gap-two">
         <Text className="text-body text-text">
-          {labelJadwal(sesi)}
+          {formatTanggal(sesi.hari, sesi.tanggal)}
         </Text>
 
         <Text className="ml-auto shrink-0 text-body font-semibold text-text">
-          {rentangJam(sesi)}
+          {sesi.jamMulai} - {sesi.jamSelesai}
         </Text>
       </View>
     </Card>
   );
 }
 
-function labelStatus(status: Sesi['status']): string {
+function labelStatus(status: SesiAsisten['status']): string {
   if (status === 'belum-dibuka') return 'Belum dibuka';
   if (status === 'dibuka') return 'Dibuka';
   return 'Ditutup';
+}
+
+function formatTanggal(hari: string, tanggal: string): string {
+  const [tahun, bulan, tanggalHari] = tanggal.split('-').map(Number);
+
+  const tanggalObj = new Date(tahun, bulan - 1, tanggalHari);
+
+  const tanggalFormat = tanggalObj.toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  return `${hari}, ${tanggalFormat}`;
 }
