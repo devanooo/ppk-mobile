@@ -10,7 +10,6 @@ import {
   type ReactNode,
 } from 'react';
 
-import { users } from '@/data/dummy';
 import {
   ambilProfil,
   daftarAkun as daftarAkunFirebase,
@@ -19,55 +18,29 @@ import {
   pantauAuth,
   type InputDaftarAkun,
   type HasilAuth,
+  type HasilAksiAuth,
 } from '@/lib/auth';
-import type { Presensi, Sesi, User } from '@/types';
 
-import {
-  bukaSesi as bukaSesiLogika,
-  catatPresensi as catatPresensiLogika,
-  presensiSaya as presensiSayaLogika,
-  rekapSesi as rekapSesiLogika,
-  sesiUntuk as sesiUntukLogika,
-  sudahPresensi as sudahPresensiLogika,
-  tutupSesi as tutupSesiLogika,
-  type HasilAksi,
-  type HasilLogin,
-  type StateAplikasi,
-} from './session-logic';
+import type { User } from '@/types';
 
-export type { HasilAksi, HasilLogin } from './session-logic';
+// Tipe hasil login tetap dipertahankan untuk kompatibilitas
+// dengan login-screen.tsx.
+export type HasilLogin = HasilAuth;
 
 type Store = {
   user: User | null;
   authLoading: boolean;
-  sesi: Sesi[];
-  presensi: Presensi[];
   login: (email: string, password: string) => Promise<HasilLogin>;
   daftarAkun: (
     input: InputDaftarAkun,
   ) => Promise<HasilAuth>;
-  logout: () => Promise<HasilAksi>;
-  sesiById: (sesiId: string) => Sesi | undefined;
-  sesiUntuk: (user: User) => Sesi[];
-  bukaSesi: (sesiId: string) => HasilAksi;
-  tutupSesi: (sesiId: string) => HasilAksi;
-  catatPresensi: (sesiId: string, praktikanId: string) => HasilAksi;
-  presensiSaya: (praktikanId: string) => Presensi[];
-  rekapSesi: (sesiId: string) => { praktikan: User; waktu: string }[];
-  sudahPresensi: (sesiId: string, praktikanId: string) => boolean;
-};
-
-// Data sesi dan presensi masih sementara menunggu integrasi P3.
-const AWAL: StateAplikasi = {
-  user: null,
-  sesi: [],
-  presensi: [],
+  logout: () => Promise<HasilAksiAuth>;
 };
 
 const SessionContext = createContext<Store | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<StateAplikasi>(AWAL);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   // Menandai proses registrasi agar tidak bertabrakan
@@ -89,7 +62,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
       if (!firebaseUser) {
         if (aktif) {
-          setState((lama) => ({ ...lama, user: null }));
+          setUser(null);
           setAuthLoading(false);
         }
         return;
@@ -99,7 +72,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         const profil = await ambilProfil(firebaseUser);
 
         if (aktif) {
-          setState((lama) => ({ ...lama, user: profil }));
+          setUser(profil);
         }
       } catch (error) {
         console.error('Gagal memulihkan profil:', error);
@@ -108,7 +81,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         await keluarAkun();
 
         if (aktif) {
-          setState((lama) => ({ ...lama, user: null }));
+          setUser(null);
         }
       } finally {
         if (aktif) {
@@ -166,10 +139,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
         // State diperbarui hanya setelah Authentication
         // dan Firestore berhasil menyimpan data.
-        setState((lama) => ({
-          ...lama,
-          user: hasil.user,
-        }));
+        setUser(hasil.user);
 
         return hasil;
       } finally {
@@ -182,128 +152,33 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // ========================================
   // LOGOUT
 
-  const logout = useCallback(async (): Promise<HasilAksi> => {
+  const logout = useCallback(async (): Promise<HasilAksiAuth> => {
     const hasil = await keluarAkun();
 
     if (hasil.ok) {
-      setState((lama) => ({ ...lama, user: null }));
+      setUser(null);
     }
 
     return hasil;
   }, []);
 
   // ========================================
-  // SESSION AND ATTENDANCE
-  // Sementara menggunakan logika Sprint 1.
-  // Menunggu migrasi Firestore oleh P3.
-
-  const sesiById = useCallback(
-    (sesiId: string) => state.sesi.find((s) => s.id === sesiId),
-    [state.sesi],
-  );
-
-  const bukaSesi = useCallback(
-    (sesiId: string): HasilAksi => {
-      const hasil = bukaSesiLogika(
-        state,
-        sesiId,
-        new Date().toISOString(),
-      );
-
-      if (!hasil.ok) return hasil;
-
-      setState(hasil.state);
-      return { ok: true, pesan: hasil.pesan };
-    },
-    [state],
-  );
-
-  const tutupSesi = useCallback(
-    (sesiId: string): HasilAksi => {
-      const hasil = tutupSesiLogika(
-        state,
-        sesiId,
-        new Date().toISOString(),
-      );
-
-      if (!hasil.ok) return hasil;
-
-      setState(hasil.state);
-      return { ok: true, pesan: hasil.pesan };
-    },
-    [state],
-  );
-
-  const catatPresensi = useCallback(
-    (sesiId: string, praktikanId: string): HasilAksi => {
-      const hasil = catatPresensiLogika(
-        state,
-        sesiId,
-        praktikanId,
-        new Date().toISOString(),
-      );
-
-      if (!hasil.ok) return hasil;
-
-      setState(hasil.state);
-      return { ok: true, pesan: hasil.pesan };
-    },
-    [state],
-  );
-
-  const presensiSaya = useCallback(
-    (praktikanId: string) =>
-      presensiSayaLogika(state.presensi, praktikanId),
-    [state.presensi],
-  );
-
-  const rekapSesi = useCallback(
-    (sesiId: string) =>
-      rekapSesiLogika(sesiId, state.presensi, users),
-    [state.presensi],
-  );
-
-  const sudahPresensi = useCallback(
-    (sesiId: string, praktikanId: string) =>
-      sudahPresensiLogika(state.presensi, sesiId, praktikanId),
-    [state.presensi],
-  );
-
-  // ========================================
   // STORE
 
   const store = useMemo<Store>(
     () => ({
-      user: state.user,
+      user,
       authLoading,
-      sesi: state.sesi,
-      presensi: state.presensi,
       login,
       daftarAkun,
       logout,
-      sesiById,
-      sesiUntuk: (pengguna: User) =>
-        sesiUntukLogika(state.sesi, pengguna),
-      bukaSesi,
-      tutupSesi,
-      catatPresensi,
-      presensiSaya,
-      rekapSesi,
-      sudahPresensi,
     }),
     [
-      state,
+      user,
       authLoading,
       login,
       daftarAkun,
       logout,
-      sesiById,
-      bukaSesi,
-      tutupSesi,
-      catatPresensi,
-      presensiSaya,
-      rekapSesi,
-      sudahPresensi,
     ],
   );
 
