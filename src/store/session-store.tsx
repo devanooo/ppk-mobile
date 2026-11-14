@@ -13,11 +13,11 @@ import {
 import { users } from '@/data/dummy';
 import {
   ambilProfil,
-  daftarPraktikan as daftarPraktikanFirebase,
+  daftarAkun as daftarAkunFirebase,
   keluarAkun,
   masukDenganEmail,
   pantauAuth,
-  type InputDaftarPraktikan,
+  type InputDaftarAkun,
   type HasilAuth,
 } from '@/lib/auth';
 import type { Presensi, Sesi, User } from '@/types';
@@ -43,8 +43,8 @@ type Store = {
   sesi: Sesi[];
   presensi: Presensi[];
   login: (email: string, password: string) => Promise<HasilLogin>;
-  daftarPraktikan: (
-    input: InputDaftarPraktikan,
+  daftarAkun: (
+    input: InputDaftarAkun,
   ) => Promise<HasilAuth>;
   logout: () => Promise<HasilAksi>;
   sesiById: (sesiId: string) => Sesi | undefined;
@@ -143,9 +143,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   // ========================================
   // REGISTER
 
-  const daftarPraktikan = useCallback(
+  const daftarAkun = useCallback(
     async (
-      input: InputDaftarPraktikan,
+      input: InputDaftarAkun,
     ): Promise<HasilAuth> => {
       // Mencegah proses registrasi ganda.
       if (registrasiAktif.current) {
@@ -158,7 +158,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       registrasiAktif.current = true;
 
       try {
-        const hasil = await daftarPraktikanFirebase(input);
+        const hasil = await daftarAkunFirebase(input);
 
         if (!hasil.ok) {
           return hasil;
@@ -279,7 +279,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       sesi: state.sesi,
       presensi: state.presensi,
       login,
-      daftarPraktikan,
+      daftarAkun,
       logout,
       sesiById,
       sesiUntuk: (pengguna: User) =>
@@ -295,7 +295,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       state,
       authLoading,
       login,
-      daftarPraktikan,
+      daftarAkun,
       logout,
       sesiById,
       bukaSesi,
