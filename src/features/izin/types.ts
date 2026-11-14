@@ -1,17 +1,25 @@
 /**
  * Tipe domain izin untuk lapisan UI.
  *
- * TODO(p1): `StatusIzin`, `KlasifikasiStatus`, dan `IzinDokumen` akan pindah ke
- * `src/types/firestore.ts` bersama `izinConverter` (T-017). Definisi di bawah
- * adalah salinan persis kontrak docs/sprints/sprint-2.md bagian 8.3, jadi
- * bentuknya tidak boleh menyimpang. `src/types/**` hanya boleh disentuh P1/P3.
+ * `StatusIzin` dan `KlasifikasiStatus` bukan deklarasi baru: keduanya re-export
+ * dari `@/types/firestore` supaya satu nilai hanya punya satu sumber.
+ *
+ * `IzinDokumen` sengaja dideklarasikan lokal. Bentuk field mengikuti
+ * `IzinFirestore` di `@/types/firestore`, tetapi `Timestamp` sudah dikonversi
+ * menjadi `Date` oleh `keIzin` di `src/lib/izin.ts`, dan komponen UI memformat
+ * `Date`. Jangan ganti kembali menjadi `Timestamp`.
  *
  * `Izin` adalah bentuk yang dipakai layar: dokumen Firestore ditambah `id`.
  */
 
-export type StatusIzin = 'menunggu' | 'disetujui' | 'ditolak';
+import type {
+  StatusIzinFirestore,
+  StatusKlasifikasiFirestore,
+} from '@/types/firestore';
 
-export type KlasifikasiStatus = 'menunggu' | 'selesai' | 'gagal';
+export type StatusIzin = StatusIzinFirestore;
+
+export type KlasifikasiStatus = StatusKlasifikasiFirestore;
 
 export type IzinDokumen = {
   praktikanId: string;

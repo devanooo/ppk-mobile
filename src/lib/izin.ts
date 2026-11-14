@@ -28,6 +28,8 @@ import {
 } from 'firebase/firestore';
 
 import type { Izin, IzinDokumen, KlasifikasiStatus, StatusIzin } from '@/features/izin/types';
+import { izinConverter } from '@/lib/konversi';
+import type { IzinFirestore } from '@/types/firestore';
 
 import { PESAN_IZIN, bolehDiputuskan, pesanDariGalat, validasiAlasan } from './izin-aturan';
 
@@ -43,24 +45,28 @@ function keTanggal(nilai: unknown): Date | undefined {
   return typeof kandidat.toDate === 'function' ? kandidat.toDate() : undefined;
 }
 
-function keIzin(sesiId: string, id: string, data: Record<string, unknown>): Izin {
+function keIzin(sesiId: string, id: string, data: IzinFirestore): Izin {
   return {
     id,
     sesiId,
-    praktikanId: String(data.praktikanId ?? id),
-    alasan: String(data.alasan ?? ''),
-    status: (data.status as StatusIzin) ?? 'menunggu',
-    kategoriAi: typeof data.kategoriAi === 'string' ? data.kategoriAi : undefined,
-    klasifikasiStatus: (data.klasifikasiStatus as KlasifikasiStatus) ?? 'menunggu',
+    praktikanId: data.praktikanId,
+    alasan: data.alasan,
+    status: data.status,
+    kategoriAi: data.kategoriAi,
+    klasifikasiStatus: data.klasifikasiStatus,
     diprosesPada: keTanggal(data.diprosesPada),
     dibuatPada: keTanggal(data.dibuatPada) ?? new Date(0),
     diputuskanPada: keTanggal(data.diputuskanPada),
-    diputuskanOleh: typeof data.diputuskanOleh === 'string' ? data.diputuskanOleh : undefined,
+    diputuskanOleh: data.diputuskanOleh,
   };
 }
 
 export function rujukanIzinSesi(db: Firestore, sesiId: string) {
-  return collection(db, 'sesi', sesiId, 'izin');
+  return collection(db, 'sesi', sesiId, 'izin').withConverter(izinConverter);
+}
+
+function rujukanIzinPraktikan(db: Firestore, sesiId: string, praktikanId: string) {
+  return doc(db, 'sesi', sesiId, 'izin', praktikanId).withConverter(izinConverter);
 }
 
 /**
@@ -76,7 +82,7 @@ export function dengarkanIzinSesi(
     rujukanIzinSesi(db, sesiId),
     (snapshot) => {
       const data = snapshot.docs.map((dokumen) =>
-        keIzin(sesiId, dokumen.id, dokumen.data() as Record<string, unknown>),
+        keIzin(sesiId, dokumen.id, dokumen.data()),
       );
 
       onData({ ok: true, data });
@@ -104,13 +110,10 @@ export function dengarkanIzinSaya(
 
   const pembersih = sesiIds.map((sesiId) =>
     onSnapshot(
-      doc(db, 'sesi', sesiId, 'izin', praktikanId),
+      rujukanIzinPraktikan(db, sesiId, praktikanId),
       (snapshot) => {
         if (snapshot.exists()) {
-          terkumpul.set(
-            sesiId,
-            keIzin(sesiId, snapshot.id, snapshot.data() as Record<string, unknown>),
-          );
+          terkumpul.set(sesiId, keIzin(sesiId, snapshot.id, snapshot.data()));
         } else {
           terkumpul.delete(sesiId);
         }
