@@ -5,16 +5,10 @@ import { DetailIzinAsisten } from '@/features/izin/detail-izin-asisten';
 import { useIzinSesi } from '@/features/izin/use-izin-sesi';
 import { useProfilPraktikan } from '@/features/izin/use-profil-praktikan';
 import { useSesiAsisten } from '@/features/izin/use-sesi-asisten';
-import { ambilDbSementara } from '@/lib/db-sementara';
+import { db } from '@/lib/firebase';
 import { putuskanIzin } from '@/lib/izin';
 import type { SesiPraktikan } from '@/lib/izin-sesi';
 import { useSession } from '@/store/session-store';
-
-/**
- * TODO(p1): ganti `ambilDbSementara()` dengan `db` dari `@/lib/firebase`
- * begitu T-016 merge, lalu hapus `src/lib/db-sementara.ts`.
- */
-const db = ambilDbSementara();
 
 export default function DetailIzinAsistenScreen() {
   const router = useRouter();
@@ -45,7 +39,7 @@ export default function DetailIzinAsistenScreen() {
   }
 
   async function putuskan(keputusan: 'disetujui' | 'ditolak') {
-    if (!db || !sesiId || !praktikanId || !asistenId) {
+    if (!sesiId || !praktikanId || !asistenId) {
       setUmpanBalik({ jenis: 'gagal', pesan: 'Pengajuan izin tidak ditemukan' });
       return;
     }

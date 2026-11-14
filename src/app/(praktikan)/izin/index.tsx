@@ -6,14 +6,8 @@ import { urutkanIzin } from '@/features/izin/format-izin';
 import { useIzinPraktikan } from '@/features/izin/use-izin-praktikan';
 import { useSesiPraktikan } from '@/features/izin/use-sesi-praktikan';
 import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
-import { ambilDbSementara } from '@/lib/db-sementara';
+import { db } from '@/lib/firebase';
 import { useSession } from '@/store/session-store';
-
-/**
- * TODO(p1): ganti `ambilDbSementara()` dengan `db` dari `@/lib/firebase`
- * begitu T-016 merge, lalu hapus `src/lib/db-sementara.ts`.
- */
-const db = ambilDbSementara();
 
 /** Sesi dan izin punya status sendiri; layar hanya butuh satu yang terburuk. */
 function gabungStatus(a: StatusDaftar, b: StatusDaftar): StatusDaftar {

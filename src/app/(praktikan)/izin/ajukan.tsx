@@ -8,16 +8,10 @@ import { FormAjukanIzin, type UmpanBalik } from '@/features/izin/form-ajukan-izi
 import { useSesiPeserta } from '@/features/izin/use-sesi-peserta';
 import { useSesiPraktikan } from '@/features/izin/use-sesi-praktikan';
 import { klasifikasiAlasan } from '@/lib/ai';
-import { ambilDbSementara } from '@/lib/db-sementara';
+import { db } from '@/lib/firebase';
 import { ajukanIzin, simpanHasilKlasifikasi } from '@/lib/izin';
 import { bolehDiajukan, validasiAlasan } from '@/lib/izin-aturan';
 import { useSession } from '@/store/session-store';
-
-/**
- * TODO(p1): ganti `ambilDbSementara()` dengan `db` dari `@/lib/firebase`
- * begitu T-016 merge, lalu hapus `src/lib/db-sementara.ts`.
- */
-const db = ambilDbSementara();
 
 export default function AjukanIzinScreen() {
   const router = useRouter();
@@ -81,7 +75,7 @@ export default function AjukanIzinScreen() {
   }
 
   async function kirim() {
-    if (!sesiTerpilih || !db || !praktikanId) {
+    if (!sesiTerpilih || !praktikanId) {
       setKonfirmasiTerbuka(false);
       setUmpanBalik({ jenis: 'gagal', pesan: 'Data sesi belum tersedia' });
       return;
@@ -127,7 +121,7 @@ export default function AjukanIzinScreen() {
    * `ajukanIzin`, jadi tidak memicu penolakan duplikat dan tidak menimpa alasan.
    */
   async function ulangKlasifikasi() {
-    if (!db || !sesiTerpilih || !praktikanId) return;
+    if (!sesiTerpilih || !praktikanId) return;
 
     setSedangKirim(true);
     setUmpanBalik(null);
@@ -159,10 +153,6 @@ export default function AjukanIzinScreen() {
     praktikanId: string;
     alasan: string;
   }) {
-    if (!db) {
-      return { tersimpan: false, kategoriOk: false, pesan: 'Data sesi belum tersedia' };
-    }
-
     const kategori = await klasifikasiAlasan(teks);
     const simpan = await simpanHasilKlasifikasi({
       db,
