@@ -29,6 +29,7 @@ import {
 import { db } from '@/lib/firebase';
 import {
   buatSesi,
+  hapusSesi,
   ubahSesi,
 } from '@/lib/sesi';
 import { useSession } from '@/store/session-store';
@@ -117,6 +118,7 @@ export default function DetailKelasAsistenScreen() {
   const [jamSelesai, setJamSelesai] = useState('');
 
   const [menyimpan, setMenyimpan] = useState(false);
+  const [menghapus, setMenghapus] = useState(false);
 
   function kembali() {
     router.replace('/(asisten)/kelas');
@@ -211,6 +213,60 @@ export default function DetailKelasAsistenScreen() {
       );
     } finally {
       setMenyimpan(false);
+    }
+  }
+
+  function konfirmasiHapusSesi(item: SesiAsisten) {
+    if (!asistenId) return;
+
+    Alert.alert(
+      'Hapus Sesi',
+      'Yakin ingin menghapus sesi ini? Sesi hanya dapat dihapus jika belum dibuka dan belum memiliki data presensi atau pengajuan izin.',
+      [
+        {
+          text: 'Batal',
+          style: 'cancel',
+        },
+        {
+          text: 'Hapus',
+          style: 'destructive',
+          onPress: () => {
+            void prosesHapusSesi(item);
+          },
+        },
+      ],
+    );
+  }
+
+  async function prosesHapusSesi(item: SesiAsisten) {
+    if (!asistenId) return;
+
+    setMenghapus(true);
+
+    try {
+      const hasil = await hapusSesi({
+        db,
+        sesiId: item.id,
+        asistenId,
+      });
+
+      if (!hasil.ok) {
+        Alert.alert('Gagal menghapus sesi', hasil.pesan);
+        return;
+      }
+
+      if (sesiDiedit?.id === item.id) {
+        bersihkanForm();
+      }
+
+      Alert.alert('Berhasil', hasil.pesan);
+    } catch {
+      Alert.alert(
+        'Gagal',
+        'Terjadi kesalahan saat menghapus sesi. Silakan coba lagi.',
+      );
+    } finally {
+      setMenghapus(false);
     }
   }
 
@@ -441,16 +497,24 @@ export default function DetailKelasAsistenScreen() {
               </Text>
 
               {item.status === 'belum-dibuka' ? (
-                <View className="mt-three">
+                <View className="mt-three gap-two">
                   <AppButton
                     label="Edit Sesi"
                     variant="secondary"
+                    disabled={menyimpan || menghapus}
                     onPress={() => bukaFormEdit(item)}
+                  />
+
+                  <AppButton
+                    label={menghapus ? 'Menghapus...' : 'Hapus Sesi'}
+                    variant="secondary"
+                    disabled={menyimpan || menghapus}
+                    onPress={() => konfirmasiHapusSesi(item)}
                   />
                 </View>
               ) : (
                 <Text className="mt-three text-small text-textSecondary">
-                  Sesi yang sudah dibuka tidak dapat diedit.
+                  Sesi yang sudah dibuka tidak dapat diedit atau dihapus.
                 </Text>
               )}
             </Card>
