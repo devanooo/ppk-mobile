@@ -1,8 +1,11 @@
+
 import {
   addDoc,
   collection,
   doc,
   getDoc,
+  getDocs,
+  limit,
   onSnapshot,
   query,
   runTransaction,
@@ -492,6 +495,94 @@ export async function ubahSesi({
     }
 
     return { ok: false, pesan: pesanDariGalat(galat) };
+  }
+}
+
+/** Menghapus sesi yang belum dibuka dan tidak memiliki data terkait. */
+export async function hapusSesi({
+  db,
+  sesiId,
+  asistenId,
+}: {
+  db: Firestore;
+  sesiId: string;
+  asistenId: string;
+}): Promise<HasilAksiSesi> {
+  try {
+    const rujukanSesi = doc(db, 'sesi', sesiId);
+
+    const [dataPresensi, dataIzin] = await Promise.all([
+      getDocs(
+        query(
+          collection(db, 'sesi', sesiId, 'presensi'),
+          limit(1),
+        ),
+      ),
+      getDocs(
+        query(
+          collection(db, 'sesi', sesiId, 'izin'),
+          limit(1),
+        ),
+      ),
+    ]);
+
+    if (!dataPresensi.empty || !dataIzin.empty) {
+      return {
+        ok: false,
+        pesan:
+          'Sesi tidak dapat dihapus karena masih memiliki data presensi atau izin.',
+      };
+    }
+
+    await runTransaction(db, async (transaksi) => {
+      const dokumen = await transaksi.get(rujukanSesi);
+
+      if (!dokumen.exists()) {
+        throw new Error('SESI_TIDAK_DITEMUKAN');
+      }
+
+      const sesi = dokumen.data();
+
+      if (sesi.asistenId !== asistenId) {
+        throw new Error('BUKAN_PEMILIK_SESI');
+      }
+
+      if (sesi.status !== 'belum-dibuka') {
+        throw new Error('SESI_TIDAK_DAPAT_DIHAPUS');
+      }
+
+      transaksi.delete(rujukanSesi);
+    });
+
+    return {
+      ok: true,
+      pesan: 'Sesi berhasil dihapus',
+    };
+  } catch (galat) {
+    if (galat instanceof Error) {
+      if (galat.message === 'SESI_TIDAK_DITEMUKAN') {
+        return { ok: false, pesan: 'Sesi tidak ditemukan' };
+      }
+
+      if (galat.message === 'BUKAN_PEMILIK_SESI') {
+        return {
+          ok: false,
+          pesan: 'Kamu tidak memiliki akses ke sesi ini',
+        };
+      }
+
+      if (galat.message === 'SESI_TIDAK_DAPAT_DIHAPUS') {
+        return {
+          ok: false,
+          pesan: 'Hanya sesi yang belum dibuka yang dapat dihapus',
+        };
+      }
+    }
+
+    return {
+      ok: false,
+      pesan: pesanDariGalat(galat),
+    };
   }
 }
 
