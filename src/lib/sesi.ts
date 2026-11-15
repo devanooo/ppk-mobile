@@ -194,6 +194,8 @@ export function dengarkanSesiById(
   );
 }
 
+
+
 /** Mendengarkan sesi dari seluruh kelas yang diikuti praktikan. */
 export function dengarkanSesiPraktikan(
   db: Firestore,
@@ -208,13 +210,14 @@ export function dengarkanSesiPraktikan(
   const berhentiSesi = new Map<string, () => void>();
   const sesiPerKelas = new Map<string, SesiFirestore[]>();
   const sesiSiap = new Set<string>();
+  const kelasAktif = new Set<string>();
 
   let berhenti = false;
 
   function kirimData() {
     if (berhenti) return;
 
-    const semuaKelasSiap = Array.from(berhentiSesi.keys()).every(
+    const semuaKelasSiap = Array.from(kelasAktif).every(
       (kelasId) => sesiSiap.has(kelasId),
     );
 
@@ -228,24 +231,38 @@ export function dengarkanSesiPraktikan(
     });
   }
 
+  function hentikanListenerKelas(kelasId: string) {
+    berhentiSesi.get(kelasId)?.();
+
+    berhentiSesi.delete(kelasId);
+    sesiPerKelas.delete(kelasId);
+    sesiSiap.delete(kelasId);
+  }
+
   const berhentiKelas = onSnapshot(
     rujukanKelas,
     (snapshot) => {
       if (berhenti) return;
 
-      const kelasIds = new Set(snapshot.docs.map((dokumen) => dokumen.id));
+      const kelasIds = new Set(
+        snapshot.docs.map((dokumen) => dokumen.id),
+      );
 
-      // Hentikan listener untuk kelas yang sudah tidak diikuti.
-      for (const [kelasId, hentikan] of berhentiSesi) {
+      // Perbarui daftar kelas yang masih diikuti praktikan.
+      kelasAktif.clear();
+
+      for (const kelasId of kelasIds) {
+        kelasAktif.add(kelasId);
+      }
+
+      // Hentikan hanya listener kelas yang sudah tidak diikuti.
+      for (const kelasId of berhentiSesi.keys()) {
         if (!kelasIds.has(kelasId)) {
-          hentikan();
-          berhentiSesi.delete(kelasId);
-          sesiPerKelas.delete(kelasId);
-          sesiSiap.delete(kelasId);
+          hentikanListenerKelas(kelasId);
         }
       }
 
-      // Pasang listener untuk kelas yang baru diikuti.
+      // Buat listener terpisah untuk setiap kelas aktif.
       for (const kelasId of kelasIds) {
         if (berhentiSesi.has(kelasId)) continue;
 
@@ -257,7 +274,7 @@ export function dengarkanSesiPraktikan(
         const hentikan = onSnapshot(
           rujukanSesi,
           (hasilSesi) => {
-            if (berhenti) return;
+            if (berhenti || !kelasAktif.has(kelasId)) return;
 
             const data = hasilSesi.docs.map((dokumen) =>
               keSesi(
@@ -271,9 +288,49 @@ export function dengarkanSesiPraktikan(
 
             kirimData();
           },
-          (galat) => {
-            if (berhenti) return;
+          async (galat) => {
+            if (berhenti || !kelasAktif.has(kelasId)) return;
 
+            const kode = (galat as { code?: string })?.code;
+
+            if (kode === 'permission-denied') {
+              try {
+                // Periksa apakah praktikan benar-benar sudah
+                // dikeluarkan dari kelas tersebut di Firestore.
+                const dokumenKelas = await getDoc(
+                  doc(db, 'kelas', kelasId),
+                );
+
+                if (berhenti || !kelasAktif.has(kelasId)) return;
+
+                const pesertaIds = dokumenKelas.exists()
+                  ? dokumenKelas.data().pesertaIds
+                  : [];
+
+                const masihTerdaftar =
+                  Array.isArray(pesertaIds) &&
+                  pesertaIds.includes(praktikanId);
+
+                if (!masihTerdaftar) {
+                  hentikanListenerKelas(kelasId);
+                  kirimData();
+                  return;
+                }
+              } catch (galatPemeriksaan) {
+                if (berhenti) return;
+
+                onData({
+                  ok: false,
+                  pesan: pesanDariGalat(galatPemeriksaan),
+                });
+
+                return;
+              }
+            }
+
+            // Jika masih terdaftar tetapi akses ditolak,
+            // laporkan error sebenarnya. Jangan sembunyikan
+            // masalah Security Rules.
             onData({
               ok: false,
               pesan: pesanDariGalat(galat),
@@ -287,6 +344,7 @@ export function dengarkanSesiPraktikan(
       kirimData();
     },
     (galat) => {
+      // Error listener kelas tidak memiliki kelasId tertentu.
       if (berhenti) return;
 
       onData({
@@ -298,6 +356,7 @@ export function dengarkanSesiPraktikan(
 
   return () => {
     berhenti = true;
+
     berhentiKelas();
 
     for (const hentikan of berhentiSesi.values()) {
@@ -307,8 +366,11 @@ export function dengarkanSesiPraktikan(
     berhentiSesi.clear();
     sesiPerKelas.clear();
     sesiSiap.clear();
+    kelasAktif.clear();
   };
 }
+
+
 
 /** Membuat sesi baru pada kelas milik asisten. */
 export async function buatSesi({
