@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import {
   collection,
@@ -49,19 +50,19 @@ export function useJadwalPraktikan(
 
   useEffect(() => {
     if (!db || !praktikanId) {
+      setHasil(HASIL_GAGAL);
       return;
     }
 
     let berhenti = false;
     let kelasSiap = false;
     let sesiSiap = false;
-    let gagal = false;
 
     let daftarKelas = new Map<string, DataKelas>();
     let daftarSesi: SesiFirestore[] = [];
 
     function perbaruiJadwal() {
-      if (berhenti || gagal || !kelasSiap || !sesiSiap) {
+      if (berhenti || !kelasSiap || !sesiSiap) {
         return;
       }
 
@@ -85,6 +86,21 @@ export function useJadwalPraktikan(
       });
     }
 
+    function tanganiGalat(pesan: string) {
+      if (berhenti) return;
+
+      setHasil((sebelumnya) => ({
+        // Pertahankan data yang sudah berhasil dimuat.
+        jadwal: sebelumnya.jadwal,
+        status: sebelumnya.jadwal.length > 0 ? 'siap' : 'gagal',
+        pesanGalat:
+          sebelumnya.jadwal.length > 0 ? undefined : pesan,
+      }));
+    }
+
+    // ========================================
+    // LISTENER KELAS
+
     const rujukanKelas = query(
       collection(db, 'kelas'),
       where('pesertaIds', 'array-contains', praktikanId),
@@ -93,6 +109,8 @@ export function useJadwalPraktikan(
     const berhentiKelas = onSnapshot(
       rujukanKelas,
       (snapshot) => {
+        if (berhenti) return;
+
         daftarKelas = new Map(
           snapshot.docs.map((dokumen) => {
             const data = dokumen.data();
@@ -111,42 +129,35 @@ export function useJadwalPraktikan(
         perbaruiJadwal();
       },
       (error) => {
-        gagal = true;
-
-        if (!berhenti) {
-          setHasil({
-            jadwal: [],
-            status: 'gagal',
-            pesanGalat:
-              error.message || 'Gagal memuat daftar kelas.',
-          });
-        }
+        tanganiGalat(
+          error.message || 'Gagal memuat daftar kelas.',
+        );
       },
     );
+
+    // ========================================
+    // LISTENER SESI
 
     const berhentiSesi = dengarkanSesiPraktikan(
       db,
       praktikanId,
       (hasilSesi) => {
+        if (berhenti) return;
+
         if (!hasilSesi.ok) {
-          gagal = true;
-
-          if (!berhenti) {
-            setHasil({
-              jadwal: [],
-              status: 'gagal',
-              pesanGalat: hasilSesi.pesan,
-            });
-          }
-
+          tanganiGalat(hasilSesi.pesan);
           return;
         }
 
         daftarSesi = hasilSesi.data;
         sesiSiap = true;
+
         perbaruiJadwal();
       },
     );
+
+    // ========================================
+    // CLEANUP
 
     return () => {
       berhenti = true;

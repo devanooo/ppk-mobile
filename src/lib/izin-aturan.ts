@@ -107,7 +107,7 @@ export function pesanDariGalat(galat: unknown, cadangan: string = PESAN_IZIN.gag
 
   switch (kode) {
     case 'permission-denied':
-      return 'Kamu tidak punya akses ke data izin ini';
+      return cadangan;
     case 'unavailable':
       return 'Tidak dapat terhubung ke server, coba lagi';
     case 'not-found':
