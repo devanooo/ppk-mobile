@@ -47,3 +47,6 @@ example
 .opencode/*
 !.opencode/skills/
 !.opencode/skills/**
+
+*-firebase-adminsdk-*.json
+.commandcode/
