@@ -2,7 +2,7 @@
 
 Aplikasi catatan kehadiran praktikum untuk praktikan dan asisten.
 
-Aplikasi ini berjalan di **iOS, Android, dan Web** dari satu codebase Expo. Bagian di bawah ini mendokumentasikan Sprint 1. Rencana Sprint 2 (Firebase Auth, Cloud Firestore, izin dengan klasifikasi AI) ada di [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md) dan menggantikan klaim Sprint 1 yang bertentangan.
+Aplikasi ini berjalan di **iOS, Android, dan Web** dari satu codebase Expo. Bagian di bawah ini mendokumentasikan Sprint 1. Rencana Sprint 2 (Firebase Auth, Cloud Firestore, izin dengan klasifikasi AI) ada di [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md), dan rencana Sprint 3 (presensi berbasis lokasi dan QR Code, Maps, push notification) ada di [`docs/sprints/sprint-3.md`](docs/sprints/sprint-3.md). Keduanya menggantikan klaim Sprint 1 yang bertentangan.
 
 Sprint 1 berfokus pada UI dengan data dummy, state lokal, dan autentikasi dummy (belum ada database). Pengguna masuk lewat landing page dan login, lalu diarahkan ke antarmuka sesuai peran. Dua sudut pandang pengguna:
 
@@ -66,6 +66,7 @@ Menambah library lewat `npx expo install <paket>` dan dikoordinasikan dengan PM;
 - TypeScript strict
 - NativeWind 4 (Tailwind CSS 3) untuk styling, token terpusat di `src/constants/tokens.js`
 - Sprint 1 tanpa database dan tanpa backend: autentikasi dummy in-memory, data dummy, dan React state/context. Sprint 2 menggantinya dengan Firebase Authentication dan Cloud Firestore (lihat `docs/sprints/sprint-2.md`)
+- Sprint 3 menambahkan Maps, geolocation, pemindaian dan pembuatan QR Code, serta push notification (rencana awal: `expo-location`, FCM, dan Cloud Functions). Library final ditentukan PM (PM-03 dan PM-04) dan dicatat di `docs/sprints/sprint-3.md`. Fitur kamera, lokasi, dan notifikasi diuji di Android dan iOS; Web hanya untuk fitur yang didukung library dan browser
 
 ## Struktur folder
 
@@ -108,6 +109,8 @@ Styling memakai **NativeWind 4** (Tailwind CSS 3). Komponen JSX memakai `classNa
 
 ## Peran dalam tim
 
+Tabel ini adalah peran Sprint 1. Peran berputar tiap sprint; pembagian Sprint 2 ada di `docs/sprints/sprint-2.md` dan Sprint 3 di `docs/sprints/sprint-3.md` bagian 6.
+
 | Kode | Peran | Area |
 |---|---|---|
 | PM | Product Manager | docs, backlog, QA, demo |
@@ -121,10 +124,13 @@ Matriks ownership file ada di [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.m
 
 - [`docs/PRD.md`](docs/PRD.md): kebutuhan, acceptance criteria, peta layar, demo script
 - [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.md): pembagian kerja & kontrak data
+- [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md): rencana Sprint 2 (Firebase dan izin dengan AI)
+- [`docs/sprints/sprint-3.md`](docs/sprints/sprint-3.md): rencana Sprint 3 (presensi lokasi dan QR, Maps, push notification)
 - [`docs/GIT-WORKFLOW.md`](docs/GIT-WORKFLOW.md): branch, commit, PR, review, merge
 - [`docs/design.md`](docs/design.md): referensi visual Apple dan catatan adaptasi mobile iOS/Android
 - [`AGENTS.md`](AGENTS.md): aturan kerja untuk developer & AI agent
 
 ## Non-goals sprint 1
 
-Backend/database, autentikasi nyata, registrasi, lupa password, persistensi login dan data setelah aplikasi ditutup, notifikasi push, presensi berbasis QR/lokasi, multi-semester, export laporan, serta aplikasi web/desktop.
+Backend/database, autentikasi nyata, registrasi, lupa password, persistensi login dan data setelah aplikasi ditutup, notifikasi push, presensi berbasis QR/lokasi, multi-semester, export laporan, serta aplikasi web/desktop. Daftar ini hanya berlaku untuk Sprint 1: backend, autentikasi, registrasi, dan persistensi dicabut oleh Sprint 2, sedangkan notifikasi push dan presensi berbasis QR/lokasi dicabut oleh Sprint 3.
+ 
