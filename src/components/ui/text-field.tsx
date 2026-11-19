@@ -12,6 +12,8 @@ import {
 
 import { Colors } from '@/constants/theme';
 
+type TextFieldVariant = 'default' | 'auth';
+
 type TextFieldProps = {
   label: string;
   value: string;
@@ -26,6 +28,7 @@ type TextFieldProps = {
   error?: string;
   maxLength?: number;
   onFocus?: () => void;
+  variant?: TextFieldVariant;
 };
 
 export function TextField({
@@ -42,18 +45,38 @@ export function TextField({
   error,
   maxLength,
   onFocus,
+  variant = 'default',
 }: TextFieldProps) {
   const skema = useColorScheme();
-  const warnaSekunder = (skema === 'dark' ? Colors.dark : Colors.light).textSecondary;
+  const palet = skema === 'dark' ? Colors.dark : Colors.light;
   const [kataSandiTerlihat, setKataSandiTerlihat] = useState(false);
+  const [fokus, setFokus] = useState(false);
 
   const tampilkanToggle = secureTextEntry && showPasswordToggle;
+  const gayaAuth = variant === 'auth';
+
+  const warnaPlaceholder = gayaAuth ? palet.loginMuted : palet.textSecondary;
+  const warnaAksen = warnaPlaceholder;
+
+  const kelasLabel = gayaAuth
+    ? 'text-caption font-semibold text-loginInk'
+    : 'text-caption text-textSecondary';
+
+  const kelasInput = gayaAuth
+    ? `min-h-touch rounded-lg text-body text-loginInk ${
+        error
+          ? 'border-danger'
+          : fokus
+            ? 'border-loginInk'
+            : 'border-loginField'
+      } ${tampilkanToggle ? 'pl-fieldPadding pr-six' : 'px-fieldPadding'}`
+    : `min-h-touch rounded-md border bg-backgroundElement text-body text-text ${
+        error ? 'border-danger' : 'border-border'
+      } ${tampilkanToggle ? 'pl-twoHalf pr-six' : 'px-twoHalf'}`;
 
   return (
     <View className={className}>
-      <Text className="mb-two text-caption text-textSecondary">
-        {label}
-      </Text>
+      <Text className={`mb-two ${kelasLabel}`}>{label}</Text>
 
       <View>
         <TextInput
@@ -62,15 +85,19 @@ export function TextField({
           autoCapitalize={autoCapitalize}
           inputMode={inputMode}
           maxLength={maxLength}
+          onBlur={() => setFokus(false)}
           onChangeText={onChangeText}
-          onFocus={onFocus}
+          onFocus={() => {
+            setFokus(true);
+            onFocus?.();
+          }}
           placeholder={placeholder}
-          placeholderTextColor={warnaSekunder}
+          placeholderTextColor={warnaPlaceholder}
           secureTextEntry={secureTextEntry && !kataSandiTerlihat}
+          selectionColor={gayaAuth ? palet.loginInk : undefined}
+          style={gayaAuth ? { textAlignVertical: 'center' } : undefined}
           value={value}
-          className={`min-h-touch rounded-md border bg-backgroundElement text-body text-text ${
-            error ? 'border-danger' : 'border-border'
-          } ${tampilkanToggle ? 'pl-twoHalf pr-six' : 'px-twoHalf'}`}
+          className={gayaAuth ? `${kelasInput} border bg-loginField` : kelasInput}
         />
 
         {tampilkanToggle ? (
@@ -88,7 +115,7 @@ export function TextField({
                 android: kataSandiTerlihat ? 'visibility_off' : 'visibility',
               }}
               size={20}
-              tintColor={warnaSekunder}
+              tintColor={warnaAksen}
             />
           </Pressable>
         ) : null}
