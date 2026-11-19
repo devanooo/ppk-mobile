@@ -1,4 +1,5 @@
 
+import { SymbolView } from 'expo-symbols';
 import { useRef, useState, type ComponentRef } from 'react';
 import {
   KeyboardAvoidingView,
@@ -7,12 +8,36 @@ import {
   ScrollView,
   Text,
   View,
+  type ViewStyle,
 } from 'react-native';
 
 import { AppButton, Banner, Screen, TextField } from '@/components/ui';
-import { MaxContentWidth } from '@/constants/theme';
+import { Colors, MaxContentWidth } from '@/constants/theme';
 import { useSession } from '@/store/session-store';
 import type { Peran } from '@/types';
+
+const WARNA_NAVY = Colors.light.loginInk;
+
+const BAYANGAN_LEMBUT: ViewStyle = {
+  shadowColor: WARNA_NAVY,
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.08,
+  shadowRadius: 8,
+  elevation: 2,
+};
+
+const PILIHAN_PERAN: { nilai: Peran; judul: string; deskripsi: string }[] = [
+  {
+    nilai: 'praktikan',
+    judul: 'Praktikan',
+    deskripsi: 'Mengikuti kegiatan praktikum.',
+  },
+  {
+    nilai: 'asisten',
+    judul: 'Asisten',
+    deskripsi: 'Mengelola kegiatan praktikum.',
+  },
+];
 
 type RegisterScreenProps = {
   onBerhasil: () => void;
@@ -31,7 +56,6 @@ export function RegisterScreen({
   onBerhasil,
   onKembali,
 }: RegisterScreenProps) {
-  // Ref untuk mengontrol ScrollView.
   const scrollRef = useRef<ComponentRef<typeof ScrollView> | null>(null);
   const { daftarAkun } = useSession();
 
@@ -47,7 +71,6 @@ export function RegisterScreen({
   const [pesanGagal, setPesanGagal] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Menggeser form ketika input password difokuskan.
   function fokusInputBawah() {
     setTimeout(() => {
       scrollRef.current?.scrollToEnd({
@@ -56,9 +79,6 @@ export function RegisterScreen({
     }, 300);
   }
 
-  // ========================================
-  // VALIDASI FORM
-
   function validasi(): boolean {
     const errorBaru: ErrorForm = {};
 
@@ -66,16 +86,9 @@ export function RegisterScreen({
       errorBaru.nama = 'Nama lengkap wajib diisi.';
     }
 
-    const validNomorInduk =
-      peran === 'praktikan'
-        ? /^\d{10}$/.test(nomorInduk)
-        : /^\d{18}$/.test(nomorInduk);
-
-    if (!validNomorInduk) {
+    if (!/^\d{14}$/.test(nomorInduk)) {
       errorBaru.nomorInduk =
-        peran === 'praktikan'
-          ? 'NIM harus terdiri dari tepat 10 digit angka.'
-          : 'NIP harus terdiri dari tepat 18 digit angka.';
+        'NIM harus terdiri dari tepat 14 digit angka.';
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
@@ -104,9 +117,6 @@ export function RegisterScreen({
     return Object.keys(errorBaru).length === 0;
   }
 
-  // ========================================
-  // INPUT HANDLERS
-
   function ubahNama(nilai: string) {
     setNama(nilai);
     setErrors((sebelumnya) => ({
@@ -117,8 +127,7 @@ export function RegisterScreen({
   }
 
   function ubahNim(nilai: string) {
-    const batasDigit = peran === 'praktikan' ? 10 : 18;
-    const angka = nilai.replace(/\D/g, '').slice(0, batasDigit);
+    const angka = nilai.replace(/\D/g, '').slice(0, 14);
 
     setNomorInduk(angka);
     setErrors((sebelumnya) => ({
@@ -128,14 +137,8 @@ export function RegisterScreen({
     setPesanGagal(null);
   }
 
-  // TAMBAHKAN DI SINI
   function ubahPeran(nilai: Peran) {
     setPeran(nilai);
-    setNomorInduk('');
-    setErrors((sebelumnya) => ({
-      ...sebelumnya,
-      nomorInduk: undefined,
-    }));
     setPesanGagal(null);
   }
 
@@ -167,9 +170,6 @@ export function RegisterScreen({
     setPesanGagal(null);
   }
 
-  // ========================================
-  // REGISTRASI FIREBASE
-
   async function kirim() {
     if (loading || !validasi()) return;
 
@@ -200,11 +200,11 @@ export function RegisterScreen({
     }
   }
 
-  // ========================================
-  // UI
-
   return (
-    <Screen padded={false}>
+    <Screen
+      padded={false}
+      backgroundClassName="bg-loginBackground"
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ flex: 1 }}
@@ -212,15 +212,11 @@ export function RegisterScreen({
         <ScrollView
           ref={scrollRef}
           style={{ flex: 1 }}
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: 48,
-          }}
-          contentContainerClassName="px-three pt-three"
+          contentContainerClassName="grow px-four pb-five pt-three"
           keyboardDismissMode="on-drag"
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
-          showsVerticalScrollIndicator
+          showsVerticalScrollIndicator={false}
         >
           <View
             className="w-full self-center"
@@ -230,85 +226,66 @@ export function RegisterScreen({
               accessibilityLabel="Kembali ke halaman awal"
               accessibilityRole="button"
               onPress={onKembali}
-              className="-ml-one min-h-touch flex-row items-center self-start pl-one pr-two active:scale-95"
+              style={BAYANGAN_LEMBUT}
+              className="h-touch w-touch items-center justify-center self-start rounded-pill bg-loginField active:scale-95"
             >
-              <Text className="text-body text-primary">‹</Text>
-              <Text className="ml-one text-body text-primary">
-                Kembali
-              </Text>
+              <SymbolView
+                name={{ ios: 'chevron.left', android: 'arrow_back' }}
+                size={22}
+                tintColor={WARNA_NAVY}
+              />
             </Pressable>
 
-            <View className="mt-four">
+            <View className="mt-five">
               <Text
                 accessibilityRole="header"
-                className="text-title font-semibold text-text"
+                className="text-authTitle font-bold text-loginInk"
               >
                 Buat Akun
               </Text>
 
-              <Text className="mt-two text-body text-textSecondary">
+              <Text className="mt-two text-authBody text-loginMuted">
                 Daftarkan akun untuk menggunakan PraktikumKU sebagai praktikan atau asisten.
               </Text>
             </View>
 
-            <View className="mt-four gap-two">
-              <Text className="text-body font-semibold text-text">
+            <View className="mt-five gap-two">
+              <Text className="text-caption font-semibold text-loginInk">
                 Daftar sebagai
               </Text>
 
-              <View className="flex-row gap-two">
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: peran === 'praktikan' }}
-                  onPress={() => ubahPeran('praktikan')}
-                  className={`flex-1 rounded-xl border p-three ${
-                    peran === 'praktikan'
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border bg-surface'
-                  }`}
-                >
-                  <Text
-                    className={`font-semibold ${
-                      peran === 'praktikan'
-                        ? 'text-primary'
-                        : 'text-text'
-                    }`}
-                  >
-                    Praktikan
-                  </Text>
-                  <Text className="mt-one text-caption text-textSecondary">
-                    Mengikuti kegiatan praktikum.
-                  </Text>
-                </Pressable>
+              <View accessibilityRole="radiogroup" className="flex-row gap-three">
+                {PILIHAN_PERAN.map((pilihan) => {
+                  const aktif = peran === pilihan.nilai;
 
-                <Pressable
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: peran === 'asisten' }}
-                  onPress={() => ubahPeran('asisten')}
-                  className={`flex-1 rounded-xl border p-three ${
-                    peran === 'asisten'
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border bg-surface'
-                  }`}
-                >
-                  <Text
-                    className={`font-semibold ${
-                      peran === 'asisten'
-                        ? 'text-primary'
-                        : 'text-text'
-                    }`}
-                  >
-                    Asisten
-                  </Text>
-                  <Text className="mt-one text-caption text-textSecondary">
-                    Mengelola kegiatan praktikum.
-                  </Text>
-                </Pressable>
+                  return (
+                    <Pressable
+                      key={pilihan.nilai}
+                      accessibilityLabel={`Pilih peran ${pilihan.judul}`}
+                      accessibilityRole="radio"
+                      accessibilityState={{ checked: aktif }}
+                      onPress={() => ubahPeran(pilihan.nilai)}
+                      className={`min-h-authChoice flex-1 justify-center rounded-authCard border p-three active:opacity-80 ${
+                        aktif
+                          ? 'border-loginInk bg-loginField'
+                          : 'border-loginMuted/30 bg-loginBackground'
+                      }`}
+                    >
+                      <Text className="text-body font-semibold text-loginInk">
+                        {pilihan.judul}
+                      </Text>
+                      <Text className="mt-one text-caption text-loginMuted">
+                        {pilihan.deskripsi}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
             </View>
 
             <View className="mt-five gap-three">
               <TextField
+                variant="auth"
                 label="Nama lengkap"
                 placeholder="Masukkan nama lengkap"
                 value={nama}
@@ -319,23 +296,19 @@ export function RegisterScreen({
               />
 
               <TextField
-                label={peran === 'praktikan' ? 'NIM' : 'Nomor induk'}
-                placeholder={
-                  peran === 'praktikan'
-                    ? 'Masukkan NIM (10 digit)'
-                    : 'Masukkan NIP (18 digit)'
-                }
+                variant="auth"
+                label="NIM"
+                placeholder="Masukkan NIM (14 digit)"
                 value={nomorInduk}
                 onChangeText={ubahNim}
                 error={errors.nomorInduk}
                 inputMode="numeric"
-                maxLength={peran === 'praktikan' ? 10 : 18}
-                accessibilityLabel={
-                  peran === 'praktikan' ? 'Nomor induk mahasiswa' : 'Nomor induk asisten'
-                }
+                maxLength={14}
+                accessibilityLabel="NIM"
               />
 
               <TextField
+                variant="auth"
                 label="Email"
                 placeholder="Masukkan email"
                 value={email}
@@ -346,6 +319,7 @@ export function RegisterScreen({
               />
 
               <TextField
+                variant="auth"
                 label="Kata sandi"
                 placeholder="Minimal 8 karakter, huruf dan angka"
                 value={password}
@@ -358,6 +332,7 @@ export function RegisterScreen({
               />
 
               <TextField
+                variant="auth"
                 label="Konfirmasi kata sandi"
                 placeholder="Ulangi kata sandi"
                 value={konfirmasiPassword}
@@ -370,10 +345,9 @@ export function RegisterScreen({
               />
             </View>
 
-            <View className="mt-three gap-two">
-              <Text className="text-caption text-textSecondary">
-                Password minimal 8 karakter dan harus mengandung
-                huruf serta angka.
+            <View className="mt-three gap-three">
+              <Text className="text-small text-loginMuted">
+                Password minimal 8 karakter dan harus mengandung huruf serta angka.
               </Text>
 
               {pesanGagal ? (
@@ -385,9 +359,11 @@ export function RegisterScreen({
             </View>
 
             <AppButton
+              variant="auth"
               accessibilityLabel="Daftar akun"
-              className="mt-four"
+              className="mt-five"
               disabled={loading}
+              loading={loading}
               label={loading ? 'Mendaftarkan...' : 'Daftar'}
               onPress={kirim}
             />

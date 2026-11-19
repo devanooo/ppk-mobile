@@ -35,6 +35,11 @@ const lightColors = {
   warningSurface: '#FFF4E0',
   /** Scrim modal; alpha diatur di komponen lewat `bg-overlay/<alpha>`. */
   overlay: '#000000',
+  /** Layar login memakai kanvas terang tetap di kedua tema. */
+  loginBackground: '#ffffff',
+  loginInk: '#192858',
+  loginMuted: '#5f6880',
+  loginField: '#f1f4f8',
 };
 
 const darkColors = {
@@ -54,6 +59,10 @@ const darkColors = {
   warning: '#ff9f0a',
   warningSurface: '#2B2213',
   overlay: '#000000',
+  loginBackground: '#ffffff',
+  loginInk: '#192858',
+  loginMuted: '#5f6880',
+  loginField: '#f1f4f8',
 };
 
 /**
@@ -73,6 +82,10 @@ const spacing = {
   touch: 44,
   sheetMax: '85%',
   menuWidth: 280,
+  field: 52,
+  button: 56,
+  fieldPadding: 18,
+  authChoice: 93,
 };
 
 /** Satu-satunya bayangan: dropdown profil dan bottom sheet. */
@@ -90,6 +103,7 @@ const radius = {
   sm: 8,
   md: 12,
   lg: 16,
+  authCard: 20,
   xl: 24,
   pill: 999,
 };
@@ -102,6 +116,9 @@ const fontSize = {
   subtitle: [22, 26],
   title: [28, 36],
   display: [34, 40],
+  authTitle: [30, 38],
+  authBody: [15, 21],
+  authButton: [16, 24],
 };
 
 const fontWeight = {

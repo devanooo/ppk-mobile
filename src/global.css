@@ -24,6 +24,10 @@
   --color-warning: 178 80 0;
   --color-warningSurface: 255 244 224;
   --color-overlay: 0 0 0;
+  --color-loginBackground: 255 255 255;
+  --color-loginInk: 25 40 88;
+  --color-loginMuted: 95 104 128;
+  --color-loginField: 241 244 248;
 }
 
 @media (prefers-color-scheme: dark) {
