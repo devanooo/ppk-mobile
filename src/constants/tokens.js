@@ -25,7 +25,7 @@ const lightColors = {
   backgroundElement: '#ffffff',
   backgroundSelected: '#e8e8ed',
   border: '#d2d2d7',
-  primary: '#0066cc',
+  primary: '#172554',
   primaryText: '#ffffff',
   success: '#248a3d',
   successSurface: '#E4F5EC',
@@ -37,7 +37,7 @@ const lightColors = {
   overlay: '#000000',
   /** Layar login memakai kanvas terang tetap di kedua tema. */
   loginBackground: '#ffffff',
-  loginInk: '#192858',
+  loginInk: '#172554',
   loginMuted: '#5f6880',
   loginField: '#f1f4f8',
 };
@@ -60,7 +60,7 @@ const darkColors = {
   warningSurface: '#2B2213',
   overlay: '#000000',
   loginBackground: '#ffffff',
-  loginInk: '#192858',
+  loginInk: '#172554',
   loginMuted: '#5f6880',
   loginField: '#f1f4f8',
 };

@@ -15,7 +15,7 @@
   --color-backgroundElement: 255 255 255;
   --color-backgroundSelected: 232 232 237;
   --color-border: 210 210 215;
-  --color-primary: 0 102 204;
+  --color-primary: 23 37 84;
   --color-primaryText: 255 255 255;
   --color-success: 36 138 61;
   --color-successSurface: 228 245 236;
@@ -25,7 +25,7 @@
   --color-warningSurface: 255 244 224;
   --color-overlay: 0 0 0;
   --color-loginBackground: 255 255 255;
-  --color-loginInk: 25 40 88;
+  --color-loginInk: 23 37 84;
   --color-loginMuted: 95 104 128;
   --color-loginField: 241 244 248;
 }
