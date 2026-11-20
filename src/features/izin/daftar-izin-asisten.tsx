@@ -1,12 +1,11 @@
 import { ScrollView, Text, View } from 'react-native';
 
-import { Banner, Card, EmptyState, FilterSelect, Screen } from '@/components/ui';
+import { AppHeader, Banner, Card, EmptyState, FilterSelect, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
-import { formatTanggal } from '@/features/praktikan/format-sesi';
 import type { Izin, StatusIzin } from '@/features/izin/types';
 import type { SesiPraktikan } from '@/lib/izin-sesi';
 
-import { KartuIzin } from './kartu-izin';
+import { BarisIzinAsisten } from './baris-izin-asisten';
 
 export const FILTER_STATUS: { nilai: StatusIzin | 'semua'; label: string }[] = [
   { nilai: 'menunggu', label: 'Menunggu' },
@@ -73,26 +72,19 @@ export function DaftarIzinAsisten({
   onTutupUmpanBalik,
   umpanBalik,
 }: DaftarIzinAsistenProps) {
-  // Jumlah menunggu harus dihitung dari SELURUH izin, bukan dari daftar yang
-  // sudah difilter, supaya angkanya tidak selalu 0 saat filter lain aktif.
-  const jumlahMenunggu = semuaIzin.filter((izin) => izin.status === 'menunggu').length;
-
   return (
-    <Screen padded={false}>
+    <Screen padded={false} backgroundClassName="bg-backgroundElement">
       <ScrollView contentContainerClassName="pb-five" showsVerticalScrollIndicator={false}>
         <View className="w-full self-center px-three" style={{ maxWidth: MaxContentWidth }}>
-          <View className="flex-row items-start justify-between gap-three pt-three">
-            <View className="flex-1">
-              <Text accessibilityRole="header" className="text-title font-semibold text-text">
-                Izin
-              </Text>
-              <Text className="mt-one text-small text-textSecondary">
-                {jumlahMenunggu > 0
-                  ? `${jumlahMenunggu} pengajuan menunggu keputusan`
-                  : 'Daftar pengajuan izin dari sesi yang kamu ampu.'}
-              </Text>
-            </View>
-            {profil}
+          <AppHeader aksi={profil} className="pt-three" peran="asisten" />
+
+          <View className="mt-four">
+            <Text accessibilityRole="header" className="text-title font-bold text-text">
+              Pengajuan izin praktikan.
+            </Text>
+            <Text className="mt-two text-body text-textSecondary">
+              Tinjau pengajuan pada sesi yang kamu dampingi.
+            </Text>
           </View>
 
           <View className="mt-four flex-row flex-wrap gap-two">
@@ -137,22 +129,17 @@ export function DaftarIzinAsisten({
             </Card>
           ) : null}
 
-          <View className="mt-four gap-twoHalf">
-            {daftarIzin.map((izin) => {
+          <View className="mt-two">
+            {daftarIzin.map((izin, indeks) => {
               const sesi = sesiById.get(izin.sesiId);
 
               return (
                 <View key={`${izin.sesiId}:${izin.id}`}>
-                  {sesi ? (
-                    <Text className="mb-one text-caption text-textSecondary">
-                      {sesi.namaKelas} · {formatTanggal(sesi.tanggal)} · {sesi.jamMulai}–
-                      {sesi.jamSelesai}
-                    </Text>
-                  ) : null}
+                  {indeks > 0 ? <View className="h-half bg-border" /> : null}
 
-                  <KartuIzin
+                  <BarisIzinAsisten
                     izin={izin}
-                    namaPraktikan={namaPraktikan.get(izin.praktikanId) ?? 'Praktikan'}
+                    nama={namaPraktikan.get(izin.praktikanId) ?? 'Praktikan'}
                     onPress={() => onBukaIzin(izin)}
                     sesi={sesi}
                   />
