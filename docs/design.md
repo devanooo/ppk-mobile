@@ -180,6 +180,7 @@ Elevasi: satu shadow untuk dropdown profil dan bottom sheet saja. Kartu tidak me
 | `Skeleton` | Placeholder memuat yang menghormati reduce motion. |
 | `SectionHeader` | Judul bagian dengan aksi opsional. |
 | `IconButton` | Tombol ikon 44dp dengan label aksesibilitas. |
+| `FilterSelect` | Tombol filter dengan menu dropdown, dipakai untuk status dan kategori pengajuan izin. |
 
 Aturan penting: `danger` adalah aksi destruktif inline (teks merah). `dangerFilled` adalah aksi destruktif pada konfirmasi (merah terisi). Jangan menukar keduanya.
 

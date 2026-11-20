@@ -1,6 +1,6 @@
 import { ScrollView, Text, View } from 'react-native';
 
-import { Banner, Card, EmptyState, FilterChips, Screen } from '@/components/ui';
+import { Banner, Card, EmptyState, FilterSelect, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { formatTanggal } from '@/features/praktikan/format-sesi';
 import type { Izin, StatusIzin } from '@/features/izin/types';
@@ -95,21 +95,21 @@ export function DaftarIzinAsisten({
             {profil}
           </View>
 
-          <FilterChips
-            accessibilityLabel="Filter status pengajuan"
-            className="mt-four"
-            opsi={FILTER_STATUS}
-            terpilih={filter}
-            onPilih={(nilai) => onUbahFilter(nilai as StatusIzin | 'semua')}
-          />
+          <View className="mt-four flex-row flex-wrap gap-two">
+            <FilterSelect
+              label="Status"
+              nilai={filter}
+              opsi={FILTER_STATUS}
+              onPilih={(nilai) => onUbahFilter(nilai as StatusIzin | 'semua')}
+            />
 
-          <FilterChips
-            accessibilityLabel="Filter kategori izin"
-            className="mt-two"
-            opsi={opsiKategori}
-            terpilih={filterKategori}
-            onPilih={onUbahFilterKategori}
-          />
+            <FilterSelect
+              label="Kategori"
+              nilai={filterKategori}
+              opsi={opsiKategori}
+              onPilih={onUbahFilterKategori}
+            />
+          </View>
 
           {umpanBalik ? (
             <Banner
