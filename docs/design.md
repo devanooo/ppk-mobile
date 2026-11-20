@@ -623,3 +623,361 @@ Dokumen ini menganalisis Apple.com. Bagian ini menerjemahkan arah visual tersebu
 - Grid produk, fotografi produk, logo Apple, dan navigasi global desktop.
 - Glassmorphism, gradient dekoratif, dan shadow di semua kartu.
 - Tombol atau tautan yang tidak punya tujuan nyata.
+
+## Arah Visual PraktikumKU (Sprint 3, resmi)
+
+Bagian ini ditambahkan pada Sprint 3 di akhir dokumen. Isinya arah visual resmi, struktur token, dan dokumen kerja P3. Tidak ada bagian lama yang dihapus atau diubah.
+
+### 1.1 Status dan sumber
+
+- Seluruh isi di atas (front matter, analisis Apple.com, dan `## Adaptasi Mobile untuk PraktikumKU`) adalah catatan historis. Mulai Sprint 3, isi itu bukan lagi acuan arah visual.
+- Arah resmi adalah bahasa visual navy pada `docs/design-references/flows/*`.
+- Rujukan baris di kode tetap sah karena bagian ini ditulis setelah baris 625: `src/components/ui/shadow-style.ts:5` (baris 591), `src/constants/theme.ts:47` (baris 596), `src/components/ui/status-badge.tsx:10` (baris 615) dan `src/components/ui/status-badge.tsx:9` (baris 617), `src/components/ui/motion.ts:4` (baris 618).
+- Sumber keputusan ada di luar repo: `~/.commandcode/plans/praktikumku-sprint3-decisions.md` dan `~/.commandcode/plans/praktikumku-phase1-design-audit.md`.
+
+Label status yang dipakai di seluruh bagian ini:
+
+| Label | Arti |
+|---|---|
+| `[TERKONFIRMASI]` | Keputusan yang sudah diambil, sumbernya disebut. |
+| `[TERBUKA]` | Detail desain yang belum diputuskan. Bukan usulan P3. |
+| `[EKSTERNAL]` | Dependency milik PM atau owner lain. Tidak dibahas teknis di sini. |
+
+`[TERKONFIRMASI]`:
+
+1. Bahasa visual navy dari `docs/design-references/flows/*` menggantikan arah Apple.com.
+2. Design token dimiliki P3: `src/constants/tokens.js` dan `src/constants/theme.ts`.
+3. `src/global.css`, konfigurasi Tailwind, dan konfigurasi native app dimiliki P1.
+4. Implementasi Maps (US-02 dan US-03) dimiliki P1 dengan `react-native-maps`.
+5. P3 menyumbang styling marker dan activity card hanya bila diminta P1.
+6. P3 tidak mengambil alih pekerjaan P1 atau P2.
+
+### 1.2 Arah visual navy
+
+`[TERKONFIRMASI]` Navy menggantikan Action Blue `#0066cc` dan parchment `#f5f5f7` yang tercatat di baris 578 dan 579 dokumen ini.
+
+`[TERBUKA]` Nilai hex navy belum diputuskan. Tiga kandidat yang sudah ada di repo:
+
+| Kandidat | Sumber | Catatan |
+|---|---|---|
+| `≈#0F1B3D` | Pengukuran acuan visual pada audit Phase 1 | Belum diverifikasi terhadap Figma |
+| `#192858` | `src/constants/tokens.js:40` (`loginInk`) | Sudah dipakai layar login dan register |
+| Belum ada | Figma | Tidak dapat diakses dari lingkungan ini |
+
+Penetapan nilai akhir ada di luar kewenangan P3. Sampai nilai itu ada, `src/constants/tokens.js` tetap sumber tunggal nilai desain dan dokumen ini tidak menetapkan hex final baru.
+
+Aturan visual yang berlaku tanpa menunggu hex:
+
+| Area | Aturan |
+|---|---|
+| Kanvas | Latar terang. Gelap bukan default. |
+| Permukaan | Kartu dan field memakai permukaan lavender muda, bukan putih di atas putih. |
+| Aksi utama | Satu tombol navy berbentuk pill, tinggi 56dp. |
+| Aksi sekunder | Outline dengan warna aksi, bukan pill terisi kedua. |
+| Baris meta | Setiap baris informasi penting didampingi ikon. |
+| Status | Badge memakai teks, bukan warna saja (baris 615). |
+| Elevasi | Hanya dropdown profil dan bottom sheet (baris 591). |
+
+### 1.3 Struktur token semantik, terang dan gelap
+
+Struktur dibagi tiga lapisan. Nama token mempertahankan nama yang sudah ada di `src/constants/tokens.js` agar tidak memicu rename massal di file milik P1 dan P2.
+
+**Lapisan 1: primitif.** Ramp navy (50 sampai 900), ramp netral, dan hue status. `[TERBUKA]` untuk nilai.
+
+**Lapisan 2: semantik.** Nilai di bawah adalah yang berlaku hari ini. Bila berbeda, `src/constants/tokens.js` yang menang.
+
+| Token | Terang | Gelap | Pemakaian |
+|---|---|---|---|
+| `text` | `#1d1d1f` | `#f5f5f7` | Teks utama |
+| `textSecondary` | `#6e6e73` | `#cccccc` | Teks sekunder |
+| `textInverse` | `#ffffff` | `#1d1d1f` | Teks di atas warna aksi |
+| `background` | `#f5f5f7` | `#000000` | Latar layar |
+| `backgroundElement` | `#ffffff` | `#272729` | Kartu dan sheet |
+| `backgroundSelected` | `#e8e8ed` | `#2a2a2c` | Baris terpilih |
+| `border` | `#d2d2d7` | `#3a3a3c` | Garis dan border |
+| `primary` | `#0066cc`, diganti navy `[TERBUKA]` | `#2997ff`, diganti navy `[TERBUKA]` | Aksi utama, tautan, fokus |
+| `primaryText` | `#ffffff` | `#00131f` | Label di atas `primary` |
+| `success` / `successSurface` | `#248a3d` / `#e4f5ec` | `#30d158` / `#10291e` | Status dibuka, feedback sukses |
+| `warning` / `warningSurface` | `#b25000` / `#fff4e0` | `#ff9f0a` / `#2b2213` | Status belum dibuka |
+| `danger` / `dangerSurface` | `#d70015` / `#fdecea` | `#ff453a` / `#2e1715` | Error dan aksi keluar |
+| `overlay` | `#000000` | `#000000` | Scrim modal |
+| `loginBackground` | `#ffffff` | `#ffffff` | Kanvas layar auth |
+| `loginInk` | `#192858` | `#192858` | Teks dan CTA navy di layar auth |
+| `loginMuted` | `#5f6880` | `#5f6880` | Teks sekunder layar auth |
+| `loginField` | `#f1f4f8` | `#f1f4f8` | Isian field layar auth |
+
+Slot baru yang diusulkan sebagai struktur, belum sebagai nilai. Semua `[TERBUKA]`:
+
+| Slot | Pemakaian |
+|---|---|
+| `surfaceMuted` | Permukaan lavender muda untuk kartu terpilih dan field |
+| `chip`, `chipSelected` | Chip filter dan pemilih kategori |
+| `notificationDot` | Titik merah pada ikon lonceng |
+| `focusRing` | Cincin fokus keyboard dan TV |
+| `statusOngoing`, `statusUpcoming`, `statusDone` | Kosakata status sesi |
+| `statusPresent`, `statusPermission`, `statusAbsent` | Kosakata kehadiran dan izin |
+| Permukaan tiap status | Pasangan tone dan latar, wajib lolos kontras 4.5:1 |
+
+**Lapisan 3: komponen.** Satuan dimensi memakai dp.
+
+| Token | Nilai | Pemakaian |
+|---|---|---|
+| `button` | 56dp | Tinggi tombol aksi utama |
+| `touch` | 44dp | Target sentuh minimum |
+| `field` | 52dp | Tinggi field input |
+| `fieldPadding` | 18dp | Padding horizontal field |
+| `card radius` | 16dp | Sudut kartu |
+| `sheet radius` | 24dp | Sudut atas bottom sheet |
+| `pill` | 999dp | Tombol, badge, chip |
+| `menuWidth` | 280dp | Dropdown profil |
+| `sheetMax` | 85% | Tinggi maksimum bottom sheet |
+| `shadow` | tunggal | Hanya dropdown dan bottom sheet |
+
+`[TERBUKA]` Mekanisme dark mode belum diputuskan. Bukti yang saling bertentangan: `tailwind.config.js:23` memakai `darkMode: 'class'`; `src/global.css:33` memakai `@media (prefers-color-scheme: dark)`; komentar `src/global.css:8` dan `AGENTS.md` menyebut `media`; `app.json` memakai `userInterfaceStyle: "automatic"`; tidak ada theme provider atau toggle. Bagian ini mendokumentasikan **struktur** token gelap, bukan menyatakan dark mode sudah dikirim. Perbaikan mekanisme berada di `src/global.css` dan `tailwind.config.js`, keduanya milik P1.
+
+### 1.4 Tipografi
+
+- Keluarga font tetap font sistem. Baris 590 sudah menyatakan tidak ada dependency font eksternal, dan menambah font memerlukan persetujuan owner dependency.
+- Skala yang berlaku dari `src/constants/tokens.js:112`. Ukuran dan line-height dalam dp.
+
+| Token | Ukuran / baris | Pemakaian |
+|---|---|---|
+| `caption` | 13 / 18 | Label, badge, keterangan |
+| `small` | 15 / 20 | Meta dan teks pendukung |
+| `body` | 17 / 24 | Teks isi |
+| `subtitle` | 22 / 26 | Judul kartu besar |
+| `title` | 28 / 36 | Judul layar |
+| `display` | 34 / 40 | Judul landing |
+| `authTitle` | 30 / 38 | Judul layar auth |
+| `authBody` | 15 / 21 | Teks bantu layar auth |
+| `authButton` | 16 / 24 | Label tombol layar auth |
+
+- `[TERBUKA]` Skala tipografi exact dan keluarga font dari Figma. Headline pada acuan visual lebih rapat daripada default sistem.
+- Tambahan yang diusulkan berupa struktur, bukan nilai: token `letterSpacing` dengan tiga tingkat (`rapat`, `normal`, `lebar`). Nilainya menunggu Figma.
+- Aturan aksesibilitas yang sudah berlaku dan dipertahankan: dynamic type sampai sekitar 1.3x (baris 616), kontras 4.5:1 untuk teks normal dan 3:1 untuk teks besar (baris 617), status tidak dibedakan hanya lewat warna (baris 615).
+
+### 1.5 Spacing, radius, dan elevasi
+
+Spacing 4-based yang berlaku dari `src/constants/tokens.js:73`:
+
+| Token | Nilai | Pemakaian |
+|---|---|---|
+| `half` | 2dp | Koreksi tipografis |
+| `one` | 4dp | Jarak dalam komponen |
+| `two` | 8dp | Jarak antar elemen kecil |
+| `twoHalf` | 12dp | Jarak antar kartu (baris 598) |
+| `three` | 16dp | Padding kartu dan padding layar (baris 589) |
+| `four` | 24dp | Padding blok |
+| `five` | 32dp | Jarak antar bagian |
+| `six` | 64dp | Jarak besar |
+
+Radius yang berlaku dari `src/constants/tokens.js:102`:
+
+| Token | Nilai | Pemakaian |
+|---|---|---|
+| `sm` | 8dp | Elemen kecil |
+| `md` | 12dp | Input dan dropdown |
+| `lg` | 16dp | Kartu |
+| `authCard` | 20dp | Kartu layar auth |
+| `xl` | 24dp | Bottom sheet |
+| `pill` | 999dp | Tombol dan badge |
+
+Elevasi: satu bayangan untuk dropdown profil dan bottom sheet saja (baris 591 dan `src/constants/tokens.js:92`). Kartu tidak memakai shadow (baris 624). Arah navy tidak menambah shadow kartu.
+
+### 1.6 Varian komponen bersama
+
+| Komponen | Varian hari ini | Diusulkan | Status |
+|---|---|---|---|
+| `AppButton` | `primary`, `secondary`, `ghost`, `danger`, `auth` (`app-button.tsx:5`) | Tambah `size` sm/md/lg dan `fullWidth` | MODIFY |
+| `StatusBadge` | `belum-dibuka`, `dibuka`, `ditutup` (`status-badge.tsx:12`) | Tambah peta tone untuk kosakata baru, label tetap sampai kosakata diputuskan | MODIFY |
+| `TextField` | `default`, `auth` (`text-field.tsx:15`) | Tambah `helper` dan `counter` | MODIFY |
+| `EmptyState` | `judul`, `deskripsi`, `ikon` (`empty-state.tsx:23`) | Tambah `tone` dan slot `aksi` | MODIFY |
+| `Card` | Statis dan dapat ditekan (`card.tsx`) | Tetap | KEEP |
+| `Screen`, `Banner`, `BottomSheet`, `ProfileMenu`, `HomeButton` | Satu varian | Tetap | KEEP |
+
+Rincian dan API ada di Lampiran A.
+
+### 1.7 Yang sengaja tidak diubah
+
+- Nilai Apple di front matter.
+- Tabel token mobile lama dan pola layar lama.
+- Lima rujukan baris 591, 596, 615, 617, dan 618.
+- Tidak ada penghapusan di bagian mana pun.
+
+## Lampiran A: Rencana implementasi design system (P3)
+
+Lampiran ini dokumen kerja P3. Bukan keputusan PM dan bukan janji jadwal.
+
+### A.1 Kondisi kit hari ini
+
+Sepuluh ekspor di `src/components/ui/index.ts`, ditambah dua helper yang tidak diekspor:
+
+| Ekspor | Berkas | Catatan |
+|---|---|---|
+| `AppButton` | `app-button.tsx` | 5 varian, `loading`, `disabledReason`, tinggi 44dp |
+| `Banner` | `banner.tsx` | Feedback sukses dan gagal |
+| `BottomSheet` | `bottom-sheet.tsx` | Memakai `shadow-style.ts` dan `motion.ts` |
+| `Card` | `card.tsx` | Statis dan dapat ditekan |
+| `EmptyState` | `empty-state.tsx` | Tanpa slot aksi |
+| `HomeButton` | `home-button.tsx` | Tombol kembali di header |
+| `ProfileMenu` | `profile-menu.tsx` | Dropdown identitas |
+| `Screen` | `screen.tsx` | Safe area dan padding |
+| `StatusBadge` | `status-badge.tsx` | Tiga status, teks dan tone |
+| `TextField` | `text-field.tsx` | Dua varian, `error`, toggle kata sandi |
+| `shadow-style.ts` | Bukan ekspor | Satu-satunya bayangan proyek |
+| `motion.ts` | Bukan ekspor | `useReduceMotion`, `useAnimasiMuncul` |
+
+### A.2 Matriks KEEP, MODIFY, ADD, DEFER
+
+| Item | Keputusan | Alasan satu baris | Owner path | Koordinasi |
+|---|---|---|---|---|
+| `tokens.js` sebagai sumber tunggal dan strategi CSS variable | KEEP | Menjaga satu sumber nilai dan dark mode yang dapat ditimpa | P3 (`src/constants/tokens.js`) | P1 membaca nilai yang sama di `global.css` |
+| `Screen`, `Card`, `Banner`, `BottomSheet`, `ProfileMenu`, `HomeButton` | KEEP | Sudah dipakai lintas fitur dan tidak menghambat arah navy | P3 (`src/components/ui/**`) | Tidak ada |
+| `shadow-style.ts`, `motion.ts` | KEEP | Satu bayangan dan reduce motion sudah benar | P3 | Tidak ada |
+| Pola `StatusBadge` (teks dan tone) | KEEP | Alasan kontras sudah terdokumentasi di `status-badge.tsx:8-10` | P3 | Tidak ada |
+| `teksKosong` | KEEP | Salinan copy PRD, `empty-state.tsx:5` | P3 | Perubahan copy lewat PM |
+| `AppButton` | MODIFY | Perlu ukuran 56dp dan lebar penuh agar sesuai aksi utama navy | P3 | Tidak ada untuk pembuatan |
+| `EmptyState` | MODIFY | State gagal butuh aksi "Coba lagi" tanpa komponen baru | P3 | Tidak ada |
+| `StatusBadge` | MODIFY | Perlu peta tone baru tanpa mengubah label | P3 | Label menunggu keputusan kosakata |
+| `TextField` | MODIFY | Perlu `helper` dan `counter` untuk form P2 | P3 | Kebutuhan form dari P2 |
+| `index.ts` | MODIFY | Menambah ekspor komponen baru | P3 | Aturan tambah ekspor ada di `PEMBAGIAN-TUGAS.md` bagian 3 |
+| `Skeleton` dan `LoadingState` | ADD | Mengganti teks "Memuat" dengan state memuat yang nyata | P3 (`src/components/ui/**`) | Tidak ada |
+| `SectionHeader` | ADD | Judul bagian dan aksi "Semua" belum punya komponen | P3 | Tidak ada |
+| `StatCard` | ADD | Rekap butuh angka ringkas dengan tone | P3 | Struktur rekap di route P3 |
+| `FilterChips` | ADD | Filter kategori izin butuh chip dan reset | P3 | Tidak ada |
+| `SearchBar` | ADD | Pencarian peserta butuh field dengan ikon dan hapus | P3 | Tidak ada |
+| `IconButton` | ADD | Tombol ikon 44dp untuk lonceng, kembali, dan tutup | P3 | Tidak ada |
+| `ConfirmSheet` | ADD | Menggantikan `Alert.alert` dengan konfirmasi bottom sheet | P3 | Pemasangan ke layar P1/P2 butuh PR ke owner |
+| `AppHeader` | ADD | Header wordmark, lonceng, dan pill peran belum ada | P3 | Pemasangan ke layout P1/P2 butuh PR ke owner |
+| Restrukturisasi `design.md` dan pembaruan lima rujukan baris | DEFER | Semua pengutip milik P3, dikerjakan saat source boleh diubah | P3 | Tidak ada |
+| Toggle dark mode dan perbaikan mekanisme | DEFER | `tailwind.config.js:23` dan `global.css:33` milik P1 | P1 | Butuh PR P1 |
+| Bundling font eksternal | DEFER | Perlu persetujuan dependency | PM | Butuh persetujuan |
+| Shadow kartu | DEFER | Dilarang baris 624 dan membuat semua elemen melayang | P3 | Tidak ada |
+| Tab bar floating dan label tab | DEFER | Layout milik P1 dan P2 | P1, P2 | Butuh PR ke owner |
+| Marker map dan activity card | DEFER | Map milik P1, P3 hanya bila diminta | P1 | Permintaan dari P1 |
+| Komponen QR dan notifikasi | DEFER | Bergantung kontrak eksternal | PM, P2 | `[EKSTERNAL]` |
+| Elevasi `Card`, `multiline`, `TimeField`, `FormField` penuh | DEFER | Menunggu kebutuhan form P2 yang konkret | P2, P3 | Kebutuhan dari P2 |
+
+Batasan yang berlaku untuk semua item ADD: membuat komponen di `src/components/ui/**` adalah milik P3. Memasang komponen itu ke layar milik P1 atau P2 memerlukan koordinasi dan PR ke owner layar tersebut, bukan penggabungan sepihak.
+
+### A.3 API yang diusulkan
+
+Gaya mengikuti `AppButtonProps` yang ada: props eksplisit, `className` opsional, dan `accessibilityLabel` untuk kontrol ikon.
+
+```ts
+// MODIFY
+type AppButtonProps = {
+  // ...props yang ada
+  size?: 'sm' | 'md' | 'lg';
+  fullWidth?: boolean;
+};
+
+type EmptyStateProps = {
+  // ...props yang ada
+  tone?: 'kosong' | 'gagal';
+  aksi?: { label: string; onPress: () => void };
+};
+
+// ADD
+type SectionHeaderProps = {
+  judul: string;
+  aksi?: { label: string; onPress: () => void };
+};
+
+type StatCardProps = {
+  label: string;
+  nilai: string;
+  tone?: 'netral' | 'hadir' | 'izin' | 'absen';
+};
+
+type FilterChipsProps = {
+  opsi: Array<{ nilai: string; label: string }>;
+  terpilih: string;
+  onPilih: (nilai: string) => void;
+  onReset?: () => void;
+};
+
+type SearchBarProps = {
+  nilai: string;
+  onUbah: (nilai: string) => void;
+  placeholder?: string;
+};
+
+type IconButtonProps = {
+  ikon: ReactNode;
+  onPress: () => void;
+  label: string;
+  badge?: boolean;
+};
+
+type SkeletonProps = { baris?: number; className?: string };
+
+type ConfirmSheetProps = {
+  terbuka: boolean;
+  judul: string;
+  deskripsi?: string;
+  labelKonfirmasi: string;
+  onKonfirmasi: () => void;
+  onTutup: () => void;
+  loading?: boolean;
+  tone?: 'utama' | 'bahaya';
+};
+
+type AppHeaderProps = {
+  judul?: string;
+  denganBell?: boolean;
+  badgeNotifikasi?: boolean;
+  peran?: Peran;
+};
+```
+
+Keputusan tentang `ErrorState`: **tidak dibuat sebagai komponen terpisah.** State gagal memakai `EmptyState` dengan `tone="gagal"` dan slot `aksi`. Dua komponen dengan isi yang sama akan cepat berbeda sendiri, dan `EmptyState` sudah memegang copy kondisi kosong dari PRD. Bila nanti state gagal butuh struktur yang benar-benar berbeda (misalnya kode galat dan tombol coba ulang bertingkat), pemisahan dievaluasi ulang dengan bukti pemakaian.
+
+Setiap komponen wajib memenuhi: target sentuh minimum 44dp, `accessibilityLabel` untuk kontrol ikon, dan state nonaktif disertai alasan yang terlihat.
+
+### A.4 Koordinasi lintas owner
+
+| Perubahan | Owner | Isi koordinasi | Dampak bila tertunda |
+|---|---|---|---|
+| Token navy berlaku di layar | P1 | Kanal RGB di `src/global.css` harus disamakan dengan `src/constants/tokens.js` | `tokens.js` berubah tetapi utility tetap memakai warna lama |
+| Mekanisme dark mode | P1 | Menyamakan `tailwind.config.js:23` dengan `global.css:33` | Token gelap tidak dapat diverifikasi |
+| `AppHeader` dipakai di header peran | P1, P2 | PR ke layout `src/app/(praktikan)` dan `src/app/(asisten)` | Komponen siap tetapi tidak terpasang |
+| `ConfirmSheet` menggantikan `Alert.alert` | P2 | PR ke `src/app/(asisten)/kelas/**` | Konfirmasi tetap memakai dialog platform |
+| Konfigurasi map native dan izin perangkat | P1, PM | `[EKSTERNAL]` | Tidak menghambat kit P3 |
+| Kontrak QR | P2, PM | `[EKSTERNAL]` | Menahan komponen QR |
+| Trigger notifikasi | P2 | `[EKSTERNAL]`, berada di `src/lib/sesi.ts` dan `src/lib/izin.ts` | Menahan komponen notifikasi |
+
+## Lampiran B: Readiness P3 (perencanaan)
+
+Lampiran ini perencanaan. Tidak ada source code, komponen, atau fitur Sprint 3 yang diimplementasikan pada fase ini.
+
+### B.1 Dapat dimulai mandiri
+
+- Amandemen `docs/design.md` beserta Lampiran A dan B.
+- `Skeleton` dan `LoadingState`, karena menggantikan teks "Memuat" dan tidak memerlukan token baru.
+- `SectionHeader` dan `StatCard` dengan tone yang sudah tersedia (`success`, `warning`, `danger` beserta permukaannya).
+- `SearchBar`, `FilterChips`, lalu US-15 dan US-16 memakai token yang ada.
+- Restrukturisasi bagian atas rekap (US-17) memakai `Card` dan `StatusBadge` yang ada.
+- Modul validasi bersama untuk US-18 sebagai fungsi murni tanpa UI.
+
+### B.2 Tertahan dependency eksternal
+
+| Pekerjaan P3 | Penahan | Pemilik penahan | Yang dapat dikerjakan sementara menunggu |
+|---|---|---|---|
+| Sapuan warna navy ke layar | Nilai hex dan type scale | PM dan akses Figma | Struktur token dan komponen di `src/components/ui/**` |
+| Verifikasi dark mode | Mekanisme di P1 | P1 | Dokumentasi struktur token gelap |
+| Label status baru | Kosakata status | PM | Peta tone tanpa mengubah label |
+| Label dan gaya tab | Layout tab | P1, P2 | Tidak ada, tab bukan milik P3 |
+| Komponen QR | Kontrak QR | P2, PM | Tidak ada |
+| Komponen notifikasi | Mekanisme push dan trigger | PM, P2 | Tidak ada |
+| Styling marker dan activity card | Implementasi map | P1 | Menunggu permintaan P1 |
+| Adopsi `AppHeader` dan `ConfirmSheet` | PR ke layar P1 dan P2 | P1, P2 | Komponen dibuat dan diuji mandiri |
+
+### B.3 Urutan usulan P3
+
+1. Dokumen ini.
+2. `Skeleton`, `SectionHeader`, `StatCard`, dan perluasan `EmptyState`.
+3. `SearchBar`, `FilterChips`, lalu US-15 dan US-16.
+4. US-17 rekap dengan kit yang sudah ada.
+5. Modul validasi bersama, lalu `ConfirmSheet` sebagai kesiapan PR ke P2.
+6. Setelah token final: sapuan warna navy dan `AppHeader`.
