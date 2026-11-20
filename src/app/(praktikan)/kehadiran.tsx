@@ -17,8 +17,8 @@ export default function KehadiranPraktikanRoute() {
 
   return (
     <KehadiranScreen
-      namaPraktikan={user.nama}
       profil={<MenuProfilPraktikan />}
+      praktikum={hasil.praktikum}
       riwayat={hasil.riwayat}
       status={hasil.status}
       pesanGalat={hasil.pesanGalat}

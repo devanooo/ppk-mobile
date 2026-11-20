@@ -50,7 +50,6 @@ export function useJadwalPraktikan(
 
   useEffect(() => {
     if (!db || !praktikanId) {
-      setHasil(HASIL_GAGAL);
       return;
     }
 
