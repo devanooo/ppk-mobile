@@ -79,10 +79,10 @@ export function DaftarIzinAsisten({
           <AppHeader aksi={profil} className="pt-three" peran="asisten" />
 
           <View className="mt-four">
-            <Text accessibilityRole="header" className="text-title font-bold text-text">
+            <Text accessibilityRole="header" className="text-title font-semibold text-text">
               Pengajuan izin praktikan.
             </Text>
-            <Text className="mt-two text-body text-textSecondary">
+            <Text className="mt-two text-small text-textSecondary">
               Tinjau pengajuan pada sesi yang kamu dampingi.
             </Text>
           </View>

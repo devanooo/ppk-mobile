@@ -33,7 +33,7 @@ export function BarisIzinAsisten({
       className="py-three active:opacity-70"
     >
       <View className="flex-row items-start justify-between gap-two">
-        <Text className="flex-1 text-subtitle font-semibold text-text">{nama}</Text>
+        <Text className="flex-1 text-body font-semibold text-text">{nama}</Text>
         <BadgeStatusIzin className="shrink-0" status={izin.status} />
       </View>
 
