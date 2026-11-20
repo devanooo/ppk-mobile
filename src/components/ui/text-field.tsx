@@ -29,6 +29,10 @@ type TextFieldProps = {
   maxLength?: number;
   onFocus?: () => void;
   variant?: TextFieldVariant;
+  /** Teks bantuan di bawah field. Tidak tampil bila ada `error`. */
+  helper?: string;
+  /** Menampilkan `panjang/maxLength` di bawah field. Butuh `maxLength`. */
+  showCounter?: boolean;
 };
 
 export function TextField({
@@ -46,6 +50,8 @@ export function TextField({
   maxLength,
   onFocus,
   variant = 'default',
+  helper,
+  showCounter = false,
 }: TextFieldProps) {
   const skema = useColorScheme();
   const palet = skema === 'dark' ? Colors.dark : Colors.light;
@@ -62,6 +68,8 @@ export function TextField({
     ? 'text-caption font-semibold text-loginInk'
     : 'text-caption text-textSecondary';
 
+  const kelasMeta = gayaAuth ? 'text-loginMuted' : 'text-textSecondary';
+
   const kelasInput = gayaAuth
     ? `min-h-touch rounded-lg text-body text-loginInk ${
         error
@@ -74,6 +82,9 @@ export function TextField({
         error ? 'border-danger' : 'border-border'
       } ${tampilkanToggle ? 'pl-twoHalf pr-six' : 'px-twoHalf'}`;
 
+  const tampilkanCounter = showCounter && Boolean(maxLength);
+  const tampilkanMeta = !error && (Boolean(helper) || tampilkanCounter);
+
   return (
     <View className={className}>
       <Text className={`mb-two ${kelasLabel}`}>{label}</Text>
@@ -81,7 +92,7 @@ export function TextField({
       <View>
         <TextInput
           accessibilityLabel={accessibilityLabel ?? label}
-          accessibilityHint={error}
+          accessibilityHint={error ?? helper}
           autoCapitalize={autoCapitalize}
           inputMode={inputMode}
           maxLength={maxLength}
@@ -128,6 +139,20 @@ export function TextField({
         >
           {error}
         </Text>
+      ) : tampilkanMeta ? (
+        <View className="mt-one flex-row items-start justify-between gap-two">
+          {helper ? (
+            <Text className={`flex-1 text-caption ${kelasMeta}`}>{helper}</Text>
+          ) : (
+            <View className="flex-1" />
+          )}
+
+          {tampilkanCounter ? (
+            <Text className={`shrink-0 text-caption ${kelasMeta}`}>
+              {value.length}/{maxLength}
+            </Text>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );
