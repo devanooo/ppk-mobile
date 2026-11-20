@@ -34,7 +34,7 @@ export default function PraktikanLayout() {
         }}
       />
       <Tabs.Screen
-        name="kehadiran"
+        name="riwayat"
         options={{
           title: 'Riwayat',
           tabBarIcon: ({ color }) => (

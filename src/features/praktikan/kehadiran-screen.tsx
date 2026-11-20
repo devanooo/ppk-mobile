@@ -26,6 +26,7 @@ type KehadiranScreenProps = {
   profil?: ReactNode;
   status: 'memuat' | 'siap' | 'gagal';
   pesanGalat?: string;
+  onBukaRiwayat: (id: string) => void;
 };
 
 const GAYA_STATUS: Record<
@@ -43,9 +44,33 @@ export function KehadiranScreen({
   profil,
   status,
   pesanGalat,
+  onBukaRiwayat
 }: KehadiranScreenProps) {
   const [filter, setFilter] = useState<PraktikumRiwayat | null>(null);
   const [filterTerbuka, setFilterTerbuka] = useState(false);
+
+  const [filterStatus, setFilterStatus] =
+    useState<StatusKehadiran | null>(null);
+
+  const [filterStatusTerbuka, setFilterStatusTerbuka] =
+    useState(false);
+
+  // Callback filter praktikum (sudah ada)
+  function onToggleFilter() {
+    setFilterTerbuka((sebelumnya) => !sebelumnya);
+  }
+
+  // TAMBAHKAN DI SINI
+  function onToggleFilterStatus() {
+    setFilterStatusTerbuka((sebelumnya) => !sebelumnya);
+  }
+
+  function onPilihFilterStatus(
+    status: StatusKehadiran | null,
+  ) {
+    setFilterStatus(status);
+    setFilterStatusTerbuka(false);
+  }
 
   const opsiPraktikum = useMemo(() => {
     const peta = new Map<string, string>();
@@ -67,10 +92,16 @@ export function KehadiranScreen({
 
   const riwayatTampil = useMemo(
     () =>
-      filter
-        ? riwayat.filter((item) => item.sesi.kelasId === filter.id)
-        : riwayat,
-    [filter, riwayat],
+      riwayat.filter((item) => {
+        const sesuaiPraktikum =
+          !filter || item.sesi.kelasId === filter.id;
+
+        const sesuaiStatus =
+          !filterStatus || item.status === filterStatus;
+
+        return sesuaiPraktikum && sesuaiStatus;
+      }),
+    [riwayat, filter, filterStatus],
   );
 
   function pilihFilter(opsi: PraktikumRiwayat | null) {
@@ -94,23 +125,34 @@ export function KehadiranScreen({
               filter={filter}
               filterTerbuka={filterTerbuka}
               onPilihFilter={pilihFilter}
-              onToggleFilter={() =>
-                setFilterTerbuka((terbuka) => !terbuka)
-              }
+              onToggleFilter={onToggleFilter}
               opsiPraktikum={opsiPraktikum}
               profil={profil}
+              filterStatus={filterStatus}
+              filterStatusTerbuka={filterStatusTerbuka}
+              onPilihFilterStatus={onPilihFilterStatus}
+              onToggleFilterStatus={onToggleFilterStatus}
             />
           }
           ListEmptyComponent={
             <KondisiKosong
               filter={filter}
-              onResetFilter={() => pilihFilter(null)}
+              filterStatus={filterStatus}
+              onResetFilter={() => {
+                setFilter(null);
+                setFilterStatus(null);
+              }}
               pesanGalat={pesanGalat}
               status={status}
             />
           }
           ItemSeparatorComponent={PemisahRiwayat}
-          renderItem={({ item }) => <BarisRiwayat item={item} />}
+          renderItem={({ item }) => (
+            <BarisRiwayat
+              item={item}
+              onPress={() => onBukaRiwayat(item.sesi.id)}
+            />
+          )}
         />
       </View>
     </Screen>
@@ -124,6 +166,10 @@ function BagianAtas({
   onPilihFilter,
   onToggleFilter,
   profil,
+  filterStatus,
+  filterStatusTerbuka,
+  onPilihFilterStatus,
+  onToggleFilterStatus,
 }: {
   filter: PraktikumRiwayat | null;
   filterTerbuka: boolean;
@@ -131,6 +177,10 @@ function BagianAtas({
   onPilihFilter: (opsi: PraktikumRiwayat | null) => void;
   onToggleFilter: () => void;
   profil?: ReactNode;
+  filterStatus: StatusKehadiran | null;
+  filterStatusTerbuka: boolean;
+  onPilihFilterStatus: (status: StatusKehadiran | null) => void;
+  onToggleFilterStatus: () => void;
 }) {
   const theme = useTheme();
 
@@ -189,6 +239,12 @@ function BagianAtas({
         onToggle={onToggleFilter}
         opsiPraktikum={opsiPraktikum}
         terbuka={filterTerbuka}
+      />
+      <FilterStatus
+        filter={filterStatus}
+        terbuka={filterStatusTerbuka}
+        onToggle={onToggleFilterStatus}
+        onPilih={onPilihFilterStatus}
       />
     </View>
   );
@@ -269,6 +325,86 @@ function FilterPraktikum({
   );
 }
 
+function FilterStatus({
+  filter,
+  terbuka,
+  onToggle,
+  onPilih,
+}: {
+  filter: StatusKehadiran | null;
+  terbuka: boolean;
+  onToggle: () => void;
+  onPilih: (status: StatusKehadiran | null) => void;
+}) {
+  const theme = useTheme();
+
+  const opsi: {
+    label: string;
+    value: StatusKehadiran | null;
+  }[] = [
+    { label: 'Semua status', value: null },
+    { label: 'Hadir', value: 'hadir' },
+    { label: 'Izin', value: 'izin' },
+    { label: 'Tidak hadir', value: 'tidak-hadir' },
+  ];
+
+  const label =
+    opsi.find((item) => item.value === filter)?.label ??
+    'Semua status';
+
+  return (
+    <View className="mt-two">
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Filter status. ${label}`}
+        accessibilityState={{ expanded: terbuka }}
+        onPress={onToggle}
+        className="min-h-button flex-row items-center justify-between gap-three rounded-md bg-backgroundSelected px-three active:opacity-60"
+      >
+        <Text className="flex-1 text-body font-medium text-text">
+          {label}
+        </Text>
+
+        <SymbolView
+          name={
+            terbuka
+              ? {
+                  ios: 'chevron.up',
+                  android: 'expand_less',
+                  web: 'expand_less',
+                }
+              : {
+                  ios: 'arrow.right',
+                  android: 'arrow_forward',
+                  web: 'arrow_forward',
+                }
+          }
+          size={18}
+          tintColor={theme.primary}
+        />
+      </Pressable>
+
+      {terbuka ? (
+        <View className="mt-two overflow-hidden rounded-md border border-border bg-backgroundElement">
+          {opsi.map((item, index) => (
+            <View key={item.label}>
+              {index > 0 ? (
+                <View className="h-half bg-border" />
+              ) : null}
+
+              <OpsiFilter
+                label={item.label}
+                terpilih={filter === item.value}
+                onPress={() => onPilih(item.value)}
+              />
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 function OpsiFilter({
   label,
   terpilih,
@@ -307,14 +443,23 @@ function OpsiFilter({
   );
 }
 
-function BarisRiwayat({ item }: { item: RiwayatKehadiran }) {
+function BarisRiwayat({
+  item,
+  onPress,
+}: {
+  item: RiwayatKehadiran;
+  onPress: () => void;
+}) {
   const gaya = GAYA_STATUS[item.status];
   const keterangan = keteranganRiwayat(item);
+
   const tanggal = `${formatTanggal(item.sesi.tanggal)} · Minggu ke-${item.minggu}`;
 
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       accessible
+      accessibilityRole="button"
       accessibilityLabel={`${tanggal}. ${gaya.label}. ${item.sesi.namaKelas}. ${keterangan}`}
       className="px-three py-three"
     >
@@ -333,7 +478,7 @@ function BarisRiwayat({ item }: { item: RiwayatKehadiran }) {
       <Text className="mt-one text-small text-textSecondary">
         {keterangan}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 
@@ -345,11 +490,13 @@ function KondisiKosong({
   status,
   pesanGalat,
   filter,
+  filterStatus,
   onResetFilter,
 }: {
   status: 'memuat' | 'siap' | 'gagal';
   pesanGalat?: string;
   filter: PraktikumRiwayat | null;
+  filterStatus: StatusKehadiran | null;
   onResetFilter: () => void;
 }) {
   const theme = useTheme();
@@ -388,26 +535,15 @@ function KondisiKosong({
     );
   }
 
-  if (filter) {
+  if (filter || filterStatus) {
     return (
       <EmptyState
         aksi={{
-          label: 'Tampilkan semua praktikum',
+          label: 'Hapus filter',
           onPress: onResetFilter,
         }}
-        deskripsi="Praktikum ini belum memiliki catatan kehadiran."
-        ikon={
-          <SymbolView
-            name={{
-              ios: 'clock.arrow.circlepath',
-              android: 'history',
-              web: 'history',
-            }}
-            size={32}
-            tintColor={theme.textSecondary}
-          />
-        }
-        judul={`Belum ada riwayat untuk ${filter.nama}`}
+        deskripsi="Tidak ditemukan riwayat dengan kombinasi filter yang dipilih."
+        judul="Riwayat tidak ditemukan"
       />
     );
   }

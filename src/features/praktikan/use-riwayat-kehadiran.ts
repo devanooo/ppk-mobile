@@ -31,6 +31,7 @@ export type RiwayatKehadiran = {
   status: StatusKehadiran;
   izin?: StatusIzinFirestore;
   minggu: number;
+  alasanIzin?: string;
 };
 
 type HasilRiwayat = {
@@ -162,7 +163,10 @@ export function useRiwayatKehadiran(
     const presensiSiap = new Set<string>();
     const listenerPresensi = new Map<string, () => void>();
 
-    const izinPerSesi = new Map<string, StatusIzinFirestore | null>();
+    const izinPerSesi = new Map<
+      string,
+    { status: StatusIzinFirestore; alasan?: string } | null
+    >();
     const izinSiap = new Set<string>();
     const listenerIzin = new Map<string, () => void>();
 
@@ -190,7 +194,8 @@ export function useRiwayatKehadiran(
         if (!kelas) continue;
 
         const waktu = waktuPresensi.get(sesi.id) ?? null;
-        const izin = izinPerSesi.get(sesi.id) ?? null;
+        const dataIzin = izinPerSesi.get(sesi.id) ?? null;
+        const izin = dataIzin?.status ?? null;
         const adaRiwayat = waktu !== null || izin !== null;
 
         if (!adaRiwayat && !sesiSudahBerakhir(sesi, sekarang)) {
@@ -206,6 +211,7 @@ export function useRiwayatKehadiran(
           waktu,
           status: tentukanStatus(waktu, izin),
           izin: izin ?? undefined,
+          alasanIzin: dataIzin?.alasan,
           minggu: mingguPerSesi.get(sesi.id) ?? 1,
         });
       }
@@ -335,12 +341,19 @@ export function useRiwayatKehadiran(
               (snapshot) => {
                 if (berhenti) return;
 
-                izinPerSesi.set(
-                  sesi.id,
-                  snapshot.exists()
-                    ? bacaStatusIzin(snapshot.data()?.status)
-                    : null,
-                );
+                if (snapshot.exists()) {
+                  const data = snapshot.data();
+
+                  izinPerSesi.set(sesi.id, {
+                    status: bacaStatusIzin(data.status),
+                    alasan:
+                      typeof data.alasan === 'string'
+                        ? data.alasan
+                        : undefined,
+                  });
+                } else {
+                  izinPerSesi.set(sesi.id, null);
+                }
 
                 izinSiap.add(sesi.id);
                 perbaruiRiwayat();
