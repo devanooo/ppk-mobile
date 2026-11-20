@@ -1,6 +1,6 @@
 import { ScrollView, Text, View } from 'react-native';
 
-import { AppButton, Banner, Card, EmptyState, Screen } from '@/components/ui';
+import { Banner, Card, EmptyState, FilterChips, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { formatTanggal } from '@/features/praktikan/format-sesi';
 import type { Izin, StatusIzin } from '@/features/izin/types';
@@ -22,10 +22,13 @@ type DaftarIzinAsistenProps = {
   sesiById: Map<string, SesiPraktikan>;
   namaPraktikan: Map<string, string>;
   filter: StatusIzin | 'semua';
+  filterKategori: string;
+  opsiKategori: { nilai: string; label: string }[];
   status: 'memuat' | 'siap' | 'gagal';
   pesanGalat?: string;
   profil?: React.ReactNode;
   onUbahFilter: (nilai: StatusIzin | 'semua') => void;
+  onUbahFilterKategori: (nilai: string) => void;
   onBukaIzin: (izin: Izin) => void;
   onTutupUmpanBalik?: () => void;
   umpanBalik?: { jenis: 'sukses' | 'gagal'; pesan: string } | null;
@@ -59,10 +62,13 @@ export function DaftarIzinAsisten({
   sesiById,
   namaPraktikan,
   filter,
+  filterKategori,
+  opsiKategori,
   status,
   pesanGalat,
   profil,
   onUbahFilter,
+  onUbahFilterKategori,
   onBukaIzin,
   onTutupUmpanBalik,
   umpanBalik,
@@ -89,17 +95,21 @@ export function DaftarIzinAsisten({
             {profil}
           </View>
 
-          <View className="mt-four flex-row flex-wrap gap-two">
-            {FILTER_STATUS.map((item) => (
-              <AppButton
-                key={item.nilai}
-                className="grow"
-                label={item.label}
-                onPress={() => onUbahFilter(item.nilai)}
-                variant={filter === item.nilai ? 'primary' : 'secondary'}
-              />
-            ))}
-          </View>
+          <FilterChips
+            accessibilityLabel="Filter status pengajuan"
+            className="mt-four"
+            opsi={FILTER_STATUS}
+            terpilih={filter}
+            onPilih={(nilai) => onUbahFilter(nilai as StatusIzin | 'semua')}
+          />
+
+          <FilterChips
+            accessibilityLabel="Filter kategori izin"
+            className="mt-two"
+            opsi={opsiKategori}
+            terpilih={filterKategori}
+            onPilih={onUbahFilterKategori}
+          />
 
           {umpanBalik ? (
             <Banner

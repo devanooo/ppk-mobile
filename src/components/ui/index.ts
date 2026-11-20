@@ -13,6 +13,9 @@ export type { CardProps } from './card';
 export { EmptyState, teksKosong } from './empty-state';
 export type { EmptyStateProps } from './empty-state';
 
+export { FilterChips } from './filter-chips';
+export type { FilterChipsProps } from './filter-chips';
+
 export { HomeButton } from './home-button';
 export type { HomeButtonProps } from './home-button';
 

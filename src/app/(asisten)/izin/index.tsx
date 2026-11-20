@@ -11,12 +11,15 @@ import { db } from '@/lib/firebase';
 import { bacaNamaPraktikan } from '@/lib/izin-sesi';
 import { useSession } from '@/store/session-store';
 
+export const KATEGORI_TANPA = 'tanpa-kategori';
+
 export default function IzinAsistenScreen() {
   const { user } = useSession();
   const router = useRouter();
   const asistenId = user?.peran === 'asisten' ? user.id : undefined;
 
   const [filter, setFilter] = useState<StatusIzin | 'semua'>('menunggu');
+  const [filterKategori, setFilterKategori] = useState('semua');
   const [namaPraktikan, setNamaPraktikan] = useState<Map<string, string>>(new Map());
 
   const { sesi, status: statusSesi, pesanGalat: galatSesi } = useSesiAsisten(db, asistenId);
@@ -25,11 +28,39 @@ export default function IzinAsistenScreen() {
 
   const sesiById = useMemo(() => new Map(sesi.map((item) => [item.id, item])), [sesi]);
 
+  const opsiKategori = useMemo(() => {
+    const kategori = new Set<string>();
+
+    for (const item of izin) {
+      const nilai = item.kategoriAi?.trim();
+      if (nilai) kategori.add(nilai);
+    }
+
+    const urut = [...kategori].sort((a, b) => a.localeCompare(b, 'id'));
+
+    return [
+      { nilai: 'semua', label: 'Semua kategori' },
+      ...urut.map((nilai) => ({ nilai, label: nilai })),
+      ...(izin.some((item) => !item.kategoriAi?.trim())
+        ? [{ nilai: KATEGORI_TANPA, label: 'Tanpa kategori' }]
+        : []),
+    ];
+  }, [izin]);
+
   const daftar = useMemo(() => {
     const terurut = urutkanIzin(izin);
+    const perStatus =
+      filter === 'semua' ? terurut : terurut.filter((item) => item.status === filter);
 
-    return filter === 'semua' ? terurut : terurut.filter((item) => item.status === filter);
-  }, [izin, filter]);
+    return perStatus.filter((item) => {
+      const kategori = item.kategoriAi?.trim();
+
+      if (filterKategori === 'semua') return true;
+      if (filterKategori === KATEGORI_TANPA) return !kategori;
+
+      return kategori === filterKategori;
+    });
+  }, [izin, filter, filterKategori]);
 
   // Seluruh izin tanpa filter, dipakai menghitung antrean di subtitle.
   const semuaIzin = useMemo(() => urutkanIzin(izin), [izin]);
@@ -68,9 +99,12 @@ export default function IzinAsistenScreen() {
     <DaftarIzinAsisten
       daftarIzin={daftar}
       filter={filter}
+      filterKategori={filterKategori}
       namaPraktikan={namaPraktikan}
       onBukaIzin={bukaIzin}
       onUbahFilter={setFilter}
+      onUbahFilterKategori={setFilterKategori}
+      opsiKategori={opsiKategori}
       pesanGalat={statusSesi === 'gagal' ? galatSesi : pesanGalat}
       profil={<MenuProfilAsisten />}
       sesiById={sesiById}
