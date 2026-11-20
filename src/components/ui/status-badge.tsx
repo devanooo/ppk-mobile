@@ -9,8 +9,8 @@ type BadgeTone = 'warning' | 'success' | 'neutral' | 'danger';
 
 // `success` di atas `successSurface` hanya 3.89:1 dan `textSecondary` di atas
 // `backgroundSelected` 4.15:1 pada mode terang, keduanya di bawah 4.5:1 yang
-// diminta design.md baris 617. Label karena itu memakai token teks; statusnya
-// tetap terbaca dari kata, bukan warna saja (design.md baris 615).
+// diminta design.md bagian 6. Label karena itu memakai token teks; statusnya
+// tetap terbaca dari kata, bukan warna saja (design.md bagian 6).
 const GAYA: Record<StatusSesi, GayaBadge> = {
   'belum-dibuka': { label: 'Belum dibuka', wadah: 'bg-warningSurface', teks: 'text-warning' },
   dibuka: { label: 'Dibuka', wadah: 'bg-successSurface', teks: 'text-text' },

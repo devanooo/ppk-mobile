@@ -14,7 +14,7 @@ const LEBAR = ['w-full', 'w-3/4', 'w-1/2'];
 
 /**
  * Placeholder memuat untuk daftar dan kartu. Animasi dilewati sepenuhnya saat
- * perangkat meminta reduce motion, sesuai design.md baris 618.
+ * perangkat meminta reduce motion, sesuai design.md bagian 7.
  */
 export function Skeleton({
   baris = 3,

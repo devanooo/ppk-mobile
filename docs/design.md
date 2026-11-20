@@ -40,15 +40,15 @@ Ciri yang diambil dari referensi:
 | Status | Badge berbasis teks. Warna hanya penguat, bukan satu-satunya pembeda. |
 | Navigasi | Tab mengambang. Label tab belum final. |
 
-`[TERBUKA]` Nilai hex navy. Tiga kandidat yang ada di repo:
+`[TERKONFIRMASI]` Hex navy `#172554`. Nilai ini dipakai pada `primary` mode terang dan pada `loginInk`.
 
-| Kandidat | Sumber |
-|---|---|
-| `≈#0F1B3D` | Pengukuran acuan visual |
-| `#192858` | `loginInk` yang sudah dipakai layar auth |
-| Belum ada | Figma, belum diakses |
+| Token | Nilai | Catatan |
+|---|---|---|
+| `primary` terang | `#172554` | Aksi utama, tautan, fokus |
+| `primary` gelap | `#2997ff` | Mode gelap belum diputuskan, nilai lama dipertahankan |
+| `loginInk` | `#172554` | Teks dan CTA layar auth |
 
-Sampai nilai diputuskan, `primary` tetap memakai nilai token saat ini. Dokumen ini tidak menetapkan hex baru.
+Kanal RGB di `src/global.css` sudah disamakan dengan nilai ini.
 
 ### 3.1 Rujukan per pola
 
@@ -73,7 +73,7 @@ Sampai nilai diputuskan, `primary` tetap memakai nilai token saat ini. Dokumen i
 
 ### 4.2 Lapisan token
 
-1. **Primitif:** ramp navy, ramp netral, hue status. `[TERBUKA]` nilainya.
+1. **Primitif:** ramp navy, ramp netral, hue status. Basis navy `#172554` sudah ditetapkan; ramp turunan dan ramp netral belum.
 2. **Semantik:** dipakai komponen dan layar. Nama mengikuti `tokens.js`.
 3. **Komponen:** tinggi, padding, dan radius per komponen.
 
@@ -90,7 +90,7 @@ Nilai di bawah adalah nilai yang berlaku hari ini. Bila berbeda, `tokens.js` yan
 | `backgroundElement` | `#ffffff` | `#272729` | Kartu dan sheet |
 | `backgroundSelected` | `#e8e8ed` | `#2a2a2c` | Baris terpilih, permukaan bertinta |
 | `border` | `#d2d2d7` | `#3a3a3c` | Garis dan border |
-| `primary` | `#0066cc` | `#2997ff` | Aksi utama. Nilai navy `[TERBUKA]` |
+| `primary` | `#172554` | `#2997ff` | Aksi utama, tautan, fokus |
 | `primaryText` | `#ffffff` | `#00131f` | Label di atas `primary` |
 | `success` | `#248a3d` | `#30d158` | Status dibuka, feedback sukses |
 | `successSurface` | `#e4f5ec` | `#10291e` | Latar badge sukses |
@@ -100,7 +100,7 @@ Nilai di bawah adalah nilai yang berlaku hari ini. Bila berbeda, `tokens.js` yan
 | `dangerSurface` | `#fdecea` | `#2e1715` | Latar badge bahaya |
 | `overlay` | `#000000` | `#000000` | Scrim modal, alpha diatur komponen |
 | `loginBackground` | `#ffffff` | `#ffffff` | Kanvas layar auth |
-| `loginInk` | `#192858` | `#192858` | Teks dan CTA navy di layar auth |
+| `loginInk` | `#172554` | `#172554` | Teks dan CTA navy di layar auth |
 | `loginMuted` | `#5f6880` | `#5f6880` | Teks sekunder layar auth |
 | `loginField` | `#f1f4f8` | `#f1f4f8` | Field lavender di layar auth |
 
@@ -174,26 +174,16 @@ Elevasi: satu shadow untuk dropdown profil dan bottom sheet saja. Kartu tidak me
 | `BottomSheet` | Konfirmasi dengan handle, tinggi maksimal 85%, dan aksi di bawah. |
 | `ProfileMenu` | Dropdown identitas dan aksi akun. |
 | `HomeButton` | Tombol kembali ke beranda. |
-| `StatusBadge` | Tiga status sesi dengan label teks. |
-| `EmptyState` | Kondisi kosong dengan judul, deskripsi, dan ikon opsional. |
-| `TextField` | Varian `default` dan `auth`, `error`, dan toggle kata sandi. |
+| `StatusBadge` | Tiga status sesi dengan label teks, plus peta tone tambahan tanpa mengubah kosakata status. |
+| `EmptyState` | Kondisi kosong dengan judul, deskripsi, ikon opsional, `tone="gagal"`, dan slot aksi untuk coba lagi. |
+| `TextField` | Varian `default` dan `auth`, `error`, toggle kata sandi, `helper`, dan penghitung karakter. |
+| `Skeleton` | Placeholder memuat yang menghormati reduce motion. |
+| `SectionHeader` | Judul bagian dengan aksi opsional. |
+| `IconButton` | Tombol ikon 44dp dengan label aksesibilitas. |
 
 Aturan penting: `danger` adalah aksi destruktif inline (teks merah). `dangerFilled` adalah aksi destruktif pada konfirmasi (merah terisi). Jangan menukar keduanya.
 
-### 5.2 Belum masuk `main`
-
-Jangan dipakai sebelum merge. Daftar ini berasal dari PR yang masih terbuka.
-
-| Komponen | Tambahan |
-|---|---|
-| `StatusBadge` | Pemetaan tone tambahan tanpa mengubah kosakata status |
-| `EmptyState` | `tone="gagal"` dan slot aksi untuk coba lagi |
-| `TextField` | `helper` dan penghitung karakter |
-| `Skeleton` | Placeholder memuat yang menghormati reduce motion |
-| `SectionHeader` | Judul bagian dengan aksi opsional |
-| `IconButton` | Tombol ikon 44dp dengan label aksesibilitas |
-
-### 5.3 Aturan komponen
+### 5.2 Aturan komponen
 
 - Target sentuh minimal 44dp.
 - Tombol ikon wajib punya `accessibilityLabel`.
@@ -252,7 +242,6 @@ State tambahan: nonaktif dengan alasan, dan kondisi tanpa peran atau tanpa akses
 
 | Item | Status | Pemilik keputusan |
 |---|---|---|
-| Hex navy final | TBD | PM dan akses Figma |
 | Type scale dan keluarga font final | TBD | PM dan Figma |
 | Mekanisme dark mode (`class` atau `media`) | TBD | P1 |
 | Scope dark mode | TBD | PM |
@@ -261,7 +250,7 @@ State tambahan: nonaktif dengan alasan, dan kondisi tanpa peran atau tanpa akses
 
 ## 12. Peta rujukan baris lama
 
-Dokumen lama dikutip per nomor baris dari kode. Setelah penyusunan ulang ini, nomor baris tidak lagi sama. Lima komentar kode perlu diperbarui di PR terpisah:
+Dokumen lama dikutip per nomor baris dari kode. Setelah penyusunan ulang, rujukan itu diganti dengan nama bagian:
 
 | Berkas | Kutipan lama | Bagian pengganti |
 |---|---|---|
@@ -270,8 +259,6 @@ Dokumen lama dikutip per nomor baris dari kode. Setelah penyusunan ulang ini, no
 | `src/components/ui/status-badge.tsx:10` | baris 615 | 6 Aksesibilitas |
 | `src/components/ui/status-badge.tsx:9` | baris 617 | 6 Aksesibilitas |
 | `src/components/ui/motion.ts:4` | baris 618 | 7 Motion |
-
-Pembaruan komentar pada `status-badge.tsx` ditunda sampai PR 2 merged agar tidak konflik.
 
 ## 13. Riwayat dokumen
 
