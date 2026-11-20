@@ -1,5 +1,5 @@
 import { useRef, useState, type ComponentRef } from 'react';
-import { Animated, Modal, Pressable, Text, useWindowDimensions } from 'react-native';
+import { Animated, Modal, Pressable, Text, View, useWindowDimensions } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
 
@@ -98,26 +98,29 @@ export function FilterSelect({
             },
           ]}
         >
-          {opsi.map((item) => {
+          {opsi.map((item, indeks) => {
             const aktif = item.nilai === nilai;
 
             return (
-              <Pressable
-                key={item.nilai}
-                accessibilityLabel={item.label}
-                accessibilityRole="button"
-                accessibilityState={{ selected: aktif }}
-                onPress={() => pilih(item.nilai)}
-                className="min-h-touch flex-row items-center justify-between rounded-sm px-two active:bg-backgroundSelected"
-              >
-                <Text
-                  className={`text-body ${aktif ? 'font-semibold text-primary' : 'text-text'}`}
-                >
-                  {item.label}
-                </Text>
+              <View key={item.nilai}>
+                {indeks > 0 ? <View className="my-one h-half bg-border" /> : null}
 
-                {aktif ? <Text className="text-body text-primary">✓</Text> : null}
-              </Pressable>
+                <Pressable
+                  accessibilityLabel={item.label}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: aktif }}
+                  onPress={() => pilih(item.nilai)}
+                  className="min-h-touch flex-row items-center justify-between rounded-sm px-two active:bg-backgroundSelected"
+                >
+                  <Text
+                    className={`text-body ${aktif ? 'font-semibold text-primary' : 'text-text'}`}
+                  >
+                    {item.label}
+                  </Text>
+
+                  {aktif ? <Text className="text-body text-primary">✓</Text> : null}
+                </Pressable>
+              </View>
             );
           })}
         </Animated.View>
