@@ -66,7 +66,7 @@ export function FilterSelect({
         onPress={buka}
         className={`min-h-touch flex-row items-center gap-one rounded-pill bg-backgroundSelected px-twoHalf active:scale-95 ${className}`}
       >
-        <Text className="text-small font-semibold text-text">{label}</Text>
+        <Text className="text-small font-medium text-text">{label}</Text>
         <Text className="text-small text-textSecondary">▾</Text>
       </Pressable>
 

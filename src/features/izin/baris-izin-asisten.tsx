@@ -33,15 +33,15 @@ export function BarisIzinAsisten({
       className="py-three active:opacity-70"
     >
       <View className="flex-row items-start justify-between gap-two">
-        <Text className="flex-1 text-body font-semibold text-text">{nama}</Text>
+        <Text className="flex-1 text-body font-bold text-text">{nama}</Text>
         <BadgeStatusIzin className="shrink-0" status={izin.status} />
       </View>
 
-      <Text className="mt-one text-small text-textSecondary">
+      <Text className="mt-one text-small font-medium text-text">
         {sesi?.namaKelas ?? 'Sesi tidak ditemukan'}
       </Text>
 
-      <Text className="mt-half text-small text-textSecondary">
+      <Text className="mt-half text-small font-medium text-textSecondary">
         {sesi ? `${formatTanggal(sesi.tanggal)} · ${kategori}` : kategori}
       </Text>
     </Pressable>
