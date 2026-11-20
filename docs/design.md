@@ -40,15 +40,15 @@ Ciri yang diambil dari referensi:
 | Status | Badge berbasis teks. Warna hanya penguat, bukan satu-satunya pembeda. |
 | Navigasi | Tab mengambang. Label tab belum final. |
 
-`[TERBUKA]` Nilai hex navy. Tiga kandidat yang ada di repo:
+`[TERKONFIRMASI]` Hex navy `#172554`. Nilai ini dipakai pada `primary` mode terang dan pada `loginInk`.
 
-| Kandidat | Sumber |
-|---|---|
-| `≈#0F1B3D` | Pengukuran acuan visual |
-| `#192858` | `loginInk` yang sudah dipakai layar auth |
-| Belum ada | Figma, belum diakses |
+| Token | Nilai | Catatan |
+|---|---|---|
+| `primary` terang | `#172554` | Aksi utama, tautan, fokus |
+| `primary` gelap | `#2997ff` | Mode gelap belum diputuskan, nilai lama dipertahankan |
+| `loginInk` | `#172554` | Teks dan CTA layar auth |
 
-Sampai nilai diputuskan, `primary` tetap memakai nilai token saat ini. Dokumen ini tidak menetapkan hex baru.
+Kanal RGB di `src/global.css` sudah disamakan dengan nilai ini.
 
 ### 3.1 Rujukan per pola
 
@@ -73,7 +73,7 @@ Sampai nilai diputuskan, `primary` tetap memakai nilai token saat ini. Dokumen i
 
 ### 4.2 Lapisan token
 
-1. **Primitif:** ramp navy, ramp netral, hue status. `[TERBUKA]` nilainya.
+1. **Primitif:** ramp navy, ramp netral, hue status. Basis navy `#172554` sudah ditetapkan; ramp turunan dan ramp netral belum.
 2. **Semantik:** dipakai komponen dan layar. Nama mengikuti `tokens.js`.
 3. **Komponen:** tinggi, padding, dan radius per komponen.
 
@@ -90,7 +90,7 @@ Nilai di bawah adalah nilai yang berlaku hari ini. Bila berbeda, `tokens.js` yan
 | `backgroundElement` | `#ffffff` | `#272729` | Kartu dan sheet |
 | `backgroundSelected` | `#e8e8ed` | `#2a2a2c` | Baris terpilih, permukaan bertinta |
 | `border` | `#d2d2d7` | `#3a3a3c` | Garis dan border |
-| `primary` | `#0066cc` | `#2997ff` | Aksi utama. Nilai navy `[TERBUKA]` |
+| `primary` | `#172554` | `#2997ff` | Aksi utama, tautan, fokus |
 | `primaryText` | `#ffffff` | `#00131f` | Label di atas `primary` |
 | `success` | `#248a3d` | `#30d158` | Status dibuka, feedback sukses |
 | `successSurface` | `#e4f5ec` | `#10291e` | Latar badge sukses |
@@ -100,7 +100,7 @@ Nilai di bawah adalah nilai yang berlaku hari ini. Bila berbeda, `tokens.js` yan
 | `dangerSurface` | `#fdecea` | `#2e1715` | Latar badge bahaya |
 | `overlay` | `#000000` | `#000000` | Scrim modal, alpha diatur komponen |
 | `loginBackground` | `#ffffff` | `#ffffff` | Kanvas layar auth |
-| `loginInk` | `#192858` | `#192858` | Teks dan CTA navy di layar auth |
+| `loginInk` | `#172554` | `#172554` | Teks dan CTA navy di layar auth |
 | `loginMuted` | `#5f6880` | `#5f6880` | Teks sekunder layar auth |
 | `loginField` | `#f1f4f8` | `#f1f4f8` | Field lavender di layar auth |
 
@@ -252,7 +252,6 @@ State tambahan: nonaktif dengan alasan, dan kondisi tanpa peran atau tanpa akses
 
 | Item | Status | Pemilik keputusan |
 |---|---|---|
-| Hex navy final | TBD | PM dan akses Figma |
 | Type scale dan keluarga font final | TBD | PM dan Figma |
 | Mekanisme dark mode (`class` atau `media`) | TBD | P1 |
 | Scope dark mode | TBD | PM |
