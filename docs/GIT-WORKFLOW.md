@@ -2,7 +2,7 @@
 
 Berlaku untuk 1 PM + 3 programmer yang bekerja paralel. Tujuan: `main` selalu bisa dijalankan dan setiap perubahan punya pemilik jelas.
 
-**Peran berputar tiap sprint.** PM, P1, P2, dan P3 dipegang orang berbeda di setiap sprint. Pemilik dokumentasi dan `.github/**` mengikuti PM yang sedang aktif, dan `CODEOWNERS` diperbarui di awal sprint. Per sprint 2: PM Dehar Zaidan Dzaki Amirullah (`@21d4n`), P1 Anggita Kirana Puspa, P2 Devano Trestanto, P3 Nashwa Aldebaran. Pembagian kerja per sprint 2 ada di `docs/sprints/sprint-2.md` bagian 6.
+**Peran berputar tiap sprint.** PM, P1, P2, dan P3 dipegang orang berbeda di setiap sprint. Pemilik dokumentasi dan `.github/**` mengikuti PM yang sedang aktif, dan `CODEOWNERS` diperbarui di awal sprint. Per sprint 3: PM Nashwa Aldebaran (`@nashwanashwa>`), P1 Anggita Kirana Puspa, P2 Dehar Zaidan Dzaki Amirullah, P3 Devano Trestanto. Pembagian kerja per sprint 3 ada di `docs/sprints/sprint-3.md` bagian 6 (Sprint 2 di `docs/sprints/sprint-2.md`).
 
 ## 1. Branch
 
@@ -18,16 +18,16 @@ Format:
 |---|---|---|
 | `type` | `feat`, `fix`, `refactor`, `style`, `docs`, `chore` | `feat` |
 | `owner` | `p1`, `p2`, `p3`, `pm` | `p1` |
-| `area` | `shell`, `praktikan`, `asisten`, `ui`, `data`, `docs`, `config` | `praktikan` |
+| `area` | `shell`, `praktikan`, `asisten`, `ui`, `data`, `docs`, `config`, `maps`, `presensi`, `notif` | `praktikan` |
 | `slug` | kebab-case, 3–40 char, `a-z0-9-` | `jadwal-list` |
 
 Regex validasi:
 
 ```
-^(feat|fix|refactor|style|docs|chore)\/(p1|p2|p3|pm)-(shell|praktikan|asisten|ui|data|docs|config)-[a-z0-9-]{3,40}$
+^(feat|fix|refactor|style|docs|chore)\/(p1|p2|p3|pm)-(shell|praktikan|asisten|ui|data|docs|config|maps|presensi|notif)-[a-z0-9-]{3,40}$
 ```
 
-Benar: `feat/p1-praktikan-jadwal-list`, `feat/p2-asisten-sesi-control`, `feat/p3-ui-empty-state`, `docs/pm-sprint-1`, `fix/p2-asisten-rekap-crash`.
+Benar: `feat/p1-praktikan-jadwal-list`, `feat/p2-asisten-sesi-control`, `feat/p3-ui-empty-state`, `docs/pm-sprint-1`, `fix/p2-asisten-rekap-crash`, `feat/p1-maps-marker-lab`, `feat/p2-presensi-validasi-radius`, `feat/p3-notif-fcm-token`.
 Salah: `feature/jadwal`, `fix-bug`, `p1/jadwal`, `feat/Praktikan-Jadwal`.
 
 Aturan:
@@ -58,7 +58,7 @@ Format Conventional Commits, **scope wajib**:
 | `docs` | dokumentasi |
 | `chore` | config, dependency, tooling |
 
-Scope: `shell`, `praktikan`, `asisten`, `ui`, `data`, `docs`, `config`.
+Scope: `shell`, `praktikan`, `asisten`, `ui`, `data`, `docs`, `config`, `maps`, `presensi`, `notif`. Area `maps`, `presensi`, dan `notif` ditambahkan pada Sprint 3 untuk Maps dan geolocation, presensi QR dan lokasi, serta push notification.
 
 Aturan subject: imperative, lowercase, tanpa titik akhir, maksimal 72 karakter, satu commit = satu perubahan logis.
 
@@ -154,8 +154,8 @@ Refs #<issue>
 
 ## 5. Freeze & rilis
 
-- **D5 freeze:** hanya `fix/*` untuk bug demo. Fitur baru masuk backlog Sprint 2.
-- Setelah demo lulus, PM menandai `main` dengan tag `sprint-1` (annotated).
+- **Freeze di hari terakhir sprint** (D5 pada Sprint 1 dan 2, D4 pada Sprint 3): hanya `fix/*` untuk bug demo. Fitur baru masuk backlog sprint berikutnya.
+- Setelah demo lulus, PM menandai `main` dengan tag `sprint-<n>` (annotated), misalnya `sprint-1` atau `sprint-3`.
 - Tidak ada deployment wajib di sprint ini; demo cukup lewat `npx expo start`.
 
 ## 6. Kalau ada konflik
@@ -168,3 +168,4 @@ Refs #<issue>
 ## 7. Skills pendukung (opsional)
 
 `resolving-merge-conflicts` dan `code-review` dari skills.sh membantu mengikuti aturan di atas. Daftar lengkap ada di `AGENTS.md`.
+ 
