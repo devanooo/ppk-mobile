@@ -48,7 +48,10 @@ export default function IzinAsistenScreen() {
   }, [izin]);
 
   const daftar = useMemo(() => {
-    const terurut = urutkanIzinAsisten(izin);
+    const terurut = urutkanIzinAsisten(
+      izin,
+      (sesiId) => sesiById.get(sesiId)?.tanggal,
+    );
     const perStatus =
       filter === 'semua' ? terurut : terurut.filter((item) => item.status === filter);
 
@@ -60,10 +63,13 @@ export default function IzinAsistenScreen() {
 
       return kategori === filterKategori;
     });
-  }, [izin, filter, filterKategori]);
+  }, [izin, filter, filterKategori, sesiById]);
 
   // Seluruh izin tanpa filter, dipakai menghitung antrean di subtitle.
-  const semuaIzin = useMemo(() => urutkanIzinAsisten(izin), [izin]);
+  const semuaIzin = useMemo(
+    () => urutkanIzinAsisten(izin, (sesiId) => sesiById.get(sesiId)?.tanggal),
+    [izin, sesiById],
+  );
 
   const idPraktikan = useMemo(
     () => [...new Set(izin.map((item) => item.praktikanId))].sort().join(','),

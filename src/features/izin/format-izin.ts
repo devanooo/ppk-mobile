@@ -38,10 +38,24 @@ export function urutkanIzin(daftar: Izin[]): Izin[] {
 
 /**
  * Urutan untuk daftar asisten: pengajuan yang masih menunggu selalu di atas.
- * Di dalam tiap kelompok, pengajuan yang paling awal masuk berada di paling
- * atas supaya antrean terbaca sesuai urutan kedatangan.
+ * Di dalam tiap kelompok, urut menurut tanggal sesi yang terlihat di layar,
+ * dari yang paling awal. Waktu pengajuan dipakai sebagai penentu saat tanggal
+ * sesi sama, dan entri tanpa tanggal ditaruh paling bawah.
  */
-export function urutkanIzinAsisten(daftar: Izin[]): Izin[] {
+export function urutkanIzinAsisten(
+  daftar: Izin[],
+  tanggalSesi: (sesiId: string) => string | undefined,
+): Izin[] {
+  function waktuSesi(izin: Izin): number {
+    const tanggal = tanggalSesi(izin.sesiId);
+
+    if (!tanggal) return Number.POSITIVE_INFINITY;
+
+    const waktu = Date.parse(`${tanggal}T00:00:00Z`);
+
+    return Number.isNaN(waktu) ? Number.POSITIVE_INFINITY : waktu;
+  }
+
   function waktuPengajuan(izin: Izin): number {
     return izin.dibuatPada?.getTime() ?? Number.POSITIVE_INFINITY;
   }
@@ -53,6 +67,10 @@ export function urutkanIzinAsisten(daftar: Izin[]): Izin[] {
     if (aMenunggu !== bMenunggu) {
       return aMenunggu ? -1 : 1;
     }
+
+    const selisihTanggal = waktuSesi(a) - waktuSesi(b);
+
+    if (selisihTanggal !== 0) return selisihTanggal;
 
     return waktuPengajuan(a) - waktuPengajuan(b);
   });
