@@ -3,57 +3,49 @@
 # sprint, keduanya dicantumkan; satu approval dari salah satunya sudah cukup.
 # Owner harus sudah diundang sebagai collaborator agar bisa di-assign reviewer.
 #
-# Peran berputar tiap sprint. File ini mengikuti pembagian sprint yang berjalan.
-# Sprint 2: PM Dehar (@21d4n), P1 Anggita (@anggitakirana),
-#           P2 Devano (@devanooo), P3 Nashwa (@nashwanashwa).
-# Rincian story: docs/sprints/sprint-2.md bagian 6.
+# Peran berputar tiap sprint. File ini mengikuti pembagian Sprint 3.
+# Sprint 3: PM Nashwa (@nashwanashwa), P1 Anggita (@anggitakirana),
+#           P2 Dehar (@21d4n), P3 Devano (@devanooo).
+# Rincian story: docs/sprints/sprint-3.md bagian 6.
 
-# P1 Anggita: shell, auth, registrasi, lapisan data
-/src/app/_layout.tsx            @anggitakirana
-/src/app/index.tsx              @anggitakirana
-/src/app/login.tsx              @anggitakirana
-/src/app/register.tsx           @anggitakirana
-/src/features/auth/             @anggitakirana
-/tailwind.config.js             @anggitakirana
-/src/global.css                 @anggitakirana
-/babel.config.js                @anggitakirana
-/metro.config.js                @anggitakirana
-/nativewind-env.d.ts            @anggitakirana
+# P1 Anggita: Maps, lokasi laboratorium, geolocation,
+# dan informasi aktivitas laboratorium
+/src/features/maps/             @anggitakirana
+/src/app/(praktikan)/maps.tsx    @anggitakirana
+/src/lib/laboratorium.ts         @anggitakirana
+/src/lib/geolocation.ts          @anggitakirana
 
-# P3 Nashwa: design system, tipe, data, dan alur perkuliahan praktikan
-# (jadwal dan riwayat praktikan dikerjakan P3 di Sprint 2)
-/src/constants/tokens.js        @nashwanashwa
-/src/constants/theme.ts         @nashwanashwa
-/src/types/                     @nashwanashwa
-/src/data/                      @nashwanashwa
-/src/components/ui/             @nashwanashwa
+# P2 Dehar: halaman presensi, QR scanner, validasi lokasi,
+# pencatatan presensi, dan pengelolaan sesi
+/src/features/presensi/         @21d4n
+/src/app/(praktikan)/kehadiran.tsx @21d4n
+/src/lib/presensi.ts             @21d4n
+/src/features/asisten/           @21d4n
 
-# Store dipakai P1 (auth) dan P3 (state data), jadi dua owner
-/src/store/                     @nashwanashwa @anggitakirana
+# P2 Dehar dan P3 Devano: kontrak QR Code bersama
+/src/lib/qr.ts                   @21d4n @devanooo
+/src/lib/qr-logic.assert.mjs     @21d4n @devanooo
 
-# Modul data baru dipakai bertiga, pemilik per file sesuai story
-/src/lib/                       @anggitakirana @devanooo @nashwanashwa
+# P3 Devano: QR generator dan push notification
+/src/features/notifikasi/        @devanooo
+/src/lib/notifikasi.ts           @devanooo
 
-# Area praktikan: P1 pemilik shell dan auth, P3 mengerjakan jadwal, detail,
-# kehadiran, P2 mengerjakan tab izin
-/src/app/(praktikan)/           @anggitakirana @nashwanashwa @devanooo
-/src/features/praktikan/        @anggitakirana @nashwanashwa
+# P3 Devano: pencarian peserta, filter izin,
+# penyempurnaan rekap, validasi input, dan UI/UX
+/src/app/(asisten)/rekap.tsx     @devanooo
+/src/features/izin/              @devanooo
+/src/components/ui/              @devanooo
+/src/constants/tokens.js         @devanooo
+/src/constants/theme.ts          @devanooo
+/src/global.css                  @devanooo
 
-# Fitur izin (form, daftar, detail, hook) dikerjakan P2
-/src/features/izin/             @devanooo
+# PM Nashwa: dokumentasi dan konfigurasi repository
+/README.md                       @nashwanashwa
+/AGENTS.md                       @nashwanashwa
+/docs/                           @nashwanashwa
+/.github/                        @nashwanashwa
+/app.json                        @nashwanashwa
+/.env.example                    @nashwanashwa
 
-# Area asisten: P2 pemilik shell dan izin, P3 mengerjakan kelas, sesi,
-# jadwal, dan rekap
-/src/app/(asisten)/             @devanooo @nashwanashwa
-/src/features/asisten/          @devanooo @nashwanashwa
-
-# PM Dehar: dokumentasi, konfigurasi repo, dan berkas Firebase
-/README.md                      @21d4n
-/AGENTS.md                      @21d4n
-/docs/                          @21d4n
-/.github/                       @21d4n
-/app.json                       @21d4n
-/.env.example                   @21d4n
-
-# Fallback: perubahan di luar area di atas harus lewat PM
-*                               @21d4n
+# Fallback: perubahan di luar area yang ditentukan perlu review PM
+*                               @nashwanashwa
