@@ -1,6 +1,6 @@
 # PRD: PraktikumKU, Sprint 1
 
-> Dokumen ini berlaku untuk Sprint 1. Sprint 2 mencabut beberapa batasan di sini: dukungan web, backend/database, autentikasi nyata, registrasi, persistensi sesi, dan sinkronisasi lintas perangkat. Acuan Sprint 2 adalah [`docs/sprints/sprint-2.md`](sprints/sprint-2.md).
+> Dokumen ini berlaku untuk Sprint 1. Sprint 2 mencabut beberapa batasan di sini: dukungan web, backend/database, autentikasi nyata, registrasi, persistensi sesi, dan sinkronisasi lintas perangkat. Acuan Sprint 2 adalah [`docs/sprints/sprint-2.md`](sprints/sprint-2.md). Sprint 3 mencabut batasan notifikasi push serta presensi QR/lokasi, dan menambahkan Maps; acuannya [`docs/sprints/sprint-3.md`](sprints/sprint-3.md).
 
 ## 1. Informasi produk dan tujuan sprint
 
@@ -8,7 +8,7 @@
 |---|---|
 | Produk | PraktikumKU |
 | Sprint | Sprint 1: UI, navigasi, auth dummy, dan alur inti |
-| Platform | React Native (Expo), iOS dan Android untuk Sprint 1. Sprint 2 menambahkan Web |
+| Platform | React Native (Expo), iOS dan Android untuk Sprint 1. Sprint 2 menambahkan Web. Sprint 3 menambahkan kamera, lokasi, Maps, dan push notification dengan dukungan sesuai library per platform |
 | Data | Dummy, state in-memory (tanpa backend/database) |
 | Autentikasi | Dummy, username + password |
 | Status | Approved |
@@ -37,7 +37,7 @@
 
 **Non-goals**
 
-Daftar ini berlaku untuk Sprint 1 dan sebagian dicabut oleh Sprint 2 (lihat `docs/sprints/sprint-2.md` bagian 3): backend/database, autentikasi dan otorisasi nyata, registrasi akun, persistensi sesi setelah aplikasi ditutup, sinkronisasi lintas perangkat, pengelolaan data master, serta aplikasi web. Sisa non-goals tetap berlaku: lupa password, manajemen akun oleh admin, notifikasi push, presensi QR/lokasi, export laporan, multi-semester, riwayat audit perubahan status, membuka ulang sesi yang sudah ditutup, penutupan sesi otomatis berdasarkan waktu, serta aplikasi desktop.
+Daftar ini berlaku untuk Sprint 1 dan sebagian dicabut oleh Sprint 2 (lihat `docs/sprints/sprint-2.md` bagian 3): backend/database, autentikasi dan otorisasi nyata, registrasi akun, persistensi sesi setelah aplikasi ditutup, sinkronisasi lintas perangkat, pengelolaan data master, serta aplikasi web. Sprint 3 mencabut dua batasan lain: notifikasi push dan presensi QR/lokasi (lihat `docs/sprints/sprint-3.md` bagian 3). Sisa non-goals tetap berlaku: lupa password, manajemen akun oleh admin, export laporan, multi-semester, riwayat audit perubahan status, membuka ulang sesi yang sudah ditutup, penutupan sesi otomatis berdasarkan waktu, serta aplikasi desktop.
 
 ## 4. Pengguna dan user stories
 
@@ -507,4 +507,6 @@ Seluruh langkah berjalan tanpa reload (AC-15). Penolakan presensi ganda diuji pa
 | Token Apple belum diterjemahkan ke `tokens.js` | P3 mengganti warna, radius, dan tipografi di `tokens.js` serta channel warna di `global.css` sebelum styling dimulai |
 | Scope melebar ke backend | Non-goals eksplisit. Perubahan scope lewat PM |
 
-**Backlog setelah Sprint 2:** verifikasi pendaftaran asisten, perubahan peran akun, lupa password, presensi via kode sesi/QR, rekap per semester + export CSV, notifikasi pengingat jadwal, membuka ulang sesi, dan penutupan otomatis berdasarkan jadwal. Backend, database, autentikasi, dan registrasi sudah menjadi scope Sprint 2, lihat `docs/sprints/sprint-2.md`.
+**Backlog setelah Sprint 2:** verifikasi pendaftaran asisten, perubahan peran akun, lupa password, rekap per semester + export CSV, notifikasi pengingat jadwal, membuka ulang sesi, dan penutupan otomatis berdasarkan jadwal. Backend, database, autentikasi, dan registrasi sudah menjadi scope Sprint 2, lihat `docs/sprints/sprint-2.md`. Presensi berbasis QR dan lokasi, Maps, serta push notification (pembukaan sesi, perubahan jadwal, keputusan izin) sudah menjadi scope Sprint 3, lihat `docs/sprints/sprint-3.md`.
+Sprint 3 juga mencakup penyempurnaan UI/UX pada seluruh halaman aplikasi untuk meningkatkan konsistensi tampilan dan pengalaman pengguna. Perubahan antarmuka tetap perlu dikoordinasikan dengan pemilik fitur terkait agar tidak mengganggu implementasi fungsionalitas masing-masing halaman.
+ 
