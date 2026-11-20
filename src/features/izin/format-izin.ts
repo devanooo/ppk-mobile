@@ -36,6 +36,28 @@ export function urutkanIzin(daftar: Izin[]): Izin[] {
   });
 }
 
+/**
+ * Urutan untuk daftar asisten: pengajuan yang masih menunggu selalu di atas.
+ * Di dalam tiap kelompok, pengajuan yang paling awal masuk berada di paling
+ * atas supaya antrean terbaca sesuai urutan kedatangan.
+ */
+export function urutkanIzinAsisten(daftar: Izin[]): Izin[] {
+  function waktuPengajuan(izin: Izin): number {
+    return izin.dibuatPada?.getTime() ?? Number.POSITIVE_INFINITY;
+  }
+
+  return [...daftar].sort((a, b) => {
+    const aMenunggu = a.status === 'menunggu';
+    const bMenunggu = b.status === 'menunggu';
+
+    if (aMenunggu !== bMenunggu) {
+      return aMenunggu ? -1 : 1;
+    }
+
+    return waktuPengajuan(a) - waktuPengajuan(b);
+  });
+}
+
 export function formatWaktuIzin(waktu?: Date): string | undefined {
   if (!waktu) return undefined;
 

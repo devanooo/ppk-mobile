@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { DaftarIzinAsisten } from '@/features/izin/daftar-izin-asisten';
-import { urutkanIzin } from '@/features/izin/format-izin';
+import { urutkanIzinAsisten } from '@/features/izin/format-izin';
 import { useIzinAsisten } from '@/features/izin/use-izin-asisten';
 import { useSesiAsisten } from '@/features/izin/use-sesi-asisten';
 import type { Izin, StatusIzin } from '@/features/izin/types';
@@ -18,7 +18,7 @@ export default function IzinAsistenScreen() {
   const router = useRouter();
   const asistenId = user?.peran === 'asisten' ? user.id : undefined;
 
-  const [filter, setFilter] = useState<StatusIzin | 'semua'>('menunggu');
+  const [filter, setFilter] = useState<StatusIzin | 'semua'>('semua');
   const [filterKategori, setFilterKategori] = useState('semua');
   const [namaPraktikan, setNamaPraktikan] = useState<Map<string, string>>(new Map());
 
@@ -48,7 +48,7 @@ export default function IzinAsistenScreen() {
   }, [izin]);
 
   const daftar = useMemo(() => {
-    const terurut = urutkanIzin(izin);
+    const terurut = urutkanIzinAsisten(izin);
     const perStatus =
       filter === 'semua' ? terurut : terurut.filter((item) => item.status === filter);
 
@@ -63,7 +63,7 @@ export default function IzinAsistenScreen() {
   }, [izin, filter, filterKategori]);
 
   // Seluruh izin tanpa filter, dipakai menghitung antrean di subtitle.
-  const semuaIzin = useMemo(() => urutkanIzin(izin), [izin]);
+  const semuaIzin = useMemo(() => urutkanIzinAsisten(izin), [izin]);
 
   const idPraktikan = useMemo(
     () => [...new Set(izin.map((item) => item.praktikanId))].sort().join(','),
