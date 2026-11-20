@@ -34,9 +34,9 @@ export default function PraktikanLayout() {
         }}
       />
       <Tabs.Screen
-        name="kehadiran"
+        name="riwayat"
         options={{
-          title: 'Kehadiran',
+          title: 'Riwayat',
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'clock.arrow.circlepath', android: 'history' }}

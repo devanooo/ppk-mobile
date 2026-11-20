@@ -22,7 +22,6 @@ export default function JadwalPraktikanRoute() {
 
   return (
     <JadwalScreen
-      namaPraktikan={user.nama}
       profil={<MenuProfilPraktikan />}
       sesi={hasil.jadwal}
       status={hasil.status}
