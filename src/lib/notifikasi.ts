@@ -1,16 +1,10 @@
 // Klien notifikasi push.
 //
-// Arsitektur yang dipakai:
-//   aplikasi -> Cloud Functions (server.js) -> Firebase Admin SDK -> FCM -> perangkat
+// Arsitektur:
+//   aplikasi -> endpoint Vercel -> Firebase Admin SDK -> Expo Push API -> perangkat
 //
-// Klien tidak pernah mengirim ke FCM langsung. Tugas klien hanya meminta izin,
-// menyediakan token perangkat, dan menampilkan notifikasi yang masuk.
-//
-// Token perangkat disimpan di koleksi terpisah `tokenPerangkat/{token}` agar
-// tidak mencampur data profil pengguna. Pengiriman dari server belum ada karena
-// menunggu Cloud Functions pada PM-04.
-//
-// Web tidak termasuk cakupan Sprint 3, sesuai keputusan fokus Android dan iOS.
+// Klien hanya meminta izin, menyimpan token Expo, dan memanggil endpoint setelah
+// aksi yang memicu notifikasi berhasil. Pengiriman tidak dilakukan di perangkat.
 
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
@@ -24,14 +18,30 @@ import {
   type Firestore,
 } from 'firebase/firestore';
 
+import { auth } from './firebase';
+
 const SALURAN_ANDROID = 'praktikum';
 const KOLEKSI_TOKEN = 'tokenPerangkat';
+const URL_ENDPOINT = process.env.EXPO_PUBLIC_NOTIFIKASI_URL;
 
 export type PlatformPerangkat = 'ios' | 'android';
 
 export type TokenPerangkat = {
   token: string;
   platform: PlatformPerangkat;
+};
+
+export type TipeEventNotifikasi =
+  | 'sesi-dibuka'
+  | 'jadwal-berubah'
+  | 'izin-diajukan'
+  | 'izin-disetujui'
+  | 'izin-ditolak';
+
+export type EventNotifikasi = {
+  tipe: TipeEventNotifikasi;
+  sesiId: string;
+  praktikanId?: string;
 };
 
 /** Dipasang sekali saat aplikasi dimulai agar notifikasi tampil di foreground. */
@@ -75,15 +85,17 @@ export function ambilProjectId(): string | undefined {
 }
 
 /**
- * Mengambil token perangkat native. Di Android token ini adalah token FCM yang
- * bisa dipakai Admin SDK. Di iOS nilainya token APNs, sehingga server perlu
- * konversi ke FCM sebelum mengirim.
+ * Mengambil token Expo Push. Token ini yang dikirim ke Expo Push API oleh
+ * endpoint; server tidak perlu tahu token FCM atau APNs perangkat.
  */
 export async function ambilTokenPerangkat(): Promise<TokenPerangkat | null> {
   if (Platform.OS === 'web') return null;
 
+  const projectId = ambilProjectId();
+  if (!projectId) return null;
+
   try {
-    const hasil = await Notifications.getDevicePushTokenAsync();
+    const hasil = await Notifications.getExpoPushTokenAsync({ projectId });
 
     return {
       token: hasil.data,
@@ -124,6 +136,40 @@ export async function hapusTokenPerangkat(
   try {
     await deleteDoc(doc(db, KOLEKSI_TOKEN, token));
     return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Meminta endpoint mengirim notifikasi untuk satu event. Pemanggil harus sudah
+ * login; endpoint memverifikasi ID token dan memeriksa bahwa pemanggil adalah
+ * asisten pemilik sesi.
+ */
+export async function kirimEventNotifikasi(
+  event: EventNotifikasi,
+): Promise<boolean> {
+  if (!URL_ENDPOINT) return false;
+
+  const pengguna = auth.currentUser;
+  if (!pengguna) return false;
+
+  try {
+    const idToken = await pengguna.getIdToken();
+
+    const respons = await fetch(
+      `${URL_ENDPOINT.replace(/\/$/, '')}/api/notifikasi`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(event),
+      },
+    );
+
+    return respons.ok;
   } catch {
     return false;
   }
