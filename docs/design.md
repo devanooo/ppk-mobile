@@ -86,9 +86,10 @@ Nilai di bawah adalah nilai yang berlaku hari ini. Bila berbeda, `tokens.js` yan
 | `text` | `#1d1d1f` | `#f5f5f7` | Teks utama |
 | `textSecondary` | `#6e6e73` | `#cccccc` | Teks sekunder |
 | `textInverse` | `#ffffff` | `#1d1d1f` | Teks di atas warna aksi terisi |
-| `background` | `#f5f5f7` | `#000000` | Latar layar |
+| `background` | `#ffffff` | `#000000` | Latar layar |
 | `backgroundElement` | `#ffffff` | `#272729` | Kartu dan sheet |
 | `backgroundSelected` | `#e8e8ed` | `#2a2a2c` | Baris terpilih, permukaan bertinta |
+| `surfaceMuted` | `#f1f5f9` | `#1f2228` | Permukaan kartu dan blok info |
 | `border` | `#d2d2d7` | `#3a3a3c` | Garis dan border |
 | `primary` | `#172554` | `#2997ff` | Aksi utama, tautan, fokus |
 | `primaryText` | `#ffffff` | `#00131f` | Label di atas `primary` |
@@ -110,7 +111,6 @@ Semua `[TERBUKA]`. Jangan dipakai sebelum masuk `tokens.js`.
 
 | Slot | Pemakaian |
 |---|---|
-| `surfaceMuted` | Permukaan lavender non-auth untuk blok info |
 | `chip`, `chipSelected` | Chip filter dan pemilih kategori |
 | `notificationDot` | Titik notifikasi pada ikon lonceng |
 | `focusRing` | Cincin fokus keyboard di Web |
@@ -168,7 +168,7 @@ Elevasi: satu shadow untuk dropdown profil dan bottom sheet saja. Kartu tidak me
 | Komponen | Perilaku |
 |---|---|
 | `AppButton` | Varian `primary`, `secondary`, `ghost`, `danger`, `dangerFilled`, `auth`. Ukuran `sm` dan `md` 44dp, `lg` 56dp (default). Mendukung `fullWidth`, `loading`, dan `disabledReason`. |
-| `Card` | Tone `default` (border dan permukaan) dan `muted` (lavender tanpa border). Tanpa shadow. |
+| `Card` | Tone `default` (border dan permukaan) dan `muted` (`surfaceMuted` tanpa border). Tanpa shadow. |
 | `Screen` | Safe area dan padding layar. |
 | `Banner` | Feedback sukses dan gagal. |
 | `BottomSheet` | Konfirmasi dengan handle, tinggi maksimal 85%, dan aksi di bawah. |
