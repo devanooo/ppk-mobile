@@ -23,6 +23,7 @@ import {
 import { useTheme } from '@/hooks/use-theme';
 
 import type { SesiAsisten } from './use-sesi-asisten';
+import { useRouter } from 'expo-router';
 
 type JadwalAsistenScreenProps = {
   sesi: SesiAsisten[];
@@ -254,37 +255,54 @@ function StripTanggal({
   );
 }
 
+
 function KartuPeta() {
   const theme = useTheme();
+  const router = useRouter();
 
   return (
-    <Card className="mt-three" tone="muted">
-      <View className="flex-row items-start gap-three">
-        <View className="pt-half">
+    <Pressable
+      onPress={() => router.push('/maps')}
+      accessibilityRole="button"
+      accessibilityLabel="Buka Peta Laboratorium"
+    >
+      <Card className="mt-three" tone="muted">
+        <View className="flex-row items-center gap-three">
           <SymbolView
             name={{
               ios: 'mappin.and.ellipse',
               android: 'location_on',
               web: 'location_on',
             }}
-            size={20}
+            size={28}
+            tintColor={theme.primary}
+          />
+
+          <View className="flex-1">
+            <Text className="text-body font-semibold text-primary">
+              Peta Laboratorium
+            </Text>
+
+            <Text className="mt-half text-small text-textSecondary">
+              Lihat lokasi dan aktivitas laboratorium
+            </Text>
+          </View>
+
+          <SymbolView
+            name={{
+              ios: 'chevron.right',
+              android: 'chevron_right',
+              web: 'chevron_right',
+            }}
+            size={22}
             tintColor={theme.primary}
           />
         </View>
-
-        <View className="flex-1">
-          <Text className="text-body font-semibold text-primary">
-            Peta Laboratorium
-          </Text>
-          <Text className="mt-half text-small text-textSecondary">
-            Lokasi dan aktivitas laboratorium belum tersedia.
-          </Text>
-          <StatusBadge className="mt-two" label="Belum tersedia" tone="neutral" />
-        </View>
-      </View>
-    </Card>
+      </Card>
+    </Pressable>
   );
 }
+
 
 function KondisiKosong({
   status,
