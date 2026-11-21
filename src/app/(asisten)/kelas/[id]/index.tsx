@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Alert, FlatList, Pressable, Text, View } from 'react-native';
 
 import {
-  AppButton,
   Banner,
   Card,
   EmptyState,
@@ -13,10 +12,6 @@ import {
 import { MaxContentWidth } from '@/constants/theme';
 import { HeaderAsisten } from '@/features/asisten/header-asisten';
 import { KartuSesi } from '@/features/asisten/kartu-sesi';
-import {
-  ModalSesi,
-  type DataSesiForm,
-} from '@/features/asisten/modal-sesi';
 import { useKelasAsisten } from '@/features/asisten/use-kelas-asisten';
 import {
   useSesiAsisten,
@@ -24,17 +19,18 @@ import {
 } from '@/features/asisten/use-sesi-asisten';
 import { useTheme } from '@/hooks/use-theme';
 import { db } from '@/lib/firebase';
-import {
-  buatSesi,
-  hapusSesi,
-  ubahSesi,
-  type HasilAksiSesi,
-} from '@/lib/sesi';
+import { hapusSesi } from '@/lib/sesi';
 import { useSession } from '@/store/session-store';
 
-export default function DetailKelasAsistenScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+export default function KelolaSesiRoute() {
+  const { id, pesan: pesanParam, jenis: jenisParam } = useLocalSearchParams<{
+    id: string;
+    pesan?: string;
+    jenis?: 'sukses' | 'gagal';
+  }>();
   const kelasId = Array.isArray(id) ? id[0] : id;
+  const pesanAwal = Array.isArray(pesanParam) ? pesanParam[0] : pesanParam;
+  const jenisAwal = Array.isArray(jenisParam) ? jenisParam[0] : jenisParam;
   const { user } = useSession();
   const tema = useTheme();
 
@@ -52,14 +48,9 @@ export default function DetailKelasAsistenScreen() {
     (item) => item.kelasId === kelasId,
   );
 
-  const [modalTerbuka, setModalTerbuka] = useState(false);
-  const [sesiDiedit, setSesiDiedit] =
-    useState<SesiAsisten | null>(null);
-
   const [menghapus, setMenghapus] = useState(false);
-  const [pesan, setPesan] = useState('');
-  const [jenisPesan, setJenisPesan] =
-    useState<'sukses' | 'gagal'>('sukses');
+  const [pesan, setPesan] = useState(pesanAwal ?? '');
+  const jenisPesan: 'sukses' | 'gagal' = jenisAwal ?? 'sukses';
 
   function kembali() {
     router.replace('/(asisten)/kelas');
@@ -67,51 +58,18 @@ export default function DetailKelasAsistenScreen() {
 
   function bukaTambah() {
     setPesan('');
-    setSesiDiedit(null);
-    setModalTerbuka(true);
+    router.push({
+      pathname: '/(asisten)/kelas/[id]/tambah',
+      params: { id: kelasId },
+    });
   }
 
   function bukaEdit(item: SesiAsisten) {
     setPesan('');
-    setSesiDiedit(item);
-    setModalTerbuka(true);
-  }
-
-  function tutupModal() {
-    setModalTerbuka(false);
-    setSesiDiedit(null);
-  }
-
-  async function simpanSesi(
-    data: DataSesiForm,
-  ): Promise<HasilAksiSesi> {
-    if (!kelas || !asistenId) {
-      return {
-        ok: false,
-        pesan: 'Data kelas atau akun asisten belum tersedia.',
-      };
-    }
-
-    const hasil = sesiDiedit
-      ? await ubahSesi({
-          db,
-          sesiId: sesiDiedit.id,
-          asistenId,
-          ...data,
-        })
-      : await buatSesi({
-          db,
-          kelasId: kelas.id,
-          asistenId,
-          ...data,
-        });
-
-    if (hasil.ok) {
-      setPesan(hasil.pesan);
-      setJenisPesan('sukses');
-    }
-
-    return hasil;
+    router.push({
+      pathname: '/(asisten)/kelas/[id]/edit/[sesiId]',
+      params: { id: kelasId, sesiId: item.id },
+    });
   }
 
   function konfirmasiHapusSesi(item: SesiAsisten) {
@@ -198,12 +156,6 @@ export default function DetailKelasAsistenScreen() {
               judul="Kelas tidak ditemukan"
               deskripsi="Kelas mungkin sudah dihapus atau kamu tidak memiliki akses."
             />
-            <AppButton
-              className="mt-three"
-              label="Kembali ke Daftar Kelas"
-              variant="secondary"
-              onPress={kembali}
-            />
           </Card>
         </View>
       </Screen>
@@ -271,7 +223,26 @@ export default function DetailKelasAsistenScreen() {
                 />
               ) : null}
 
-              <AppButton label="+ Tambah Sesi" onPress={bukaTambah} />
+              <Pressable
+                accessibilityLabel="Tambah sesi"
+                accessibilityRole="button"
+                onPress={bukaTambah}
+                className="min-h-button flex-row items-center justify-center gap-two rounded-pill bg-primary active:scale-95"
+              >
+                <SymbolView
+                  name={{
+                    ios: 'plus',
+                    android: 'add',
+                    web: 'add',
+                  }}
+                  size={22}
+                  tintColor={tema.primaryText}
+                />
+
+                <Text className="text-body font-semibold text-primaryText">
+                  Tambah Sesi
+                </Text>
+              </Pressable>
             </View>
           }
           ListEmptyComponent={
@@ -311,15 +282,6 @@ export default function DetailKelasAsistenScreen() {
               sesi={item}
             />
           )}
-        />
-
-        <ModalSesi
-          lab={kelas.lab}
-          namaKelas={kelas.nama}
-          onSimpan={simpanSesi}
-          onTutup={tutupModal}
-          sesi={sesiDiedit}
-          visible={modalTerbuka}
         />
       </View>
     </Screen>
