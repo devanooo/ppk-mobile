@@ -24,7 +24,7 @@ const lightColors = {
   background: '#ffffff',
   backgroundElement: '#ffffff',
   backgroundSelected: '#e8e8ed',
-  surfaceMuted: '#f1f4fa',
+  surfaceMuted: '#f1f5f9',
   border: '#d2d2d7',
   primary: '#172554',
   primaryText: '#ffffff',
