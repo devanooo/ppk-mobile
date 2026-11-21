@@ -119,7 +119,7 @@ const uidAsisten1 = await pastikanAkun(
 );
 await tulisUsers(uidAsisten1, {
   nama: 'Budi',
-  nomorInduk: '198504122010121001',
+  nomorInduk: '19850412201012',
   peran: 'asisten',
 });
 
@@ -129,7 +129,7 @@ const uidAsisten2 = await pastikanAkun(
 );
 await tulisUsers(uidAsisten2, {
   nama: 'Siti',
-  nomorInduk: '199003212015042002',
+  nomorInduk: '19900321201504',
   peran: 'asisten',
 });
 
@@ -139,7 +139,7 @@ const uidPraktikan1 = await pastikanAkun(
 );
 await tulisUsers(uidPraktikan1, {
   nama: 'Ahmad',
-  nomorInduk: '2410511001',
+  nomorInduk: '24105110010001',
   peran: 'praktikan',
 });
 
