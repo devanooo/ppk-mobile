@@ -1,26 +1,24 @@
 
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import {
-  Alert,
-  FlatList,
-  Pressable,
-  Text,
-  View,
-} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { Alert, FlatList, Text, View } from 'react-native';
 
 import {
   AppButton,
+  Banner,
   Card,
   EmptyState,
   HomeButton,
   Screen,
   StatusBadge,
-  TextField,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { tanggalPanjang } from '@/features/asisten/format-edit-sesi';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
+import {
+  ModalSesi,
+  type DataSesiForm,
+} from '@/features/asisten/modal-sesi';
 import { useKelasAsisten } from '@/features/asisten/use-kelas-asisten';
 import {
   useSesiAsisten,
@@ -31,56 +29,9 @@ import {
   buatSesi,
   hapusSesi,
   ubahSesi,
+  type HasilAksiSesi,
 } from '@/lib/sesi';
 import { useSession } from '@/store/session-store';
-
-function hariDariTanggal(tanggal: string): string {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(tanggal)) return '';
-
-  const [tahun, bulan, tanggalHari] = tanggal.split('-').map(Number);
-  const tanggalObj = new Date(tahun, bulan - 1, tanggalHari);
-
-  if (
-    tanggalObj.getFullYear() !== tahun ||
-    tanggalObj.getMonth() !== bulan - 1 ||
-    tanggalObj.getDate() !== tanggalHari
-  ) {
-    return '';
-  }
-
-  const hari = tanggalObj.toLocaleDateString('id-ID', {
-    weekday: 'long',
-  });
-
-  return hari.charAt(0).toUpperCase() + hari.slice(1);
-}
-
-function formatTanggal(tanggal: string): string {
-  const [tahun, bulan, tanggalHari] = tanggal.split('-').map(Number);
-  const tanggalObj = new Date(tahun, bulan - 1, tanggalHari);
-
-  return tanggalObj.toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function tanggalKeString(date: Date): string {
-  const tahun = date.getFullYear();
-  const bulan = String(date.getMonth() + 1).padStart(2, '0');
-  const hari = String(date.getDate()).padStart(2, '0');
-
-  return `${tahun}-${bulan}-${hari}`;
-}
-
-function stringKeTanggal(tanggal: string): Date {
-  if (!tanggal) return new Date();
-
-  const [tahun, bulan, hari] = tanggal.split('-').map(Number);
-
-  return new Date(tahun, bulan - 1, hari, 12);
-}
 
 function labelStatus(status: SesiAsisten['status']): string {
   if (status === 'belum-dibuka') return 'Belum dibuka';
@@ -107,113 +58,66 @@ export default function DetailKelasAsistenScreen() {
     (item) => item.kelasId === kelasId,
   );
 
-  const [formTerbuka, setFormTerbuka] = useState(false);
+  const [modalTerbuka, setModalTerbuka] = useState(false);
   const [sesiDiedit, setSesiDiedit] =
     useState<SesiAsisten | null>(null);
 
-  const [tanggal, setTanggal] = useState('');
-  const [pemilihTanggal, setPemilihTanggal] = useState(false);
-
-  const [jamMulai, setJamMulai] = useState('');
-  const [jamSelesai, setJamSelesai] = useState('');
-
-  const [menyimpan, setMenyimpan] = useState(false);
   const [menghapus, setMenghapus] = useState(false);
+  const [pesan, setPesan] = useState('');
+  const [jenisPesan, setJenisPesan] =
+    useState<'sukses' | 'gagal'>('sukses');
 
   function kembali() {
     router.replace('/(asisten)/kelas');
   }
 
-  function bersihkanForm() {
-    setFormTerbuka(false);
+  function bukaTambah() {
+    setPesan('');
     setSesiDiedit(null);
-    setTanggal('');
-    setPemilihTanggal(false);
-    setJamMulai('');
-    setJamSelesai('');
+    setModalTerbuka(true);
   }
 
-  function bukaFormTambah() {
-    setSesiDiedit(null);
-    setTanggal('');
-    setJamMulai('');
-    setJamSelesai('');
-    setFormTerbuka(true);
-  }
-
-  function bukaFormEdit(item: SesiAsisten) {
+  function bukaEdit(item: SesiAsisten) {
+    setPesan('');
     setSesiDiedit(item);
-    setTanggal(item.tanggal);
-    setJamMulai(item.jamMulai);
-    setJamSelesai(item.jamSelesai);
-    setFormTerbuka(true);
+    setModalTerbuka(true);
   }
 
-  async function simpanSesi() {
+  function tutupModal() {
+    setModalTerbuka(false);
+    setSesiDiedit(null);
+  }
+
+  async function simpanSesi(
+    data: DataSesiForm,
+  ): Promise<HasilAksiSesi> {
     if (!kelas || !asistenId) {
-      Alert.alert(
-        'Gagal',
-        'Data kelas atau akun asisten belum tersedia.',
-      );
-      return;
+      return {
+        ok: false,
+        pesan: 'Data kelas atau akun asisten belum tersedia.',
+      };
     }
 
-    const hari = hariDariTanggal(tanggal);
+    const hasil = sesiDiedit
+      ? await ubahSesi({
+          db,
+          sesiId: sesiDiedit.id,
+          asistenId,
+          ...data,
+        })
+      : await buatSesi({
+          db,
+          kelasId: kelas.id,
+          asistenId,
+          ...data,
+        });
 
-    if (!tanggal || !hari) {
-      Alert.alert(
-        'Tanggal belum dipilih',
-        'Silakan pilih tanggal praktikum melalui kalender.',
-      );
-      return;
+    if (hasil.ok) {
+      setPesan(hasil.pesan);
+      setJenisPesan('sukses');
     }
 
-    if (!jamMulai.trim() || !jamSelesai.trim()) {
-      Alert.alert(
-        'Data belum lengkap',
-        'Jam mulai dan jam selesai wajib diisi.',
-      );
-      return;
-    }
-
-    setMenyimpan(true);
-
-    try {
-      const hasil = sesiDiedit
-        ? await ubahSesi({
-            db,
-            sesiId: sesiDiedit.id,
-            asistenId,
-            hari,
-            tanggal,
-            jamMulai,
-            jamSelesai,
-          })
-        : await buatSesi({
-            db,
-            kelasId: kelas.id,
-            asistenId,
-            hari,
-            tanggal,
-            jamMulai,
-            jamSelesai,
-          });
-
-      if (!hasil.ok) {
-        Alert.alert('Gagal menyimpan sesi', hasil.pesan);
-        return;
-      }
-
-      bersihkanForm();
-      Alert.alert('Berhasil', hasil.pesan);
-    } catch {
-      Alert.alert(
-        'Gagal',
-        'Terjadi kesalahan saat menyimpan sesi. Silakan coba lagi.',
-      );
-    } finally {
-      setMenyimpan(false);
-    }
+    return hasil;
   }
 
   function konfirmasiHapusSesi(item: SesiAsisten) {
@@ -253,10 +157,6 @@ export default function DetailKelasAsistenScreen() {
       if (!hasil.ok) {
         Alert.alert('Gagal menghapus sesi', hasil.pesan);
         return;
-      }
-
-      if (sesiDiedit?.id === item.id) {
-        bersihkanForm();
       }
 
       Alert.alert('Berhasil', hasil.pesan);
@@ -348,109 +248,15 @@ export default function DetailKelasAsistenScreen() {
                 </Text>
               </View>
 
-              <AppButton
-                label={formTerbuka ? 'Tutup Form' : 'Tambah Sesi'}
-                onPress={() => {
-                  if (formTerbuka) {
-                    bersihkanForm();
-                  } else {
-                    bukaFormTambah();
-                  }
-                }}
-              />
-
-              {formTerbuka ? (
-                <View className="gap-three rounded-lg border border-border bg-backgroundElement p-three">
-                  <Text className="text-subtitle font-semibold text-text">
-                    {sesiDiedit ? 'Edit Sesi' : 'Tambah Sesi'}
-                  </Text>
-
-                  <View className="gap-one">
-                    <Text className="text-small font-medium text-text">
-                      Tanggal Praktikum
-                    </Text>
-
-                    <Pressable
-                      accessibilityRole="button"
-                      disabled={menyimpan}
-                      onPress={() => setPemilihTanggal(true)}
-                      className="flex-row items-center justify-between rounded-lg border border-border bg-background px-three py-three"
-                    >
-                      <View className="flex-1">
-                        <Text
-                          className={
-                            tanggal
-                              ? 'text-body font-medium text-text'
-                              : 'text-body text-textSecondary'
-                          }
-                        >
-                          {tanggal
-                            ? formatTanggal(tanggal)
-                            : 'Pilih tanggal praktikum'}
-                        </Text>
-
-                        {tanggal ? (
-                          <Text className="mt-one text-small text-textSecondary">
-                            {hariDariTanggal(tanggal)}
-                          </Text>
-                        ) : null}
-                      </View>
-                    </Pressable>
-
-                    {pemilihTanggal ? (
-                      <DateTimePicker
-                        value={stringKeTanggal(tanggal)}
-                        mode="date"
-                        display="default"
-                        onChange={(event, selectedDate) => {
-                          setPemilihTanggal(false);
-
-                          if (selectedDate) {
-                            setTanggal(tanggalKeString(selectedDate));
-                          }
-                        }}
-                      />
-                    ) : null}
-                  </View>
-
-                  <TextField
-                    label="Jam Mulai"
-                    value={jamMulai}
-                    onChangeText={setJamMulai}
-                    placeholder="Contoh: 08:00"
-                    autoCapitalize="none"
-                  />
-
-                  <TextField
-                    label="Jam Selesai"
-                    value={jamSelesai}
-                    onChangeText={setJamSelesai}
-                    placeholder="Contoh: 10:00"
-                    autoCapitalize="none"
-                  />
-
-                  <View className="flex-row gap-two">
-                    <View className="flex-1">
-                      <AppButton
-                        label="Batal"
-                        variant="secondary"
-                        disabled={menyimpan}
-                        onPress={bersihkanForm}
-                      />
-                    </View>
-
-                    <View className="flex-1">
-                      <AppButton
-                        label={
-                          menyimpan ? 'Menyimpan...' : 'Simpan Sesi'
-                        }
-                        disabled={menyimpan}
-                        onPress={simpanSesi}
-                      />
-                    </View>
-                  </View>
-                </View>
+              {pesan ? (
+                <Banner
+                  jenis={jenisPesan}
+                  pesan={pesan}
+                  onTutup={() => setPesan('')}
+                />
               ) : null}
+
+              <AppButton label="Tambah Sesi" onPress={bukaTambah} />
 
               <Text className="text-subtitle font-semibold text-text">
                 Daftar Sesi
@@ -482,7 +288,7 @@ export default function DetailKelasAsistenScreen() {
             <Card>
               <View className="flex-row items-start justify-between gap-two">
                 <Text className="flex-1 text-subtitle font-semibold text-text">
-                  {item.hari}, {formatTanggal(item.tanggal)}
+                  {item.hari}, {tanggalPanjang(item.tanggal)}
                 </Text>
 
                 <StatusBadge status={item.status} />
@@ -501,14 +307,14 @@ export default function DetailKelasAsistenScreen() {
                   <AppButton
                     label="Edit Sesi"
                     variant="secondary"
-                    disabled={menyimpan || menghapus}
-                    onPress={() => bukaFormEdit(item)}
+                    disabled={menghapus}
+                    onPress={() => bukaEdit(item)}
                   />
 
                   <AppButton
                     label={menghapus ? 'Menghapus...' : 'Hapus Sesi'}
                     variant="secondary"
-                    disabled={menyimpan || menghapus}
+                    disabled={menghapus}
                     onPress={() => konfirmasiHapusSesi(item)}
                   />
                 </View>
@@ -519,6 +325,15 @@ export default function DetailKelasAsistenScreen() {
               )}
             </Card>
           )}
+        />
+
+        <ModalSesi
+          lab={kelas.lab}
+          namaKelas={kelas.nama}
+          onSimpan={simpanSesi}
+          onTutup={tutupModal}
+          sesi={sesiDiedit}
+          visible={modalTerbuka}
         />
       </View>
     </Screen>
