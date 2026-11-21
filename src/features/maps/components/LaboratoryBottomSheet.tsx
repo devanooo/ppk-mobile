@@ -1,17 +1,32 @@
-import React from 'react';
-import {
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import {
+  AppButton,
+  Skeleton,
+  StatusBadge,
+} from '@/components/ui';
+import { gayaBayangan } from '@/components/ui/shadow-style';
+
+import type {
+  AktivitasLaboratorium,
+  HasilAktivitas,
+  StatusAktivitas,
+} from '../types/activity';
 import type { Laboratory } from '../types/laboratory';
+import {
+  labelTanggalAktivitas,
+  rentangJamAktivitas,
+} from '../utils/activity';
 
 interface LaboratoryBottomSheetProps {
   laboratory: Laboratory;
   distance: number | null;
   mode: 'view' | 'select';
+  aktivitas: HasilAktivitas;
+  statusAktivitas: StatusAktivitas;
+  pesanGalatAktivitas?: string;
+  labelLab: string;
+  onRetryAktivitas: () => void;
   onClose: () => void;
   onSelect?: (labId: string) => void;
 }
@@ -20,132 +35,311 @@ export default function LaboratoryBottomSheet({
   laboratory,
   distance,
   mode,
+  aktivitas,
+  statusAktivitas,
+  pesanGalatAktivitas,
+  labelLab,
+  onRetryAktivitas,
   onClose,
   onSelect,
 }: LaboratoryBottomSheetProps) {
   return (
-    <View style={styles.container}>
-      <View style={styles.handle} />
+    <View
+      className="absolute bottom-three left-three right-three rounded-xl bg-backgroundElement"
+      style={[gayaBayangan, s.sheet]}
+    >
+      {/* Handle bar */}
+      <View className="items-center pb-two pt-twoHalf">
+        <View className="h-one w-five rounded-pill bg-border" />
+      </View>
 
-      <View style={styles.header}>
-        <View style={styles.info}>
-          <Text style={styles.title}>
-            {laboratory.name}
-          </Text>
+      <ScrollView
+        className="px-four"
+        contentContainerClassName="pb-four"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Judul + tombol tutup */}
+        <View style={s.baris}>
+          <View style={{ flex: 1 }}>
+            <Text style={s.namaLab}>{laboratory.name}</Text>
+            <Text style={s.alamatLab}>
+              {laboratory.building}
+              {laboratory.floor !== null
+                ? ` · Lantai ${laboratory.floor}`
+                : ''}
+            </Text>
+          </View>
 
-          <Text style={styles.subtitle}>
-            {laboratory.building}
-            {laboratory.floor !== null
-              ? ` · Lantai ${laboratory.floor}`
-              : ''}
-          </Text>
+          <Pressable
+            accessibilityLabel="Tutup detail laboratorium"
+            accessibilityRole="button"
+            onPress={onClose}
+            style={s.tombolTutup}
+          >
+            <Text style={s.ikonTutup}>×</Text>
+          </Pressable>
         </View>
 
-        <Pressable onPress={onClose} hitSlop={12}>
-          <Text style={styles.close}>×</Text>
-        </Pressable>
-      </View>
+        {/* Info jarak */}
+        <View style={s.infoWrap}>
+          <BarisInfo
+            label="Radius laboratorium"
+            nilai={`${laboratory.radiusMeters} meter`}
+          />
+          <BarisInfo
+            label="Jarak Anda"
+            nilai={
+              distance !== null
+                ? `${Math.round(distance)} meter`
+                : 'Lokasi tidak tersedia'
+            }
+          />
+        </View>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>
-          Radius laboratorium
-        </Text>
-        <Text style={styles.value}>
-          {laboratory.radiusMeters} meter
-        </Text>
-      </View>
+        {/* Aktivitas */}
+        <View style={s.sectionAktivitas}>
+          <Text style={s.labelSeksi}>Aktivitas laboratorium</Text>
 
-      <View style={styles.row}>
-        <Text style={styles.label}>
-          Jarak Anda
-        </Text>
-        <Text style={styles.value}>
-          {distance !== null
-            ? `${Math.round(distance)} meter`
-            : 'Lokasi tidak tersedia'}
-        </Text>
-      </View>
+          <IsiAktivitas
+            aktivitas={aktivitas}
+            labelLab={labelLab}
+            onRetry={onRetryAktivitas}
+            pesanGalat={pesanGalatAktivitas}
+            status={statusAktivitas}
+          />
+        </View>
 
-      {mode === 'select' && (
-        <Pressable
-          style={styles.selectButton}
-          onPress={() => onSelect?.(laboratory.id)}
-        >
-          <Text style={styles.selectText}>
-            Pilih Lokasi Ini
-          </Text>
-        </Pressable>
-      )}
+        {mode === 'select' ? (
+          <AppButton
+            className="mt-four"
+            label="Pilih Lokasi Ini"
+            onPress={() => onSelect?.(laboratory.id)}
+          />
+        ) : null}
+      </ScrollView>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 16,
-    left: 12,
-    right: 12,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    padding: 20,
-    elevation: 8,
+function BarisInfo({ label, nilai }: { label: string; nilai: string }) {
+  return (
+    <View style={s.barisInfo}>
+      <Text style={s.labelInfo}>{label}</Text>
+      <Text style={s.nilaiInfo}>{nilai}</Text>
+    </View>
+  );
+}
+
+function IsiAktivitas({
+  aktivitas,
+  status,
+  pesanGalat,
+  labelLab,
+  onRetry,
+}: {
+  aktivitas: HasilAktivitas;
+  status: StatusAktivitas;
+  pesanGalat?: string;
+  labelLab: string;
+  onRetry: () => void;
+}) {
+  if (status === 'memuat') {
+    return (
+      <View style={{ marginTop: 8 }}>
+        <Skeleton
+          accessibilityLabel="Memuat aktivitas laboratorium"
+          baris={2}
+        />
+      </View>
+    );
+  }
+
+  if (status === 'gagal') {
+    return (
+      <View style={s.kartuGagal}>
+        <Text style={s.judulKartu}>Gagal memuat aktivitas</Text>
+        <Text style={s.isiKartu}>
+          {pesanGalat ?? 'Aktivitas laboratorium tidak dapat dimuat.'}
+        </Text>
+        <AppButton
+          className="mt-two"
+          label="Coba Lagi"
+          onPress={onRetry}
+          size="sm"
+          variant="secondary"
+        />
+      </View>
+    );
+  }
+
+  if (!aktivitas.saatIni && !aktivitas.berikutnya) {
+    return (
+      <View style={s.kartuKosong}>
+        <Text style={s.judulKartu}>Belum ada aktivitas</Text>
+        <Text style={s.isiKartu}>
+          Tidak ada praktikum saat ini maupun berikutnya di {labelLab}.
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={s.daftarAktivitas}>
+      {aktivitas.saatIni ? (
+        <KartuAktivitas aktivitas={aktivitas.saatIni} label="Saat ini" />
+      ) : null}
+      {aktivitas.berikutnya ? (
+        <KartuAktivitas aktivitas={aktivitas.berikutnya} label="Berikutnya" />
+      ) : null}
+    </View>
+  );
+}
+
+function KartuAktivitas({
+  label,
+  aktivitas,
+}: {
+  label: string;
+  aktivitas: AktivitasLaboratorium;
+}) {
+  return (
+    <View style={s.kartuAktivitas}>
+      <View style={s.baris}>
+        <Text style={s.labelWaktu}>{label}</Text>
+        <StatusBadge status={aktivitas.sesi.status} />
+      </View>
+      <Text style={s.namaKelas}>{aktivitas.namaKelas}</Text>
+      <Text style={s.detailKelas}>
+        {aktivitas.lab} · {rentangJamAktivitas(aktivitas.sesi)}
+      </Text>
+      <Text style={s.tanggalKelas}>
+        {labelTanggalAktivitas(aktivitas.sesi)}
+      </Text>
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  sheet: {
+    maxHeight: 420,
   },
-  handle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: '#CBD5E1',
-    alignSelf: 'center',
-    marginBottom: 18,
-  },
-  header: {
+  baris: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 18,
+    alignItems: 'flex-start',
+    gap: 8,
   },
-  info: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 19,
+  namaLab: {
+    fontSize: 17,
     fontWeight: '700',
-    color: '#192957',
+    color: '#0F172A',
   },
-  subtitle: {
-    marginTop: 5,
+  alamatLab: {
+    marginTop: 2,
     fontSize: 12,
     color: '#64748B',
   },
-  close: {
-    fontSize: 28,
+  tombolTutup: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 16,
+    backgroundColor: '#F1F5F9',
+  },
+  ikonTutup: {
+    fontSize: 20,
+    lineHeight: 24,
     color: '#64748B',
   },
-  row: {
+  infoWrap: {
+    marginTop: 12,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#E2E8F0',
+  },
+  barisInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E2E8F0',
     paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
   },
-  label: {
+  labelInfo: {
     fontSize: 13,
     color: '#64748B',
   },
-  value: {
+  nilaiInfo: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#192957',
+    color: '#0F172A',
+    flexShrink: 1,
+    textAlign: 'right',
   },
-  selectButton: {
-    marginTop: 16,
-    backgroundColor: '#192957',
-    padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
+  sectionAktivitas: {
+    marginTop: 14,
   },
-  selectText: {
-    color: '#FFFFFF',
+  labelSeksi: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 10,
+  },
+  daftarAktivitas: {
+    gap: 8,
+  },
+  kartuAktivitas: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
+    padding: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E2E8F0',
+  },
+  labelWaktu: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  namaKelas: {
+    marginTop: 6,
+    fontSize: 14,
     fontWeight: '700',
+    color: '#0F172A',
+  },
+  detailKelas: {
+    marginTop: 3,
+    fontSize: 12,
+    color: '#64748B',
+  },
+  tanggalKelas: {
+    marginTop: 2,
+    fontSize: 11,
+    color: '#94A3B8',
+  },
+  kartuGagal: {
+    marginTop: 8,
+    borderRadius: 10,
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+  },
+  kartuKosong: {
+    marginTop: 8,
+    borderRadius: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#E2E8F0',
+    padding: 12,
+  },
+  judulKartu: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#0F172A',
+  },
+  isiKartu: {
+    marginTop: 4,
+    fontSize: 12,
+    color: '#64748B',
   },
 });
