@@ -86,10 +86,10 @@ Nilai di bawah adalah nilai yang berlaku hari ini. Bila berbeda, `tokens.js` yan
 | `text` | `#1d1d1f` | `#f5f5f7` | Teks utama |
 | `textSecondary` | `#6e6e73` | `#cccccc` | Teks sekunder |
 | `textInverse` | `#ffffff` | `#1d1d1f` | Teks di atas warna aksi terisi |
-| `background` | `#f5f5f7` | `#000000` | Latar layar |
+| `background` | `#ffffff` | `#000000` | Latar layar |
 | `backgroundElement` | `#ffffff` | `#272729` | Kartu dan sheet |
 | `backgroundSelected` | `#e8e8ed` | `#2a2a2c` | Baris terpilih, permukaan bertinta |
-| `surfaceMuted` | `#e3e9f4` | `#202329` | Permukaan kartu dan blok info |
+| `surfaceMuted` | `#f1f4fa` | `#1f2228` | Permukaan kartu dan blok info |
 | `border` | `#d2d2d7` | `#3a3a3c` | Garis dan border |
 | `primary` | `#172554` | `#2997ff` | Aksi utama, tautan, fokus |
 | `primaryText` | `#ffffff` | `#00131f` | Label di atas `primary` |
