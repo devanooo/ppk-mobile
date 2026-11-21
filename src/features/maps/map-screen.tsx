@@ -1,34 +1,49 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 
 import {
   ActivityIndicator,
+  Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
 
+import { router } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import MapView, {
   Circle,
   PROVIDER_GOOGLE,
   type Region,
 } from 'react-native-maps';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { AppButton } from '@/components/ui';
+import { db } from '@/lib/firebase';
+import { useSession } from '@/store/session-store';
 
 // Custom hooks
 import { useLaboratories } from './hooks/useLaboratories';
 import { useLocation } from './hooks/useLocation';
+import { useAktivitasLaboratorium } from './hooks/useAktivitasLaboratorium';
 
 // Components
 import LaboratoryMarker from './components/LaboratoryMarker';
 import UserLocationMarker from './components/UserLocationMarker';
 import MapControls from './components/MapControls';
 import LaboratoryBottomSheet from './components/LaboratoryBottomSheet';
+import LaboratoryPickerSheet from './components/LaboratoryPickerSheet';
+
+// Constants
+import { LABORATORY_OPTIONS } from './constants/laboratory';
 
 // Utilities
 import { calculateDistance } from './utils/haversine';
 
 // Types
-import type { Laboratory } from './types/laboratory';
+import type {
+  Laboratory,
+  LaboratoryId,
+} from './types/laboratory';
 
 // ========================================
 // INITIAL MAP REGION
@@ -55,36 +70,56 @@ export default function MapsScreen({
   mode = 'view',
   onSelectLocation,
 }: MapsScreenProps) {
-  // Map reference
   const mapRef = useRef<MapView>(null);
 
-  // Mencegah kamera terus mengikuti GPS
-  // setiap kali koordinat diperbarui.
+  const insets = useSafeAreaInsets();
+  const headerTop = insets.top + 12;
+  const backTop = headerTop;
+
   const hasCenteredOnUser = useRef(false);
 
-  // Selected laboratory
   const [selectedLabId, setSelectedLabId] =
     useState<Laboratory['id'] | null>(null);
 
-  // Firestore laboratory data
+  const [pesanPilihLab, setPesanPilihLab] =
+    useState<string>();
+
+  const { user } = useSession();
+
   const {
     laboratories,
     loading: labsLoading,
     error: labsError,
+    retry: retryLabs,
   } = useLaboratories();
 
-  // Device location
+  const {
+    saatIni,
+    berikutnya,
+    status: statusAktivitas,
+    pesanGalat: pesanGalatAktivitas,
+    retry: retryAktivitas,
+  } = useAktivitasLaboratorium({
+    db,
+    userId: user?.id,
+    peran: user?.peran,
+    labId: selectedLabId,
+  });
+
   const {
     location,
     loading: locationLoading,
-    status: locationStatus,
     error: locationError,
     retry,
   } = useLocation();
 
-  // Find selected laboratory from latest Firestore data
   const selectedLab =
     laboratories.find((lab) => lab.id === selectedLabId) ?? null;
+
+  const selectedLabLabel =
+    LABORATORY_OPTIONS.find(
+      (option) => option.id === selectedLabId,
+    )?.label ?? 'laboratorium ini';
 
   // ========================================
   // CENTER MAP ON USER LOCATION
@@ -108,7 +143,11 @@ export default function MapsScreen({
   }, [location]);
 
   // ========================================
-  // CENTER USER LOCATION BUTTON
+  // HANDLERS
+
+  const handleBack = () => {
+    router.back();
+  };
 
   const handleCenterUser = () => {
     if (!location) {
@@ -127,9 +166,6 @@ export default function MapsScreen({
     );
   };
 
-  // ========================================
-  // CALCULATE DISTANCE TO SELECTED LAB
-
   const distance =
     selectedLab && location
       ? calculateDistance(
@@ -144,21 +180,38 @@ export default function MapsScreen({
         )
       : null;
 
-  // ========================================
-  // HANDLE LABORATORY SELECTION
-
   const handleSelectLab = (lab: Laboratory) => {
+    setPesanPilihLab(undefined);
     setSelectedLabId(lab.id);
 
-    mapRef.current?.animateToRegion(
-      {
-        latitude: lab.location.latitude,
-        longitude: lab.location.longitude,
-        latitudeDelta: 0.002,
-        longitudeDelta: 0.002,
-      },
-      500,
-    );
+    // Delay kecil supaya state update selesai dulu sebelum animasi
+    setTimeout(() => {
+      mapRef.current?.animateToRegion(
+        {
+          latitude: lab.location.latitude,
+          longitude: lab.location.longitude,
+          latitudeDelta: 0.002,
+          longitudeDelta: 0.002,
+        },
+        600,
+      );
+    }, 50);
+  };
+
+  const handleSelectLabById = (labId: LaboratoryId) => {
+    const lab = laboratories.find((item) => item.id === labId);
+    const label =
+      LABORATORY_OPTIONS.find((option) => option.id === labId)
+        ?.label ?? 'Laboratorium';
+
+    if (!lab) {
+      setPesanPilihLab(
+        `Data lokasi ${label} belum tersedia.`,
+      );
+      return;
+    }
+
+    handleSelectLab(lab);
   };
 
   // ========================================
@@ -178,28 +231,26 @@ export default function MapsScreen({
         initialRegion={INITIAL_REGION}
         showsCompass
         showsScale
+        showsUserLocation
+        showsMyLocationButton
         toolbarEnabled={false}
         loadingEnabled
         mapPadding={{
-          top: 120,
+          top: headerTop + 70,
           right: 16,
-          bottom: selectedLab ? 330 : 100,
+          bottom: selectedLab ? 380 : 250,
           left: 16,
         }}
       >
 
-        {/* LABORATORY MARKERS */}
-
         {laboratories.map((lab) => (
-        <LaboratoryMarker
+          <LaboratoryMarker
             key={lab.id}
             laboratory={lab}
             selected={selectedLabId === lab.id}
             onPress={handleSelectLab}
-        />
+          />
         ))}
-
-        {/* SELECTED LAB RADIUS */}
 
         {selectedLab && (
           <Circle
@@ -214,37 +265,56 @@ export default function MapsScreen({
           />
         )}
 
-        {/* USER LOCATION */}
-
-        {location && (
-          <UserLocationMarker
-            latitude={location.latitude}
-            longitude={location.longitude}
-            accuracy={location.accuracy}
-          />
-        )}
+        {/* UserLocationMarker diganti showsUserLocation di MapView (titik biru native) */}
 
       </MapView>
 
       {/* ==================================
-          CUSTOM HEADER
+          BACK BUTTON + HEADER (sejajar)
       ================================== */}
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>
-          Peta Laboratorium
-        </Text>
+      <View style={[styles.topBar, { top: headerTop }]}>
+        <Pressable
+          accessibilityLabel="Kembali"
+          accessibilityRole="button"
+          hitSlop={8}
+          onPress={handleBack}
+          style={({ pressed }) => [
+            styles.backButton,
+            pressed && styles.backButtonPressed,
+          ]}
+        >
+          <View style={styles.backIconWrap}>
+            <SymbolView
+              name={{
+                ios: 'chevron.left',
+                android: 'arrow_back',
+                web: 'arrow_back',
+              }}
+              size={20}
+              tintColor="#192957"
+            />
+          </View>
+        </Pressable>
 
-        <Text style={styles.headerSubtitle}>
-          Lihat lokasi dan aktivitas laboratorium.
-        </Text>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Peta Laboratorium</Text>
+          <Text style={styles.headerSubtitle}>
+            Lihat lokasi dan aktivitas laboratorium.
+          </Text>
+        </View>
       </View>
 
       {/* ==================================
           MAP CONTROLS
       ================================== */}
 
-      <View style={styles.controls}>
+      <View
+        style={[
+          styles.controls,
+          !selectedLab && styles.controlsWithPicker,
+        ]}
+      >
         <MapControls
           onMyLocationPress={handleCenterUser}
           disabled={!location}
@@ -257,11 +327,9 @@ export default function MapsScreen({
 
       {!location && (
         <View style={styles.statusCard}>
-
           {locationLoading ? (
             <>
               <ActivityIndicator color="#192957" />
-
               <Text style={styles.statusText}>
                 Mencari lokasi Anda...
               </Text>
@@ -271,16 +339,11 @@ export default function MapsScreen({
               <Text style={styles.statusText}>
                 {locationError ?? 'Lokasi belum tersedia'}
               </Text>
-
-              <Text
-                style={styles.retryText}
-                onPress={retry}
-              >
+              <Text style={styles.retryText} onPress={retry}>
                 Coba Lagi
               </Text>
             </>
           )}
-
         </View>
       )}
 
@@ -291,7 +354,6 @@ export default function MapsScreen({
       {labsLoading && (
         <View style={styles.loadingCard}>
           <ActivityIndicator color="#192957" />
-
           <Text style={styles.statusText}>
             Memuat laboratorium...
           </Text>
@@ -303,6 +365,13 @@ export default function MapsScreen({
           <Text style={styles.statusText}>
             Gagal memuat data laboratorium.
           </Text>
+          <AppButton
+            className="mt-two"
+            label="Coba Lagi"
+            onPress={retryLabs}
+            size="sm"
+            variant="secondary"
+          />
         </View>
       )}
 
@@ -312,24 +381,29 @@ export default function MapsScreen({
 
       {selectedLab && (
         <LaboratoryBottomSheet
-          laboratory={selectedLab}
+          laboratory={{ ...selectedLab, name: selectedLabLabel }}
           distance={distance}
           mode={mode}
+          aktivitas={{ saatIni, berikutnya }}
+          statusAktivitas={statusAktivitas}
+          pesanGalatAktivitas={pesanGalatAktivitas}
+          labelLab={selectedLabLabel}
+          onRetryAktivitas={retryAktivitas}
           onClose={() => setSelectedLabId(null)}
           onSelect={onSelectLocation}
         />
       )}
 
       {/* ==================================
-          LABORATORY COUNT
+          LABORATORY PICKER
       ================================== */}
 
-      {!selectedLab && !labsLoading && (
-        <View style={styles.labCount}>
-          <Text style={styles.labCountText}>
-            {laboratories.length} Laboratorium
-          </Text>
-        </View>
+      {!selectedLab && !labsLoading && !labsError && (
+        <LaboratoryPickerSheet
+          selectedLabId={selectedLabId}
+          pesan={pesanPilihLab}
+          onSelect={handleSelectLabById}
+        />
       )}
 
     </View>
@@ -346,26 +420,74 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F7FA',
   },
 
-  header: {
+  map: {
     position: 'absolute',
-    top: 55,
-    left: 20,
-    right: 20,
-    padding: 16,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+
+  topBar: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    zIndex: 100,
+  },
+
+  backButton: {
+    width: 42,
+    height: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  backButtonPressed: {
+    opacity: 0.75,
+  },
+
+  backIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    overflow: 'hidden',
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#192957',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 5,
+  },
+
+  header: {
+    flex: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
     elevation: 4,
+    shadowColor: '#192957',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    justifyContent: 'center',
+    minHeight: 42,
   },
 
   headerTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: '700',
     color: '#192957',
   },
 
   headerSubtitle: {
-    marginTop: 4,
-    fontSize: 12,
+    marginTop: 2,
+    fontSize: 11,
     color: '#64748B',
   },
 
@@ -373,6 +495,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 18,
     bottom: 190,
+  },
+
+  controlsWithPicker: {
+    bottom: 250,
   },
 
   statusCard: {
@@ -425,29 +551,4 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2563EB',
   },
-
-  labCount: {
-    position: 'absolute',
-    bottom: 24,
-    left: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    elevation: 3,
-  },
-
-  labCountText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#192957',
-  },
-
-  map: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    },  
 });

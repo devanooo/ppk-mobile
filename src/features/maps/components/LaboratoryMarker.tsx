@@ -1,7 +1,8 @@
 import React from 'react';
-import { Marker } from 'react-native-maps';
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { Marker } from 'react-native-maps';
 
+import { LABORATORY_OPTIONS } from '../constants/laboratory';
 import type { Laboratory } from '../types/laboratory';
 
 interface LaboratoryMarkerProps {
@@ -15,29 +16,26 @@ export default function LaboratoryMarker({
   selected,
   onPress,
 }: LaboratoryMarkerProps) {
+  // Pakai label dari LABORATORY_OPTIONS supaya konsisten dengan picker sheet
+  const label =
+    LABORATORY_OPTIONS.find((opt) => opt.id === laboratory.id)?.label ??
+    laboratory.code.replace('LAB_', 'Lab ');
+
   return (
     <Marker
-    coordinate={{
+      coordinate={{
         latitude: laboratory.location.latitude,
         longitude: laboratory.location.longitude,
-    }}
-    onPress={() => onPress(laboratory)}
-    zIndex={selected ? 1000 : 1}
-    tracksViewChanges={true}
+      }}
+      onPress={() => onPress(laboratory)}
+      zIndex={selected ? 1000 : 1}
+      tracksViewChanges={false}
     >
       <Pressable
-        style={[
-          styles.marker,
-          selected && styles.selected,
-        ]}
+        style={[styles.marker, selected && styles.selected]}
       >
-        <Text
-        style={[
-            styles.markerText,
-            selected && styles.selectedText,
-        ]}
-        >
-        {laboratory.code.replace('LAB_', 'Lab ')}
+        <Text style={[styles.markerText, selected && styles.selectedText]}>
+          {label}
         </Text>
       </Pressable>
     </Marker>
@@ -67,5 +65,3 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
-
-
