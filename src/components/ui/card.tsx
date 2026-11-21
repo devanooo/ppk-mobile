@@ -14,13 +14,12 @@ type CardProps = {
 );
 
 /**
- * Kartu tidak memakai shadow. `muted` memakai token `backgroundSelected` karena
- * itulah satu-satunya permukaan bertinta yang mengikuti mode terang dan gelap;
- * token `surfaceMuted` belum ada.
+ * Kartu tidak memakai shadow. `muted` memakai token `surfaceMuted`, permukaan
+ * lavender muda yang mengikuti mode terang dan gelap.
  */
 const KULIT: Record<CardTone, string> = {
   default: 'rounded-lg border border-border bg-backgroundElement p-three',
-  muted: 'rounded-lg bg-backgroundSelected p-three',
+  muted: 'rounded-lg bg-surfaceMuted p-three',
 };
 
 export function Card({
