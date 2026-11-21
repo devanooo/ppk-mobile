@@ -24,6 +24,7 @@ import {
   urutkanSesi,
 } from './format-sesi';
 import type { JadwalPraktikan } from './use-jadwal-praktikan';
+import { useRouter } from 'expo-router';
 
 type JadwalScreenProps = {
   sesi: JadwalPraktikan[];
@@ -251,44 +252,54 @@ function StripTanggal({
   );
 }
 
+
 function KartuPeta() {
   const theme = useTheme();
+  const router = useRouter();
 
   return (
-    <Card className="mt-three" tone="muted">
-      <View className="flex-row items-center gap-three">
-        <SymbolView
-          name={{
-            ios: 'mappin.and.ellipse',
-            android: 'location_on',
-            web: 'location_on',
-          }}
-          size={28}
-          tintColor={theme.primary}
-        />
+    <Pressable
+      onPress={() => router.push('/maps')}
+      accessibilityRole="button"
+      accessibilityLabel="Buka Peta Laboratorium"
+    >
+      <Card className="mt-three" tone="muted">
+        <View className="flex-row items-center gap-three">
+          <SymbolView
+            name={{
+              ios: 'mappin.and.ellipse',
+              android: 'location_on',
+              web: 'location_on',
+            }}
+            size={28}
+            tintColor={theme.primary}
+          />
 
-        <View className="flex-1">
-          <Text className="text-body font-semibold text-primary">
-            Peta Laboratorium
-          </Text>
-          <Text className="mt-half text-small text-textSecondary">
-            Lihat lokasi dan aktivitas laboratorium
-          </Text>
+          <View className="flex-1">
+            <Text className="text-body font-semibold text-primary">
+              Peta Laboratorium
+            </Text>
+
+            <Text className="mt-half text-small text-textSecondary">
+              Lihat lokasi dan aktivitas laboratorium
+            </Text>
+          </View>
+
+          <SymbolView
+            name={{
+              ios: 'chevron.right',
+              android: 'chevron_right',
+              web: 'chevron_right',
+            }}
+            size={22}
+            tintColor={theme.primary}
+          />
         </View>
-
-        <SymbolView
-          name={{
-            ios: 'chevron.right',
-            android: 'chevron_right',
-            web: 'chevron_right',
-          }}
-          size={22}
-          tintColor={theme.primary}
-        />
-      </View>
-    </Card>
+      </Card>
+    </Pressable>
   );
 }
+
 
 function KondisiKosong({
   status,
