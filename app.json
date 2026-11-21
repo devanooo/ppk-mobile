@@ -35,7 +35,13 @@
           "imageWidth": 76
         }
       ],
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "PraktikumKU membutuhkan akses lokasi untuk menampilkan posisi Anda pada peta dan memvalidasi presensi praktikum."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
