@@ -259,28 +259,35 @@ function KartuPeta() {
 
   return (
     <Card className="mt-three" tone="muted">
-      <View className="flex-row items-start gap-three">
-        <View className="pt-half">
-          <SymbolView
-            name={{
-              ios: 'mappin.and.ellipse',
-              android: 'location_on',
-              web: 'location_on',
-            }}
-            size={20}
-            tintColor={theme.primary}
-          />
-        </View>
+      <View className="flex-row items-center gap-three">
+        <SymbolView
+          name={{
+            ios: 'mappin.and.ellipse',
+            android: 'location_on',
+            web: 'location_on',
+          }}
+          size={28}
+          tintColor={theme.primary}
+        />
 
         <View className="flex-1">
           <Text className="text-body font-semibold text-primary">
             Peta Laboratorium
           </Text>
           <Text className="mt-half text-small text-textSecondary">
-            Lokasi dan aktivitas laboratorium belum tersedia.
+            Lihat lokasi dan aktivitas laboratorium
           </Text>
-          <StatusBadge className="mt-two" label="Belum tersedia" tone="neutral" />
         </View>
+
+        <SymbolView
+          name={{
+            ios: 'chevron.right',
+            android: 'chevron_right',
+            web: 'chevron_right',
+          }}
+          size={22}
+          tintColor={theme.primary}
+        />
       </View>
     </Card>
   );
