@@ -8,6 +8,7 @@ import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { berandaUntuk } from '@/features/auth/beranda';
+import { useNotifikasi } from '@/features/notifikasi/use-notifikasi';
 import { pasangHandlerNotifikasi, siapkanSaluranAndroid } from '@/lib/notifikasi';
 import { SessionProvider, useSession } from '@/store/session-store';
 
@@ -33,6 +34,8 @@ export default function RootLayout() {
 
 function NavigasiAkar() {
   const { user, authLoading } = useSession();
+
+  useNotifikasi(user?.id ?? null);
 
   // Tunggu Firebase menyelesaikan pemulihan sesi.
   if (authLoading) {
