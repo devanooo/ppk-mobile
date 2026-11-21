@@ -33,6 +33,9 @@ export type { ProfileMenuProps } from './profile-menu';
 export { Screen } from './screen';
 export type { ScreenProps } from './screen';
 
+export { SearchBar } from './search-bar';
+export type { SearchBarProps } from './search-bar';
+
 export { SectionHeader } from './section-header';
 export type { SectionHeaderProps } from './section-header';
 
