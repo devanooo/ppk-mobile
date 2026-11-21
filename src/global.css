@@ -11,10 +11,10 @@
   --color-text: 29 29 31;
   --color-textSecondary: 110 110 115;
   --color-textInverse: 255 255 255;
-  --color-background: 245 245 247;
+  --color-background: 255 255 255;
   --color-backgroundElement: 255 255 255;
   --color-backgroundSelected: 232 232 237;
-  --color-surfaceMuted: 227 233 244;
+  --color-surfaceMuted: 241 244 250;
   --color-border: 210 210 215;
   --color-primary: 23 37 84;
   --color-primaryText: 255 255 255;
@@ -39,7 +39,7 @@
     --color-background: 0 0 0;
     --color-backgroundElement: 39 39 41;
     --color-backgroundSelected: 42 42 44;
-    --color-surfaceMuted: 32 35 41;
+    --color-surfaceMuted: 31 34 40;
     --color-border: 58 58 60;
     --color-primary: 41 151 255;
     --color-primaryText: 0 19 31;
