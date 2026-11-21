@@ -18,6 +18,7 @@ import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useSesiAsisten } from '@/features/asisten/use-sesi-asisten';
 import { QrSesi } from '@/features/qr/qr-sesi';
 import { db } from '@/lib/firebase';
+import { kirimEventNotifikasi } from '@/lib/notifikasi';
 import {
   dengarkanPresensiSesi,
   type PresensiDetail,
@@ -128,6 +129,10 @@ export default function DetailSesiAsistenScreen() {
     setPesan(hasil.pesan);
     setJenisPesan(hasil.ok ? 'sukses' : 'gagal');
     setAksiDipilih(null);
+
+    if (hasil.ok && aksiDipilih === 'buka') {
+      void kirimEventNotifikasi({ tipe: 'sesi-dibuka', sesiId: sesi.id });
+    }
   }
 
   if (!user || user.peran !== 'asisten') {

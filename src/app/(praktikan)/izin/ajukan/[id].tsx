@@ -9,6 +9,7 @@ import { klasifikasiAlasan } from '@/lib/ai';
 import { db } from '@/lib/firebase';
 import { ajukanIzin, klasifikasiUlangIzin, simpanHasilKlasifikasi } from '@/lib/izin';
 import { bolehDiajukan, validasiAlasan } from '@/lib/izin-aturan';
+import { kirimEventNotifikasi } from '@/lib/notifikasi';
 import { useSession } from '@/store/session-store';
 
 export default function AjukanIzinDetailScreen() {
@@ -124,6 +125,8 @@ export default function AjukanIzinDetailScreen() {
       setUmpanBalik({ jenis: 'gagal', pesan: hasil.pesan });
       return;
     }
+
+    void kirimEventNotifikasi({ tipe: 'izin-diajukan', sesiId: sesiAktif.id });
 
     // Pengajuan sudah tersimpan. Kegagalan AI tidak boleh membatalkannya
     // (AC US-10 nomor 4), jadi hasilnya hanya memengaruhi badge klasifikasi.

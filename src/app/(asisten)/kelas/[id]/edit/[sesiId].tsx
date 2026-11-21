@@ -9,6 +9,7 @@ import {
   type SesiAsisten,
 } from '@/features/asisten/use-sesi-asisten';
 import { db } from '@/lib/firebase';
+import { kirimEventNotifikasi } from '@/lib/notifikasi';
 import { ubahSesi, type HasilAksiSesi } from '@/lib/sesi';
 import { useSession } from '@/store/session-store';
 
@@ -55,6 +56,11 @@ export default function EditSesiRoute() {
     });
 
     if (hasil.ok) {
+      void kirimEventNotifikasi({
+        tipe: 'jadwal-berubah',
+        sesiId: sesiIdBersih,
+      });
+
       router.replace({
         pathname: '/(asisten)/kelas/[id]',
         params: { id: kelasId, pesan: hasil.pesan, jenis: 'sukses' },

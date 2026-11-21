@@ -8,6 +8,7 @@ import { useSesiAsisten } from '@/features/izin/use-sesi-asisten';
 import { db } from '@/lib/firebase';
 import { putuskanIzin } from '@/lib/izin';
 import type { SesiPraktikan } from '@/lib/izin-sesi';
+import { kirimEventNotifikasi } from '@/lib/notifikasi';
 import { useSession } from '@/store/session-store';
 
 export default function DetailIzinAsistenScreen() {
@@ -56,6 +57,14 @@ export default function DetailIzinAsistenScreen() {
 
     setSedangPutuskan(false);
     setUmpanBalik({ jenis: hasil.ok ? 'sukses' : 'gagal', pesan: hasil.pesan });
+
+    if (hasil.ok) {
+      void kirimEventNotifikasi({
+        tipe: keputusan === 'disetujui' ? 'izin-disetujui' : 'izin-ditolak',
+        sesiId,
+        praktikanId,
+      });
+    }
   }
 
   return (
