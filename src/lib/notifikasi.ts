@@ -34,6 +34,7 @@ export type TokenPerangkat = {
 export type TipeEventNotifikasi =
   | 'sesi-dibuka'
   | 'jadwal-berubah'
+  | 'izin-diajukan'
   | 'izin-disetujui'
   | 'izin-ditolak';
 

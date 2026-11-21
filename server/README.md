@@ -24,6 +24,7 @@ Tipe yang diterima:
 |---|---|
 | `sesi-dibuka` | Semua peserta kelas |
 | `jadwal-berubah` | Semua peserta kelas |
+| `izin-diajukan` | Asisten pemilik sesi |
 | `izin-disetujui` | Praktikan pengaju, wajib kirim `praktikanId` |
 | `izin-ditolak` | Praktikan pengaju, wajib kirim `praktikanId` |
 

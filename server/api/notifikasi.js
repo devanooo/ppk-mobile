@@ -10,6 +10,7 @@ const MAKS_PESAN_PER_KIRIM = 100;
 const TIPE_VALID = new Set([
   'sesi-dibuka',
   'jadwal-berubah',
+  'izin-diajukan',
   'izin-disetujui',
   'izin-ditolak',
 ]);
@@ -199,10 +200,6 @@ async function tangani(req, res) {
   }
 
   const sesi = sesiDokumen.data();
-  if (sesi.asistenId !== pemanggil.uid) {
-    res.status(403).json({ pesan: 'Hanya asisten pemilik sesi.' });
-    return;
-  }
 
   const kelasDokumen = await db.collection('kelas').doc(sesi.kelasId).get();
   if (!kelasDokumen.exists) {
@@ -215,23 +212,19 @@ async function tangani(req, res) {
 
   let penerima;
   let kunci;
+  let isi;
 
-  if (tipe === 'sesi-dibuka') {
-    penerima = peserta;
-    kunci = kunciPeristiwa(tipe, sesiId, [keMillis(sesi.dibukaPada)]);
-  } else if (tipe === 'jadwal-berubah') {
-    penerima = peserta;
-    kunci = kunciPeristiwa(tipe, sesiId, [
-      sesi.tanggal,
-      sesi.jamMulai,
-      sesi.jamSelesai,
-    ]);
-  } else {
+  if (tipe === 'izin-diajukan') {
+    if (!peserta.includes(pemanggil.uid)) {
+      res.status(403).json({ pesan: 'Hanya peserta kelas yang bisa mengajukan izin.' });
+      return;
+    }
+
     const izinDokumen = await db
       .collection('sesi')
       .doc(sesiId)
       .collection('izin')
-      .doc(praktikanId)
+      .doc(pemanggil.uid)
       .get();
 
     if (!izinDokumen.exists) {
@@ -240,18 +233,73 @@ async function tangani(req, res) {
     }
 
     const izin = izinDokumen.data();
-    const statusDiminta = tipe === 'izin-disetujui' ? 'disetujui' : 'ditolak';
-
-    if (izin.status !== statusDiminta) {
-      res.status(409).json({ pesan: 'Status izin belum sesuai.' });
+    if (izin.status !== 'menunggu') {
+      res.status(409).json({ pesan: 'Pengajuan izin sudah diputuskan.' });
       return;
     }
 
-    penerima = [praktikanId];
+    const penggunaDokumen = await db
+      .collection('users')
+      .doc(pemanggil.uid)
+      .get();
+    const nama = penggunaDokumen.exists
+      ? String(penggunaDokumen.data().nama || 'Praktikan')
+      : 'Praktikan';
+
+    penerima = [sesi.asistenId];
     kunci = kunciPeristiwa(tipe, sesiId, [
-      praktikanId,
-      keMillis(izin.diputuskanPada),
+      pemanggil.uid,
+      keMillis(izin.dibuatPada),
     ]);
+    isi = {
+      title: 'Pengajuan izin baru',
+      body: `${nama} mengajukan izin untuk ${kelas.nama} · ${sesi.tanggal}`,
+    };
+  } else {
+    if (sesi.asistenId !== pemanggil.uid) {
+      res.status(403).json({ pesan: 'Hanya asisten pemilik sesi.' });
+      return;
+    }
+
+    if (tipe === 'sesi-dibuka') {
+      penerima = peserta;
+      kunci = kunciPeristiwa(tipe, sesiId, [keMillis(sesi.dibukaPada)]);
+    } else if (tipe === 'jadwal-berubah') {
+      penerima = peserta;
+      kunci = kunciPeristiwa(tipe, sesiId, [
+        sesi.tanggal,
+        sesi.jamMulai,
+        sesi.jamSelesai,
+      ]);
+    } else {
+      const izinDokumen = await db
+        .collection('sesi')
+        .doc(sesiId)
+        .collection('izin')
+        .doc(praktikanId)
+        .get();
+
+      if (!izinDokumen.exists) {
+        res.status(404).json({ pesan: 'Pengajuan izin tidak ditemukan.' });
+        return;
+      }
+
+      const izin = izinDokumen.data();
+      const statusDiminta = tipe === 'izin-disetujui' ? 'disetujui' : 'ditolak';
+
+      if (izin.status !== statusDiminta) {
+        res.status(409).json({ pesan: 'Status izin belum sesuai.' });
+        return;
+      }
+
+      penerima = [praktikanId];
+      kunci = kunciPeristiwa(tipe, sesiId, [
+        praktikanId,
+        keMillis(izin.diputuskanPada),
+      ]);
+    }
+
+    isi = susunPesan(tipe, { kelas, sesi });
   }
 
   const baru = await klaimPeristiwa(db, kunci);
@@ -266,7 +314,6 @@ async function tangani(req, res) {
     return;
   }
 
-  const isi = susunPesan(tipe, { kelas, sesi });
   const daftarPesan = token.map((alamat) => ({
     to: alamat,
     ...isi,
