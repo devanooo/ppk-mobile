@@ -3,16 +3,23 @@ import '@/global.css';
 
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { berandaUntuk } from '@/features/auth/beranda';
+import { pasangHandlerNotifikasi, siapkanSaluranAndroid } from '@/lib/notifikasi';
 import { SessionProvider, useSession } from '@/store/session-store';
 
 SplashScreen.preventAutoHideAsync();
+pasangHandlerNotifikasi();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    void siapkanSaluranAndroid();
+  }, []);
 
   return (
     <SessionProvider>

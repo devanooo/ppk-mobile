@@ -130,6 +130,25 @@ service cloud.firestore {
       allow get, list, update, delete: if false;
     }
 
+    // ==== TOKEN PERANGKAT ====
+    // Satu dokumen per token push. Hanya pemilik yang boleh menulis, dan klien
+    // tidak boleh membaca koleksi ini. Server memakai Admin SDK yang melewati
+    // aturan ini saat mengirim notifikasi.
+    match /tokenPerangkat/{token} {
+      allow read: if false;
+
+      allow create, update: if masuk()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasAll(
+             ['uid', 'platform', 'diperbaruiPada'])
+        && request.resource.data.keys().hasOnly(
+             ['uid', 'platform', 'diperbaruiPada'])
+        && request.resource.data.platform in ['ios', 'android'];
+
+      allow delete: if masuk()
+        && resource.data.uid == request.auth.uid;
+    }
+
     // ==== kelas ====
     // Baca: asisten pengampu dan praktikan yang ada di pesertaIds.
     // Tulis: hanya asisten pengampu. Aturan "kelas dengan sesi tidak boleh
