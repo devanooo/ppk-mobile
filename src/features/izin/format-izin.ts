@@ -3,7 +3,7 @@ import { formatJam } from '@/store/session-logic';
 import type { Izin, KlasifikasiStatus, StatusIzin } from './types';
 
 const LABEL_STATUS: Record<StatusIzin, string> = {
-  menunggu: 'Menunggu keputusan',
+  menunggu: 'Menunggu',
   disetujui: 'Disetujui',
   ditolak: 'Ditolak',
 };
@@ -37,10 +37,10 @@ export function urutkanIzin(daftar: Izin[]): Izin[] {
 }
 
 /**
- * Urutan untuk daftar asisten: pengajuan yang masih menunggu selalu di atas.
- * Di dalam tiap kelompok, urut menurut tanggal sesi yang terlihat di layar,
- * dari yang paling awal. Waktu pengajuan dipakai sebagai penentu saat tanggal
- * sesi sama, dan entri tanpa tanggal ditaruh paling bawah.
+ * Urutan untuk daftar asisten: pengajuan yang masih menunggu selalu di atas,
+ * diurut menurut tanggal sesi yang terlihat di layar. Pengajuan yang sudah
+ * diputuskan (disetujui atau ditolak) diurut menurut waktu diajukan, yang
+ * paling awal di atas. Entri tanpa waktu ditaruh paling bawah.
  */
 export function urutkanIzinAsisten(
   daftar: Izin[],
@@ -66,6 +66,12 @@ export function urutkanIzinAsisten(
 
     if (aMenunggu !== bMenunggu) {
       return aMenunggu ? -1 : 1;
+    }
+
+    // Pengajuan yang sudah diputuskan diurut menurut waktu diajukan, bukan
+    // tanggal sesi, supaya antrean keputusan tetap kronologis.
+    if (!aMenunggu) {
+      return waktuPengajuan(a) - waktuPengajuan(b);
     }
 
     const selisihTanggal = waktuSesi(a) - waktuSesi(b);

@@ -1,6 +1,6 @@
 
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
   FlatList,
@@ -20,6 +20,7 @@ import {
   Card,
   EmptyState,
   Screen,
+  SearchBar,
   TextField,
 } from '@/components/ui';
 import { BottomSheet } from '@/components/ui/bottom-sheet';
@@ -65,6 +66,7 @@ export default function KelasAsistenScreen() {
   const [statusPraktikan, setStatusPraktikan] = useState<
     'memuat' | 'siap' | 'gagal'
   >('memuat');
+  const [cariPeserta, setCariPeserta] = useState('');
 
   const asistenId = user?.peran === 'asisten' ? user.id : undefined;
   const hasil = useKelasAsisten(db, asistenId);
@@ -95,6 +97,18 @@ export default function KelasAsistenScreen() {
     );
   }, [asistenId]);
 
+  const praktikanTersaring = useMemo(() => {
+    const kunci = cariPeserta.trim().toLowerCase();
+
+    if (!kunci) return daftarPraktikan;
+
+    return daftarPraktikan.filter(
+      (praktikan) =>
+        praktikan.nama.toLowerCase().includes(kunci) ||
+        praktikan.nomorInduk.includes(kunci),
+    );
+  }, [daftarPraktikan, cariPeserta]);
+
   function bukaFormTambah() {
     setKelasDiedit(null);
     setNama('');
@@ -122,12 +136,14 @@ export default function KelasAsistenScreen() {
     if (kelasDikelola?.id === item.id) {
       setKelasDikelola(null);
       setPesertaTerpilih([]);
+      setCariPeserta('');
       return;
     }
 
     tutupForm();
     setKelasDikelola(item);
     setPesertaTerpilih([...item.pesertaIds]);
+    setCariPeserta('');
   }
 
   function pilihPeserta(praktikanId: string) {
@@ -465,7 +481,21 @@ export default function KelasAsistenScreen() {
                       Belum ada praktikan terdaftar.
                     </Text>
                   ) : (
-                    daftarPraktikan.map((praktikan) => {
+                    <>
+                      <SearchBar
+                        accessibilityLabel="Cari peserta praktikum"
+                        onUbah={setCariPeserta}
+                        nilai={cariPeserta}
+                        placeholder="Cari nama atau NIM"
+                      />
+
+                      {praktikanTersaring.length === 0 ? (
+                        <Text className="text-small text-textSecondary">
+                          Tidak ada praktikan yang cocok dengan pencarian.
+                        </Text>
+                      ) : null}
+
+                      {praktikanTersaring.map((praktikan) => {
                       const terpilih = pesertaTerpilih.includes(praktikan.id);
 
                       return (
@@ -502,7 +532,8 @@ export default function KelasAsistenScreen() {
                           </View>
                         </Pressable>
                       );
-                    })
+                      })}
+                    </>
                   )}
 
                   <Text className="text-small text-textSecondary">
