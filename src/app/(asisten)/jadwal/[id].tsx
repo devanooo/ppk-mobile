@@ -16,6 +16,7 @@ import {
 import { MaxContentWidth } from '@/constants/theme';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useSesiAsisten } from '@/features/asisten/use-sesi-asisten';
+import { QrSesi } from '@/features/qr/qr-sesi';
 import { db } from '@/lib/firebase';
 import {
   dengarkanPresensiSesi,
@@ -63,6 +64,7 @@ export default function DetailSesiAsistenScreen() {
 
   const [pesanPresensi, setPesanPresensi] = useState('');
   const [sesiPresensiId, setSesiPresensiId] = useState('');
+  const [qrTerbuka, setQrTerbuka] = useState(false);
 
   useEffect(() => {
     if (!sesiId || !sesi) return;
@@ -268,20 +270,35 @@ export default function DetailSesiAsistenScreen() {
                 }}
               />
             ) : sesi.status === 'dibuka' ? (
-              <AppButton
-                label="Tutup Sesi"
-                variant="danger"
-                onPress={() => {
-                  setPesan('');
-                  setAksiDipilih('tutup');
-                }}
-              />
+              <>
+                <AppButton
+                  label={qrTerbuka ? 'Sembunyikan QR' : 'Tampilkan QR Presensi'}
+                  onPress={() => setQrTerbuka((terbuka) => !terbuka)}
+                />
+
+                <AppButton
+                  label="Tutup Sesi"
+                  variant="danger"
+                  onPress={() => {
+                    setPesan('');
+                    setAksiDipilih('tutup');
+                  }}
+                />
+              </>
             ) : (
               <Text className="text-small text-textSecondary">
                 Sesi sudah ditutup. Aksi buka dan tutup tidak tersedia.
               </Text>
             )}
           </View>
+
+          {qrTerbuka && sesi.status === 'dibuka' ? (
+            <View className="px-three pt-four">
+              <Card>
+                <QrSesi namaSesi={sesi.namaKelas} sesiId={sesi.id} />
+              </Card>
+            </View>
+          ) : null}
 
           <View className="px-three pt-four">
             <Text className="text-subtitle font-semibold text-text">
