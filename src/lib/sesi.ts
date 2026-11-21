@@ -42,7 +42,7 @@ export type HasilAksiSesi = {
   pesan: string;
 };
 
-type DataWaktuSesi = {
+export type DataWaktuSesi = {
   hari: string;
   tanggal: string;
   jamMulai: string;
@@ -92,7 +92,7 @@ function urutkanSesi(data: SesiFirestore[]): SesiFirestore[] {
   );
 }
 
-function validasiWaktuSesi(data: DataWaktuSesi): HasilAksiSesi {
+export function validasiWaktuSesi(data: DataWaktuSesi): HasilAksiSesi {
   if (!data.hari.trim() || !data.tanggal.trim()) {
     return { ok: false, pesan: 'Hari dan tanggal wajib diisi' };
   }
