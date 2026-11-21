@@ -37,6 +37,10 @@ export function KartuIzin({
   // dengan batasan Security Rules.
   const bisaKlasifikasiUlang =
     Boolean(onKlasifikasiUlang) && izin.klasifikasiStatus !== 'selesai' && izin.status === 'menunggu';
+  // Saran hanya ditampilkan bila sudah ada hasil, atau untuk memberi tahu bahwa
+  // klasifikasi gagal. Status yang masih diproses tidak perlu blok kosong.
+  const tampilkanSaranAi =
+    Boolean(izin.kategoriAi?.trim()) || izin.klasifikasiStatus === 'gagal';
 
   const isi = (
     <>
@@ -52,17 +56,20 @@ export function KartuIzin({
         <BadgeStatusIzin className="shrink-0" status={izin.status} />
       </View>
 
-      <Text className="mt-three text-body text-text">{izin.alasan}</Text>
+      <Text className="mt-three text-caption font-semibold text-textSecondary">Alasan</Text>
+      <Text className="mt-one text-body text-text">{izin.alasan}</Text>
 
       {waktuKirim ? (
         <Text className="mt-two text-small text-textSecondary">Diajukan pukul {waktuKirim}</Text>
       ) : null}
 
-      <BadgeKlasifikasiAi
-        className="mt-three"
-        kategori={izin.kategoriAi}
-        status={izin.klasifikasiStatus}
-      />
+      {tampilkanSaranAi ? (
+        <BadgeKlasifikasiAi
+          className="mt-three"
+          kategori={izin.kategoriAi}
+          status={izin.klasifikasiStatus}
+        />
+      ) : null}
 
       {bisaKlasifikasiUlang ? (
         <AppButton
