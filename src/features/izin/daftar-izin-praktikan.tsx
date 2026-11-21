@@ -120,7 +120,7 @@ export function DaftarIzinPraktikan({
   const kosong = teksKosong(status, totalIzin, adaFilter, pesanGalat);
 
   return (
-    <Screen padded={false} backgroundClassName="bg-backgroundElement">
+    <Screen padded={false}>
       <View className="w-full flex-1 self-center" style={{ maxWidth: MaxContentWidth }}>
         <FlatList
           contentContainerClassName="px-three pb-five"

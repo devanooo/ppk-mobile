@@ -73,7 +73,7 @@ export function DaftarIzinAsisten({
   umpanBalik,
 }: DaftarIzinAsistenProps) {
   return (
-    <Screen padded={false} backgroundClassName="bg-backgroundElement">
+    <Screen padded={false}>
       <ScrollView contentContainerClassName="pb-five" showsVerticalScrollIndicator={false}>
         <View className="w-full self-center px-three" style={{ maxWidth: MaxContentWidth }}>
           <AppHeader aksi={profil} className="pt-three" peran="asisten" />
