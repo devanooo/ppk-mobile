@@ -151,18 +151,11 @@ export async function daftarAkun(
     };
   }
 
-  const validNomorInduk =
-    input.peran === 'praktikan'
-      ? /^\d{10}$/.test(nomorInduk)
-      : /^\d{18}$/.test(nomorInduk);
-
-  if (!validNomorInduk) {
+  // Nomor induk 14 digit untuk praktikan maupun asisten.
+  if (!/^\d{14}$/.test(nomorInduk)) {
     return {
       ok: false,
-      pesan:
-        input.peran === 'praktikan'
-          ? 'NIM harus terdiri dari tepat 10 digit angka.'
-          : 'NIP harus terdiri dari tepat 18 digit angka.',
+      pesan: 'NIM harus terdiri dari tepat 14 digit angka.',
     };
   }
 

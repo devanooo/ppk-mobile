@@ -5,6 +5,7 @@ export default function IzinLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="ajukan" />
+      <Stack.Screen name="ajukan/[id]" />
     </Stack>
   );
 }

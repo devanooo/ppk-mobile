@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { AccessibilityInfo, Animated } from 'react-native';
 
-/** Mengikuti setelan reduce motion perangkat; motion hanya bila diizinkan (design.md baris 618). */
+/** Mengikuti setelan reduce motion perangkat; motion hanya bila diizinkan (design.md bagian 7). */
 export function useReduceMotion(): boolean {
   const [kurangiGerak, setKurangiGerak] = useState(false);
 

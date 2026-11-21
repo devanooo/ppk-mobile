@@ -1,24 +1,13 @@
 import { Tabs } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { useColorScheme } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { FloatingTabBar } from '@/components/ui';
 
 export default function PraktikanLayout() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
-
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
-        tabBarStyle: {
-          backgroundColor: colors.backgroundElement,
-          borderTopColor: colors.border,
-        },
-      }}
+      tabBar={(props) => <FloatingTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
       <Tabs.Screen
         name="jadwal"
@@ -34,9 +23,9 @@ export default function PraktikanLayout() {
         }}
       />
       <Tabs.Screen
-        name="kehadiran"
+        name="riwayat"
         options={{
-          title: 'Kehadiran',
+          title: 'Riwayat',
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: 'clock.arrow.circlepath', android: 'history' }}

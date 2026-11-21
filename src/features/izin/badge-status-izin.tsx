@@ -29,7 +29,7 @@ export function BadgeStatusIzin({
 }) {
   return (
     <View className={`self-start rounded-pill px-twoHalf py-one ${GAYA_STATUS[status]} ${className}`}>
-      <Text className="text-caption text-text">{labelStatusIzin(status)}</Text>
+      <Text className="text-caption font-semibold text-text">{labelStatusIzin(status)}</Text>
     </View>
   );
 }

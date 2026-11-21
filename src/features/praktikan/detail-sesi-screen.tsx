@@ -1,287 +1,277 @@
-
 import { SymbolView } from 'expo-symbols';
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
 import {
   AppButton,
-  Banner,
-  BottomSheet,
-  Card,
   EmptyState,
-  HomeButton,
+  IconButton,
   Screen,
+  Skeleton,
   StatusBadge,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { HasilAksiPresensi } from '@/lib/presensi';
-import type { User } from '@/types';
 
+import { formatTanggalPanjang, rentangJamTitik } from './format-sesi';
 import type { DetailSesiPraktikan } from './use-detail-sesi-praktikan';
 
 type StatusMuat = 'memuat' | 'siap' | 'gagal';
 
 type DetailSesiScreenProps = {
   sesi: DetailSesiPraktikan | null;
-  praktikan: User;
   waktuHadir?: Date;
   status: StatusMuat;
   pesanGalat?: string;
-  onCatatKehadiran: () => Promise<HasilAksiPresensi>;
   onKembali: () => void;
+  /**
+   * Dihubungkan ke route pemindai QR saat fitur itu tersedia. Selama belum
+   * ada, tombol scan tampil nonaktif dengan alasan yang terlihat.
+   */
+  onScanQr?: () => void;
+  onAjukanIzin?: () => void;
   profil?: ReactNode;
 };
 
-type UmpanBalik = {
-  jenis: 'sukses' | 'gagal';
-  pesan: string;
-};
-
-function formatTanggal(tanggal: string): string {
-  const [tahun, bulan, hari] = tanggal.split('-').map(Number);
-
-  if (!tahun || !bulan || !hari) return tanggal;
-
-  const waktu = new Date(tahun, bulan - 1, hari);
-
-  return waktu.toLocaleDateString('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-}
-
-function formatJam(waktu?: Date): string {
-  if (!waktu || Number.isNaN(waktu.getTime())) return '-';
-
-  return waktu.toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+function formatJam(waktu: Date): string {
+  return `${String(waktu.getHours()).padStart(2, '0')}.${String(
+    waktu.getMinutes(),
+  ).padStart(2, '0')}`;
 }
 
 export function DetailSesiScreen({
   sesi,
-  praktikan,
   waktuHadir,
   status,
   pesanGalat,
-  onCatatKehadiran,
   onKembali,
+  onScanQr,
+  onAjukanIzin,
   profil,
 }: DetailSesiScreenProps) {
+  const theme = useTheme();
+
   return (
     <Screen padded={false}>
-      <ScrollView
-        contentContainerClassName="pb-five"
-        showsVerticalScrollIndicator={false}
+      <View
+        className="w-full flex-1 self-center"
+        style={{ maxWidth: MaxContentWidth }}
       >
-        <View
-          className="w-full self-center px-three"
-          style={{ maxWidth: MaxContentWidth }}
-        >
-          <View className="flex-row items-center justify-between gap-two pt-two">
-            <HomeButton onPress={onKembali} />
-            {profil}
-          </View>
-
-          {status === 'memuat' ? (
-            <View className="pt-four">
-              <EmptyState
-                judul="Memuat detail sesi"
-                deskripsi="Sedang mengambil data sesi dari server."
+        <View className="flex-row items-center justify-between px-three pt-two">
+          <IconButton
+            ikon={
+              <SymbolView
+                name={{
+                  ios: 'arrow.left',
+                  android: 'arrow_back',
+                  web: 'arrow_back',
+                }}
+                size={20}
+                tintColor={theme.primary}
               />
-            </View>
-          ) : status === 'gagal' ? (
-            <View className="pt-four">
-              <EmptyState
-                judul="Gagal memuat sesi"
-                deskripsi={
-                  pesanGalat ??
-                  'Terjadi kesalahan saat mengambil data sesi.'
-                }
-              />
-            </View>
-          ) : sesi ? (
-            <DetailSesi
-              sesi={sesi}
-              praktikan={praktikan}
-              waktuHadir={waktuHadir}
-              onCatatKehadiran={onCatatKehadiran}
-            />
-          ) : (
-            <View className="pt-four">
-              <EmptyState
-                judul="Sesi tidak ditemukan"
-                deskripsi="Jadwal sesi ini mungkin sudah dihapus atau tidak tersedia."
-              />
-            </View>
-          )}
+            }
+            label="Kembali"
+            onPress={onKembali}
+            variant="filled"
+          />
+          {profil}
         </View>
-      </ScrollView>
+
+        {status === 'memuat' ? (
+          <MemuatDetail />
+        ) : status === 'gagal' ? (
+          <GagalDetail pesan={pesanGalat} />
+        ) : sesi ? (
+          <IsiDetail
+            onAjukanIzin={onAjukanIzin}
+            onScanQr={onScanQr}
+            sesi={sesi}
+            waktuHadir={waktuHadir}
+          />
+        ) : (
+          <View className="px-three pt-four">
+            <EmptyState
+              deskripsi="Jadwal sesi ini mungkin sudah dihapus atau tidak tersedia."
+              judul="Sesi tidak ditemukan"
+            />
+          </View>
+        )}
+      </View>
     </Screen>
   );
 }
 
-function DetailSesi({
+function IsiDetail({
   sesi,
-  praktikan,
   waktuHadir,
-  onCatatKehadiran,
+  onScanQr,
+  onAjukanIzin,
 }: {
   sesi: DetailSesiPraktikan;
-  praktikan: User;
   waktuHadir?: Date;
-  onCatatKehadiran: () => Promise<HasilAksiPresensi>;
+  onScanQr?: () => void;
+  onAjukanIzin?: () => void;
 }) {
-  const [konfirmasiTerbuka, setKonfirmasiTerbuka] = useState(false);
-  const [umpanBalik, setUmpanBalik] = useState<UmpanBalik | null>(null);
-  const [sedangMencatat, setSedangMencatat] = useState(false);
-
+  const theme = useTheme();
   const sudahHadir = Boolean(waktuHadir);
-  const bisaPresensi = sesi.status === 'dibuka' && !sudahHadir;
 
-  const alasanNonaktif =
+  const alasanSesi =
     sesi.status === 'belum-dibuka'
       ? 'Sesi belum dibuka'
       : sesi.status === 'ditutup'
         ? 'Sesi sudah ditutup'
         : undefined;
 
-  async function catatKehadiran() {
-    if (sedangMencatat) return;
-
-    setSedangMencatat(true);
-
-    try {
-      const hasil = await onCatatKehadiran();
-
-      setKonfirmasiTerbuka(false);
-      setUmpanBalik({
-        jenis: hasil.ok ? 'sukses' : 'gagal',
-        pesan: hasil.pesan,
-      });
-    } catch {
-      setKonfirmasiTerbuka(false);
-      setUmpanBalik({
-        jenis: 'gagal',
-        pesan: 'Terjadi kesalahan saat mencatat presensi.',
-      });
-    } finally {
-      setSedangMencatat(false);
-    }
-  }
+  const keteranganPresensi = waktuHadir
+    ? `Presensi tercatat pukul ${formatJam(waktuHadir)}`
+    : sesi.status === 'dibuka'
+      ? 'Pencatatan kehadiran dibuka'
+      : sesi.status === 'belum-dibuka'
+        ? 'Pencatatan kehadiran belum dibuka'
+        : 'Pencatatan kehadiran ditutup';
 
   return (
-    <View className="pt-three">
-      <Text
-        accessibilityRole="header"
-        className="text-title font-semibold text-text"
+    <View className="flex-1">
+      <ScrollView
+        contentContainerClassName="px-three pb-five"
+        showsVerticalScrollIndicator={false}
       >
-        {sesi.namaKelas}
-      </Text>
+        <Text
+          accessibilityRole="header"
+          className="mt-three text-title font-semibold text-primary"
+        >
+          {sesi.namaKelas}
+        </Text>
 
-      <StatusBadge className="mt-two" status={sesi.status} />
+        <StatusBadge className="mt-three" status={sesi.status} />
 
-      <Card className="mt-four">
-        <BarisInfo
-          label="Jadwal"
-          nilai={formatTanggal(sesi.tanggal)}
-        />
-        <BarisInfo
-          garis
-          label="Hari"
-          nilai={sesi.hari}
-        />
-        <BarisInfo
-          garis
-          label="Waktu"
-          nilai={`${sesi.jamMulai}–${sesi.jamSelesai}`}
-        />
-        <BarisInfo
-          garis
-          label="Kelas"
-          nilai={sesi.namaKelas}
-        />
-        <BarisInfo
-          garis
-          label="Lab"
-          nilai={sesi.lab || '-'}
-        />
-
-        {sesi.dibukaPada ? (
-          <BarisInfo
-            garis
-            label="Dibuka"
-            nilai={`Pukul ${formatJam(sesi.dibukaPada)}`}
+        <View className="mt-four gap-three">
+          <BarisMeta
+            ikon={
+              <SymbolView
+                name={{
+                  ios: 'calendar',
+                  android: 'calendar_today',
+                  web: 'calendar_today',
+                }}
+                size={20}
+                tintColor={theme.primary}
+              />
+            }
+            nilai={formatTanggalPanjang(sesi.tanggal)}
           />
-        ) : null}
 
-        {sesi.ditutupPada ? (
-          <BarisInfo
-            garis
-            label="Ditutup"
-            nilai={`Pukul ${formatJam(sesi.ditutupPada)}`}
+          <BarisMeta
+            keterangan={keteranganPresensi}
+            tebal
+            ikon={
+              <SymbolView
+                name={{ ios: 'clock', android: 'schedule', web: 'schedule' }}
+                size={20}
+                tintColor={theme.primary}
+              />
+            }
+            nilai={rentangJamTitik(sesi)}
           />
-        ) : null}
-      </Card>
 
-      <View className="mt-four gap-two">
-        {umpanBalik ? (
-          <Banner
-            jenis={umpanBalik.jenis}
-            onTutup={() => setUmpanBalik(null)}
-            pesan={umpanBalik.pesan}
+          <BarisMeta
+            tebal
+            ikon={
+              <SymbolView
+                name={{
+                  ios: 'mappin.and.ellipse',
+                  android: 'location_on',
+                  web: 'location_on',
+                }}
+                size={20}
+                tintColor={theme.primary}
+              />
+            }
+            nilai={sesi.lab || 'Lokasi belum diisi'}
           />
-        ) : null}
+        </View>
+      </ScrollView>
 
+      <View className="px-three pb-three pt-two">
         {sudahHadir ? (
           <StatusHadir waktu={waktuHadir} />
         ) : (
-          <AppButton
-            disabled={!bisaPresensi || sedangMencatat}
-            disabledReason={alasanNonaktif}
-            label={
-              sedangMencatat
-                ? 'Mencatat presensi...'
-                : 'Catat Kehadiran'
-            }
-            onPress={() => {
-              setUmpanBalik(null);
-              setKonfirmasiTerbuka(true);
-            }}
-          />
+          <View className="gap-twoHalf">
+            {onScanQr ? (
+              <AppButton
+                disabled={Boolean(alasanSesi)}
+                disabledReason={alasanSesi}
+                label="Scan QR untuk presensi"
+                onPress={onScanQr}
+              />
+            ) : (
+              <TombolScanNonaktif />
+            )}
+
+            {onAjukanIzin ? (
+              <AppButton
+                label="Ajukan izin"
+                onPress={onAjukanIzin}
+                variant="secondary"
+              />
+            ) : null}
+          </View>
         )}
       </View>
+    </View>
+  );
+}
 
-      <BottomSheet
-        deskripsi="Kehadiran hanya dapat dicatat satu kali untuk sesi ini."
-        judul="Catat kehadiran?"
-        labelBatal="Batal"
-        labelKonfirmasi={
-          sedangMencatat ? 'Mencatat...' : 'Konfirmasi'
-        }
-        onClose={() => {
-          if (!sedangMencatat) {
-            setKonfirmasiTerbuka(false);
-          }
-        }}
-        onKonfirmasi={() => {
-          void catatKehadiran();
-        }}
-        visible={konfirmasiTerbuka}
+function BarisMeta({
+  ikon,
+  nilai,
+  keterangan,
+  tebal = false,
+}: {
+  ikon: ReactNode;
+  nilai: string;
+  keterangan?: string;
+  tebal?: boolean;
+}) {
+  return (
+    <View className="flex-row items-start gap-three">
+      <View className="pt-half">{ikon}</View>
+
+      <View className="flex-1">
+        <Text
+          className={`text-body text-text ${tebal ? 'font-semibold' : ''}`}
+        >
+          {nilai}
+        </Text>
+
+        {keterangan ? (
+          <Text className="mt-half text-small text-textSecondary">
+            {keterangan}
+          </Text>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function TombolScanNonaktif() {
+  return (
+    <View>
+      <View
+        accessible
+        accessibilityLabel="Scan QR untuk presensi. Fitur scan QR belum tersedia."
+        accessibilityRole="button"
+        accessibilityState={{ disabled: true }}
+        className="min-h-button items-center justify-center rounded-pill border border-border bg-backgroundElement"
       >
-        <View className="rounded-md bg-backgroundSelected px-three py-twoHalf">
-          <Text className="text-body font-semibold text-text">
-            {sesi.namaKelas}
-          </Text>
-          <Text className="mt-one text-small text-textSecondary">
-            {praktikan.nama} · {praktikan.nomorInduk}
-          </Text>
-        </View>
-      </BottomSheet>
+        <Text className="text-body font-semibold text-textSecondary">
+          Scan QR untuk presensi
+        </Text>
+      </View>
+
+      <Text className="mt-two text-center text-caption text-textSecondary">
+        Fitur scan QR belum tersedia
+      </Text>
     </View>
   );
 }
@@ -300,7 +290,11 @@ function StatusHadir({ waktu }: { waktu?: Date }) {
       className="min-h-touch flex-row items-center gap-two rounded-md border border-success bg-successSurface px-three py-two"
     >
       <SymbolView
-        name={{ ios: 'checkmark.circle.fill', android: 'check_circle' }}
+        name={{
+          ios: 'checkmark.circle.fill',
+          android: 'check_circle',
+          web: 'check_circle',
+        }}
         size={20}
         tintColor={theme.success}
       />
@@ -317,27 +311,40 @@ function StatusHadir({ waktu }: { waktu?: Date }) {
   );
 }
 
-function BarisInfo({
-  label,
-  nilai,
-  garis = false,
-}: {
-  label: string;
-  nilai: string;
-  garis?: boolean;
-}) {
+function MemuatDetail() {
   return (
-    <View
-      className={`flex-row items-start justify-between gap-three py-two ${
-        garis ? 'border-t border-border' : ''
-      }`}
-    >
-      <Text className="text-small text-textSecondary">
-        {label}
-      </Text>
-      <Text className="flex-1 text-right text-body text-text">
-        {nilai}
-      </Text>
+    <View className="px-three pt-four">
+      <Skeleton baris={2} accessibilityLabel="Memuat detail sesi" />
+      <Skeleton baris={3} className="mt-five" />
     </View>
   );
 }
+
+function GagalDetail({ pesan }: { pesan?: string }) {
+  const theme = useTheme();
+
+  return (
+    <View className="px-three pt-four">
+      <EmptyState
+        deskripsi={
+          pesan ?? 'Terjadi kesalahan saat mengambil data sesi.'
+        }
+        ikon={
+          <SymbolView
+            name={{
+              ios: 'exclamationmark.triangle',
+              android: 'error_outline',
+              web: 'error_outline',
+            }}
+            size={32}
+            tintColor={theme.danger}
+          />
+        }
+        judul="Gagal memuat sesi"
+        tone="gagal"
+      />
+    </View>
+  );
+}
+
+export type { DetailSesiScreenProps };

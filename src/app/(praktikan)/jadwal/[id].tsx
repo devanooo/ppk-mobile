@@ -4,7 +4,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { DetailSesiScreen } from '@/features/praktikan/detail-sesi-screen';
 import { useDetailSesiPraktikan } from '@/features/praktikan/use-detail-sesi-praktikan';
 import { MenuProfilPraktikan } from '@/features/praktikan/menu-profil';
-import { catatPresensi } from '@/lib/presensi';
 import { db } from '@/lib/firebase';
 import { useSession } from '@/store/session-store';
 
@@ -34,15 +33,8 @@ export default function DetailSesiPraktikanRoute() {
 
   return (
     <DetailSesiScreen
-      onCatatKehadiran={() =>
-        catatPresensi({
-          db,
-          sesiId,
-          praktikanId: user.id,
-        })
-      }
+      onAjukanIzin={() => router.push('/(praktikan)/izin/ajukan')}
       onKembali={kembali}
-      praktikan={user}
       profil={<MenuProfilPraktikan />}
       sesi={hasil.sesi}
       status={hasil.status}
