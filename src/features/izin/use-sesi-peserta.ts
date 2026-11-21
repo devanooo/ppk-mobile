@@ -1,26 +1,23 @@
+
 import { useEffect, useState } from 'react';
 import type { Firestore } from 'firebase/firestore';
 
-import { dengarkanIzinSesi } from '@/lib/izin';
+import { dengarkanIzinSaya } from '@/lib/izin';
 import { bacaSesiPraktikan } from '@/lib/izin-sesi';
 
 type HasilPeserta = {
   pesertaIds: string[];
   sudahAdaIzin: boolean;
-  /** `false` selama data sesi atau izin belum tiba. */
   siap: boolean;
+  pesanGalat?: string;
 };
 
-const BELUM_SIAP: HasilPeserta = { pesertaIds: [], sudahAdaIzin: false, siap: false };
+const BELUM_SIAP: HasilPeserta = {
+  pesertaIds: [],
+  sudahAdaIzin: false,
+  siap: false,
+};
 
-/**
- * Menyediakan `pesertaIds` sesi dan status pengajuan milik `praktikanId`, bahan
- * untuk `bolehDiajukan`. Kedua sumber punya siklus hidup berbeda, jadi
- * `siap` baru `true` setelah keduanya terisi.
- *
- * State hanya diubah dari callback asinkron/listener, bukan langsung di badan
- * effect, sesuai aturan react-hooks/set-state-in-effect.
- */
 export function useSesiPeserta(
   db: Firestore | null,
   sesiId: string | undefined,
@@ -28,49 +25,101 @@ export function useSesiPeserta(
 ): HasilPeserta {
   const [pesertaIds, setPesertaIds] = useState<string[]>();
   const [sudahAdaIzin, setSudahAdaIzin] = useState<boolean>();
-  const kunci = db && sesiId && praktikanId ? `${sesiId}:${praktikanId}` : undefined;
+  const [pesanGalat, setPesanGalat] = useState<string>();
+  
+  const kunci =
+    db && sesiId && praktikanId
+      ? `${sesiId}:${praktikanId}`
+      : undefined;
+
   const [kunciTerakhir, setKunciTerakhir] = useState(kunci);
 
-  // Ganti sesi berarti data lama tidak berlaku. Reset dilakukan saat render,
-  // bukan di effect, supaya tidak ada render berantai.
+  // Reset data ketika sesi atau praktikan berubah.
   if (kunci !== kunciTerakhir) {
     setKunciTerakhir(kunci);
     setPesertaIds(undefined);
     setSudahAdaIzin(undefined);
+    setPesanGalat(undefined);
   }
 
+  // Ambil daftar peserta dari dokumen kelas.
   useEffect(() => {
     if (!db || !sesiId) return;
 
     let dibatalkan = false;
 
-    bacaSesiPraktikan(db, sesiId).then((hasil) => {
-      if (dibatalkan) return;
+    bacaSesiPraktikan(db, sesiId)
+      .then((hasil) => {
+        if (dibatalkan) return;
 
-      setPesertaIds(hasil.ok ? hasil.data.pesertaIds : []);
-    });
+        if (!hasil.ok) {
+          setPesertaIds([]);
+          setPesanGalat(hasil.pesan);
+          return;
+        }
+
+        setPesertaIds(hasil.data.pesertaIds);
+      })
+      .catch((galat: unknown) => {
+        if (dibatalkan) return;
+
+        setPesertaIds([]);
+        setPesanGalat(
+          galat instanceof Error
+            ? galat.message
+            : 'Gagal memuat data peserta sesi.',
+        );
+      });
 
     return () => {
       dibatalkan = true;
     };
   }, [db, sesiId]);
 
+  // Periksa hanya dokumen izin milik praktikan.
   useEffect(() => {
     if (!db || !sesiId || !praktikanId) return;
 
-    return dengarkanIzinSesi(db, sesiId, (hasil) => {
-      if (!hasil.ok) {
-        setSudahAdaIzin(undefined);
-        return;
-      }
+    return dengarkanIzinSaya(
+      db,
+      praktikanId,
+      [sesiId],
+      (hasil) => {
+        if (!hasil.ok) {
+          setSudahAdaIzin(undefined);
+          setPesanGalat(hasil.pesan);
+          return;
+        }
 
-      setSudahAdaIzin(hasil.data.some((izin) => izin.praktikanId === praktikanId));
-    });
+        setSudahAdaIzin(hasil.data.length > 0);
+      },
+    );
   }, [db, sesiId, praktikanId]);
 
-  const siap = pesertaIds !== undefined && sudahAdaIzin !== undefined;
+  if (!db || !sesiId || !praktikanId) {
+    return {
+      ...BELUM_SIAP,
+      pesanGalat: 'Data sesi atau akun praktikan belum tersedia.',
+    };
+  }
 
-  if (!siap) return BELUM_SIAP;
+  const siap =
+    pesertaIds !== undefined &&
+    sudahAdaIzin !== undefined &&
+    !pesanGalat;
 
-  return { pesertaIds: pesertaIds ?? [], sudahAdaIzin: sudahAdaIzin ?? false, siap };
+  if (!siap) {
+    return {
+      pesertaIds: pesertaIds ?? [],
+      sudahAdaIzin: sudahAdaIzin ?? false,
+      siap: false,
+      pesanGalat,
+    };
+  }
+
+  return {
+    pesertaIds,
+    sudahAdaIzin,
+    siap: true,
+  };
 }

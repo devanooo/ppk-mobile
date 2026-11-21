@@ -15,19 +15,24 @@ type FilterSelectProps = {
   nilai: string;
   opsi: { nilai: string; label: string }[];
   onPilih: (nilai: string) => void;
+  /** Menampilkan label opsi terpilih di tombol. Default nama dimensi. */
+  tampilkanNilai?: boolean;
   className?: string;
 };
 
 /**
  * Tombol filter dengan menu dropdown, mengikuti referensi layar izin asisten.
- * Menampilkan nama dimensi, bukan nilai terpilih, sama seperti acuan. Pilihan
- * aktif ditandai centang agar tetap terbaca tanpa warna saja.
+ * Secara default menampilkan nama dimensi. Pemanggil yang membutuhkan nilai
+ * aktif di tombol dapat mengaktifkan `tampilkanNilai`; saat nilai kembali ke
+ * "semua", nama dimensi dipakai lagi sebagai label default. Pilihan aktif
+ * ditandai centang agar tetap terbaca tanpa warna saja.
  */
 export function FilterSelect({
   label,
   nilai,
   opsi,
   onPilih,
+  tampilkanNilai = false,
   className = '',
 }: FilterSelectProps) {
   const [terbuka, setTerbuka] = useState(false);
@@ -37,6 +42,8 @@ export function FilterSelect({
   const progres = useAnimasiMuncul(terbuka, DURASI);
 
   const terpilih = opsi.find((item) => item.nilai === nilai);
+  const teksTombol =
+    tampilkanNilai && nilai !== 'semua' && terpilih ? terpilih.label : label;
   const skala = progres.interpolate({ inputRange: [0, 1], outputRange: [0.97, 1] });
 
   function buka() {
@@ -66,7 +73,9 @@ export function FilterSelect({
         onPress={buka}
         className={`min-h-touch flex-row items-center gap-one rounded-pill bg-backgroundSelected px-twoHalf active:scale-95 ${className}`}
       >
-        <Text className="text-small font-medium text-text">{label}</Text>
+        <Text numberOfLines={1} className="shrink text-small font-medium text-text">
+          {teksTombol}
+        </Text>
         <Text className="text-small text-textSecondary">▾</Text>
       </Pressable>
 
