@@ -111,6 +111,7 @@ export default function RekapKelasScreen() {
                   params: { sesiId: item.id },
                 })
               }
+              tone="muted"
             >
               <View className="flex-row items-start justify-between gap-two">
                 <View className="flex-1">

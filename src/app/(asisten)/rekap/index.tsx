@@ -81,6 +81,7 @@ export default function RekapIndexScreen() {
                   params: { kelasId: item.id },
                 })
               }
+              tone="muted"
             >
               <Text className="text-body font-bold text-text">{item.nama}</Text>
 

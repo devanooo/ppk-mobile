@@ -162,21 +162,21 @@ export default function RekapSesiScreen() {
           </View>
 
           {status === 'memuat' ? (
-            <Card className="mt-four">
+            <Card className="mt-four" tone="muted">
               <EmptyState
                 judul="Memuat ringkasan"
                 deskripsi="Sedang mengambil data sesi."
               />
             </Card>
           ) : status === 'gagal' ? (
-            <Card className="mt-four">
+            <Card className="mt-four" tone="muted">
               <EmptyState
                 judul="Ringkasan gagal dimuat"
                 deskripsi={pesanGalat ?? 'Periksa koneksi lalu coba lagi.'}
               />
             </Card>
           ) : !terpilih ? (
-            <Card className="mt-four">
+            <Card className="mt-four" tone="muted">
               <EmptyState
                 judul="Sesi tidak ditemukan"
                 deskripsi="Sesi ini mungkin sudah dihapus."
