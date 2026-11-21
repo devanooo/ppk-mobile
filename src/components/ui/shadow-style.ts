@@ -1,9 +1,10 @@
 import { Shadow } from '@/constants/theme';
 
 /**
- * Satu-satunya bayangan proyek: dropdown profil dan bottom sheet (design.md
- * bagian 4.6). React Native tidak membaca bayangan lewat className, jadi nilai
- * token dipasang sebagai style, bukan ditulis ulang di komponen.
+ * Satu-satunya bayangan proyek: dropdown profil, bottom sheet, dan navbar
+ * mengambang (design.md bagian 4.6). React Native tidak membaca bayangan lewat
+ * className, jadi nilai token dipasang sebagai style, bukan ditulis ulang di
+ * komponen.
  */
 export const gayaBayangan = {
   shadowColor: Shadow.color,

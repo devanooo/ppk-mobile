@@ -10,21 +10,34 @@ const LABEL_PERAN: Record<Peran, string> = {
 
 type AppHeaderProps = {
   peran: Peran;
+  /** Slot ikon notifikasi; layar pemanggil menentukan apakah ikon ditampilkan. */
+  notifikasi?: ReactNode;
   /** Slot aksi kanan, mis. tombol menu profil. */
   aksi?: ReactNode;
   className?: string;
 };
 
 /**
- * Header aplikasi: wordmark dan pill peran, mengikuti referensi layar asisten.
- * Lonceng notifikasi belum dirender karena belum ada tujuan navigasinya.
+ * Header aplikasi: wordmark, slot notifikasi opsional, dan pill peran.
  */
-export function AppHeader({ peran, aksi, className = '' }: AppHeaderProps) {
+export function AppHeader({
+  peran,
+  notifikasi,
+  aksi,
+  className = '',
+}: AppHeaderProps) {
   return (
     <View className={`flex-row items-center justify-between gap-three ${className}`}>
-      <Text className="text-subtitle font-bold text-text">PraktikumKU</Text>
+      <Text
+        className="flex-1 text-subtitle font-bold text-text"
+        numberOfLines={1}
+      >
+        PraktikumKU
+      </Text>
 
       <View className="flex-row items-center gap-two">
+        {notifikasi}
+
         <View className="rounded-pill bg-backgroundSelected px-twoHalf py-one">
           <Text className="text-caption font-semibold text-text">{LABEL_PERAN[peran]}</Text>
         </View>
