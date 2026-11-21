@@ -13,9 +13,11 @@
     "scheme": "praktikumku",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.devanoooo.PraktikumKU"
     },
     "android": {
+      "package": "com.devanoooo.praktikumku",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
