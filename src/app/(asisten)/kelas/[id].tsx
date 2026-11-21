@@ -1,20 +1,18 @@
-
 import { router, useLocalSearchParams } from 'expo-router';
+import { SymbolView } from 'expo-symbols';
 import { useState } from 'react';
-import { Alert, FlatList, Text, View } from 'react-native';
+import { Alert, FlatList, Pressable, Text, View } from 'react-native';
 
 import {
   AppButton,
   Banner,
   Card,
   EmptyState,
-  HomeButton,
   Screen,
-  StatusBadge,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
-import { tanggalPanjang } from '@/features/asisten/format-edit-sesi';
-import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
+import { HeaderAsisten } from '@/features/asisten/header-asisten';
+import { KartuSesi } from '@/features/asisten/kartu-sesi';
 import {
   ModalSesi,
   type DataSesiForm,
@@ -24,6 +22,7 @@ import {
   useSesiAsisten,
   type SesiAsisten,
 } from '@/features/asisten/use-sesi-asisten';
+import { useTheme } from '@/hooks/use-theme';
 import { db } from '@/lib/firebase';
 import {
   buatSesi,
@@ -33,16 +32,11 @@ import {
 } from '@/lib/sesi';
 import { useSession } from '@/store/session-store';
 
-function labelStatus(status: SesiAsisten['status']): string {
-  if (status === 'belum-dibuka') return 'Belum dibuka';
-  if (status === 'dibuka') return 'Dibuka';
-  return 'Ditutup';
-}
-
 export default function DetailKelasAsistenScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const kelasId = Array.isArray(id) ? id[0] : id;
   const { user } = useSession();
+  const tema = useTheme();
 
   const asistenId =
     user?.peran === 'asisten' ? user.id : undefined;
@@ -217,36 +211,57 @@ export default function DetailKelasAsistenScreen() {
   }
 
   return (
-    <Screen padded={false}>
+    <Screen backgroundClassName="bg-backgroundElement" padded={false}>
       <View
         className="w-full flex-1 self-center"
         style={{ maxWidth: MaxContentWidth }}
       >
-        <View className="flex-row items-center justify-between gap-two px-three pt-two">
-          <HomeButton onPress={kembali} />
-          <MenuProfilAsisten />
-        </View>
+        <HeaderAsisten />
 
         <FlatList
           data={daftarSesi}
           keyExtractor={(item) => item.id}
-          contentContainerClassName="gap-three px-three pb-five"
+          contentContainerClassName="gap-twoHalf px-three pb-five"
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            <View className="gap-three pt-three">
-              <View>
-                <Text className="text-title font-semibold text-text">
+            <View className="gap-three pt-two">
+              <Pressable
+                accessibilityLabel="Kembali ke kelas"
+                accessibilityRole="button"
+                onPress={kembali}
+                className="min-h-touch flex-row items-center gap-one active:opacity-60"
+              >
+                <SymbolView
+                  name={{
+                    ios: 'chevron.left',
+                    android: 'arrow_back',
+                    web: 'arrow_back',
+                  }}
+                  size={18}
+                  tintColor={tema.textSecondary}
+                />
+
+                <Text className="text-small text-textSecondary">
+                  Kembali ke kelas
+                </Text>
+              </Pressable>
+
+              <Text
+                accessibilityRole="header"
+                className="text-title font-semibold text-text"
+              >
+                Kelola Sesi
+              </Text>
+
+              <Card tone="muted">
+                <Text className="text-body font-semibold text-text">
                   {kelas.nama}
                 </Text>
 
                 <Text className="mt-one text-small text-textSecondary">
-                  {kelas.lab}
+                  Laboratorium kelas: {kelas.lab}
                 </Text>
-
-                <Text className="mt-one text-small text-textSecondary">
-                  {kelas.pesertaIds.length} peserta terdaftar
-                </Text>
-              </View>
+              </Card>
 
               {pesan ? (
                 <Banner
@@ -256,11 +271,7 @@ export default function DetailKelasAsistenScreen() {
                 />
               ) : null}
 
-              <AppButton label="Tambah Sesi" onPress={bukaTambah} />
-
-              <Text className="text-subtitle font-semibold text-text">
-                Daftar Sesi
-              </Text>
+              <AppButton label="+ Tambah Sesi" onPress={bukaTambah} />
             </View>
           }
           ListEmptyComponent={
@@ -284,46 +295,21 @@ export default function DetailKelasAsistenScreen() {
               />
             )
           }
+          ListFooterComponent={
+            daftarSesi.length > 0 ? (
+              <Text className="mt-two text-small text-textSecondary">
+                Sesi yang sudah dibuka tidak dapat diedit atau dihapus.
+              </Text>
+            ) : undefined
+          }
           renderItem={({ item }) => (
-            <Card>
-              <View className="flex-row items-start justify-between gap-two">
-                <Text className="flex-1 text-subtitle font-semibold text-text">
-                  {item.hari}, {tanggalPanjang(item.tanggal)}
-                </Text>
-
-                <StatusBadge status={item.status} />
-              </View>
-
-              <Text className="mt-two text-body text-text">
-                {item.jamMulai} - {item.jamSelesai}
-              </Text>
-
-              <Text className="mt-one text-small text-textSecondary">
-                Status: {labelStatus(item.status)}
-              </Text>
-
-              {item.status === 'belum-dibuka' ? (
-                <View className="mt-three gap-two">
-                  <AppButton
-                    label="Edit Sesi"
-                    variant="secondary"
-                    disabled={menghapus}
-                    onPress={() => bukaEdit(item)}
-                  />
-
-                  <AppButton
-                    label={menghapus ? 'Menghapus...' : 'Hapus Sesi'}
-                    variant="secondary"
-                    disabled={menghapus}
-                    onPress={() => konfirmasiHapusSesi(item)}
-                  />
-                </View>
-              ) : (
-                <Text className="mt-three text-small text-textSecondary">
-                  Sesi yang sudah dibuka tidak dapat diedit atau dihapus.
-                </Text>
-              )}
-            </Card>
+            <KartuSesi
+              lab={kelas.lab}
+              menghapus={menghapus}
+              onEdit={() => bukaEdit(item)}
+              onHapus={() => konfirmasiHapusSesi(item)}
+              sesi={item}
+            />
           )}
         />
 

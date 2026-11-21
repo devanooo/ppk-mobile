@@ -90,3 +90,13 @@ export function dariTanggalJam(waktu: Date): string {
 
   return `${pukul}:${menit}`;
 }
+
+/** Nilai awal picker tanggal, jatuh ke hari ini bila tanggal belum lengkap. */
+export function keTanggalPicker(tanggal: string): Date {
+  return keTanggal(tanggal) ?? new Date();
+}
+
+/** `Date` dari picker tanggal menjadi ISO lokal `YYYY-MM-DD`. */
+export function dariTanggalPicker(waktu: Date): string {
+  return keTanggalISO(waktu);
+}
