@@ -6,6 +6,11 @@ import { useTheme } from '@/hooks/use-theme';
 
 import { gayaBayangan } from './shadow-style';
 
+/**
+ * Bar navigasi mengambang: pill putih dengan border tipis dan satu bayangan,
+ * indikator tab aktif berupa bulatan abu, sesuai referensi layar asisten.
+ * Jarak dari tepi layar dibuat lega supaya terbaca mengapung, bukan menempel.
+ */
 export function FloatingTabBar({
   state,
   descriptors,
@@ -19,12 +24,12 @@ export function FloatingTabBar({
 
   return (
     <View
-      className="px-four pt-two"
+      className="bg-background px-four pt-two"
       style={{ paddingBottom: insets.bottom + Spacing.two }}
     >
       <View
-        className="flex-row items-center rounded-pill bg-backgroundSelected p-twoHalf"
-        style={gayaBayangan}
+        className="w-full flex-row items-center self-center border border-border bg-backgroundElement p-two"
+        style={[s.pill, gayaBayangan]}
       >
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
@@ -64,7 +69,7 @@ export function FloatingTabBar({
                 style={[
                   s.ikonWrap,
                   terpilih
-                    ? { backgroundColor: colors.backgroundElement }
+                    ? { backgroundColor: colors.backgroundSelected }
                     : { backgroundColor: 'transparent' },
                 ]}
               >
@@ -90,6 +95,9 @@ export function FloatingTabBar({
 }
 
 const s = StyleSheet.create({
+  pill: {
+    borderRadius: 999,
+  },
   ikonWrap: {
     width: 48,
     height: 48,
