@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { SymbolView } from 'expo-symbols';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -12,9 +12,16 @@ import {
 
 import { AppButton, Banner, Card } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import {
+  kosongkanPilihanLaboratorium,
+  labDariSesi,
+  usePilihanLaboratorium,
+  type LabTerpilih,
+} from '@/features/maps/pemilihan-lab';
 import { useTheme } from '@/hooks/use-theme';
 import {
   validasiWaktuSesi,
+  type DataLabSesi,
   type HasilAksiSesi,
   type SesiFirestore,
 } from '@/lib/sesi';
@@ -36,7 +43,7 @@ export type DataSesiForm = {
   tanggal: string;
   jamMulai: string;
   jamSelesai: string;
-};
+} & DataLabSesi;
 
 type GalatField = {
   tanggal?: string;
@@ -49,21 +56,25 @@ type PickerAktif = 'tanggal' | 'mulai' | 'selesai' | null;
 type FormSesiProps = {
   namaKelas: string;
   lab: string;
+  labAwal?: LabTerpilih | null;
   /** `null` berarti mode tambah sesi. */
   sesi?: SesiFirestore | null;
   onSimpan: (data: DataSesiForm) => Promise<HasilAksiSesi>;
   onBatal: () => void;
   /** Dipanggil setelah simpan berhasil; route melakukan navigasi. */
   onSelesai: () => void;
+  onPilihDiMaps: () => void;
 };
 
 export function FormSesi({
   namaKelas,
   lab,
+  labAwal,
   sesi,
   onSimpan,
   onBatal,
   onSelesai,
+  onPilihDiMaps,
 }: FormSesiProps) {
   const tema = useTheme();
   const modeEdit = Boolean(sesi);
@@ -77,7 +88,17 @@ export function FormSesi({
   const [pesanGalat, setPesanGalat] = useState('');
   const [menyimpan, setMenyimpan] = useState(false);
 
+  const pilihanDariMaps = usePilihanLaboratorium();
+  const labTerpilih = pilihanDariMaps ?? labDariSesi(sesi);
+
+  useEffect(() => {
+    return () => {
+      kosongkanPilihanLaboratorium();
+    };
+  }, []);
+
   const hari = hariDariTanggal(tanggal);
+  const labTampil = labTerpilih ?? labAwal ?? null;
 
   function bukaPicker(jenis: Exclude<PickerAktif, null>) {
     setPickerAktif((aktif) => (aktif === jenis ? null : jenis));
@@ -138,12 +159,22 @@ export function FormSesi({
     setMenyimpan(true);
 
     try {
-      const hasil = await onSimpan({
+      const data: DataSesiForm = {
         hari,
         tanggal,
         jamMulai,
         jamSelesai,
-      });
+      };
+
+      if (labTerpilih) {
+        data.labId = labTerpilih.id;
+        data.labNama = labTerpilih.nama;
+        data.labLatitude = labTerpilih.latitude;
+        data.labLongitude = labTerpilih.longitude;
+        data.labRadiusMeters = labTerpilih.radiusMeters;
+      }
+
+      const hasil = await onSimpan(data);
 
       if (!hasil.ok) {
         setPesanGalat(hasil.pesan);
@@ -251,15 +282,16 @@ export function FormSesi({
             <Card tone="muted">
               <View className="flex-row items-center justify-between gap-two">
                 <Text className="flex-1 text-body font-semibold text-text">
-                  {lab}
+                  {labTampil?.nama ?? lab}
                 </Text>
 
                 <Pressable
-                  accessibilityLabel="Pilih di Maps, belum tersedia"
+                  accessibilityLabel="Pilih laboratorium di Maps"
                   accessibilityRole="button"
-                  accessibilityState={{ disabled: true }}
-                  disabled
-                  className="min-h-touch flex-row items-center justify-center rounded-pill border border-border bg-backgroundElement px-three opacity-50"
+                  accessibilityState={{ disabled: menyimpan }}
+                  disabled={menyimpan}
+                  onPress={onPilihDiMaps}
+                  className="min-h-touch flex-row items-center justify-center rounded-pill border border-border bg-backgroundElement px-three active:opacity-60"
                 >
                   <Text className="text-small font-medium text-text">
                     Pilih di Maps
@@ -268,12 +300,15 @@ export function FormSesi({
               </View>
 
               <Text className="mt-two text-small text-textSecondary">
-                Laboratorium mengikuti data kelas dan tidak dapat diubah
-                dari sini.
+                {labTerpilih
+                  ? 'Laboratorium dipilih dari Maps dan dipakai untuk sesi ini.'
+                  : 'Laboratorium mengikuti data kelas. Pilih di Maps untuk menggantinya.'}
               </Text>
 
               <Text className="mt-one text-caption text-textSecondary">
-                Peta asisten belum tersedia.
+                {labTampil
+                  ? `Radius laboratorium: ${labTampil.radiusMeters} meter.`
+                  : 'Radius laboratorium belum tersedia.'}
               </Text>
             </Card>
           </View>
