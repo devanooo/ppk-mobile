@@ -2,9 +2,9 @@ import { Image } from 'expo-image';
 import { View } from 'react-native';
 
 /**
- * File logo punya margin transparan bawaan sekitar 20% di tiap sisi, jadi
- * gambarnya diperbesar melewati batas badge dan dipotong agar mark-nya
- * memenuhi kotak. Tanpa ini logo tampak kecil di dalam badge.
+ * Mark pada file logo hanya menempati sekitar 56% lebar kanvas karena ada
+ * margin transparan bawaan, jadi gambarnya diperbesar sedikit agar terlihat
+ * wajar di dalam badge tanpa menembus tepi.
  */
 export function LandingLogo() {
   return (
@@ -12,8 +12,8 @@ export function LandingLogo() {
       <Image
         accessibilityLabel="Logo PraktikumKU"
         contentFit="contain"
-        source={require('@/assets/images/Logo-PraktikumKU.png')}
-        style={{ height: '150%', width: '150%' }}
+        source={require('@/assets/images/logo-praktikumku.png')}
+        style={{ height: '110%', width: '110%' }}
       />
     </View>
   );

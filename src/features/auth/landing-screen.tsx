@@ -29,7 +29,7 @@ export function LandingScreen({ onMasuk, onDaftar }: LandingScreenProps) {
         </View>
 
         <View
-          className="flex-1 bg-landingSurface px-four pt-five"
+          className="flex-1 rounded-t-xl bg-landingSurface px-four pt-five"
           style={{ paddingBottom: insets.bottom + Spacing.five }}
         >
           <View className="w-full self-center" style={{ maxWidth: MaxContentWidth }}>

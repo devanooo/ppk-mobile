@@ -59,7 +59,7 @@ export function LandingHero({ className = '' }: LandingHeroProps) {
         <Rect fill={TERANG} fillOpacity={0.5} height={4} rx={2} width={40} x={22} y={132} />
         <Rect fill={TERANG} fillOpacity={0.35} height={4} rx={2} width={50} x={22} y={142} />
 
-        <Rect fill={INK} height={44} rx={4} width={16} x={172} y={200} />
+        <Rect fill={INK} height={52} rx={4} width={16} x={172} y={200} />
         <Rect fill={TERANG} height={90} rx={7} width={168} x={96} y={110} />
         <Rect fill={INK} height={74} rx={3} width={152} x={104} y={118} />
 
@@ -74,13 +74,13 @@ export function LandingHero({ className = '' }: LandingHeroProps) {
         <Rect fill={TERANG} fillOpacity={0.4} height={4} rx={2} width={34} x={168} y={152} />
         <Rect fill={TERANG} fillOpacity={0.4} height={4} rx={2} width={48} x={168} y={164} />
 
-        <Rect fill={TERANG} height={48} width={360} x={0} y={252} />
+        <Rect fill={TERANG} height={16} width={360} x={0} y={252} />
 
-        <Rect fill={TERANG} height={10} rx={3} width={124} x={118} y={258} />
-        <Rect fill={INK} fillOpacity={0.14} height={10} rx={3} width={124} x={118} y={258} />
-        <Rect fill={INK} fillOpacity={0.45} height={3} rx={1.5} width={108} x={126} y={262} />
+        <Rect fill={TERANG} height={10} rx={3} width={124} x={118} y={253} />
+        <Rect fill={INK} fillOpacity={0.14} height={10} rx={3} width={124} x={118} y={253} />
+        <Rect fill={INK} fillOpacity={0.45} height={3} rx={1.5} width={108} x={126} y={257} />
 
-        <Ellipse cx={262} cy={263} fill={INK} fillOpacity={0.14} rx={9} ry={6} />
+        <Ellipse cx={262} cy={258} fill={INK} fillOpacity={0.14} rx={9} ry={6} />
       </Svg>
     </View>
   );
