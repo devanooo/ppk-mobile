@@ -1,9 +1,16 @@
 import { router, useLocalSearchParams } from 'expo-router';
+import { useMemo } from 'react';
 
 import { EmptyState, Screen } from '@/components/ui';
 import { FormSesi, type DataSesiForm } from '@/features/asisten/form-sesi';
 import { HeaderAsisten } from '@/features/asisten/header-asisten';
 import { useKelasAsisten } from '@/features/asisten/use-kelas-asisten';
+import { useLaboratories } from '@/features/maps/hooks/useLaboratories';
+import {
+  dariLaboratorium,
+  type LabTerpilih,
+} from '@/features/maps/pemilihan-lab';
+import { normalisasiLaboratorium } from '@/features/maps/utils/activity';
 import { db } from '@/lib/firebase';
 import { buatSesi, type HasilAksiSesi } from '@/lib/sesi';
 import { useSession } from '@/store/session-store';
@@ -18,6 +25,18 @@ export default function TambahSesiRoute() {
 
   const hasilKelas = useKelasAsisten(db, asistenId);
   const kelas = hasilKelas.kelas.find((item) => item.id === kelasId);
+
+  const { laboratories } = useLaboratories();
+
+  const labAwal = useMemo<LabTerpilih | null>(() => {
+    if (!kelas) return null;
+
+    const labId = normalisasiLaboratorium(kelas.lab);
+    if (!labId) return null;
+
+    const lab = laboratories.find((item) => item.id === labId);
+    return lab ? dariLaboratorium(lab) : null;
+  }, [kelas, laboratories]);
 
   function kembali() {
     router.replace({
@@ -89,8 +108,12 @@ export default function TambahSesiRoute() {
       <HeaderAsisten />
       <FormSesi
         lab={kelas.lab}
+        labAwal={labAwal}
         namaKelas={kelas.nama}
         onBatal={kembali}
+        onPilihDiMaps={() => {
+          router.push({ pathname: '/maps', params: { mode: 'select' } });
+        }}
         onSelesai={kembali}
         onSimpan={simpan}
         sesi={null}

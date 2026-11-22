@@ -75,7 +75,7 @@ export function useJadwalPraktikan(
         jadwal.push({
           ...sesi,
           namaKelas: kelas.nama,
-          lab: kelas.lab,
+          lab: sesi.labNama || kelas.lab,
         });
       }
 

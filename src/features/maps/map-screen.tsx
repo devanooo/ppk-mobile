@@ -28,7 +28,6 @@ import { useAktivitasLaboratorium } from './hooks/useAktivitasLaboratorium';
 
 // Components
 import LaboratoryMarker from './components/LaboratoryMarker';
-import UserLocationMarker from './components/UserLocationMarker';
 import MapControls from './components/MapControls';
 import LaboratoryBottomSheet from './components/LaboratoryBottomSheet';
 import LaboratoryPickerSheet from './components/LaboratoryPickerSheet';
@@ -60,7 +59,7 @@ const INITIAL_REGION: Region = {
 
 interface MapsScreenProps {
   mode?: 'view' | 'select';
-  onSelectLocation?: (labId: string) => void;
+  onSelectLocation?: (lab: Laboratory) => void;
 }
 
 // ========================================
@@ -74,7 +73,6 @@ export default function MapsScreen({
 
   const insets = useSafeAreaInsets();
   const headerTop = insets.top + 12;
-  const backTop = headerTop;
 
   const hasCenteredOnUser = useRef(false);
 
@@ -298,9 +296,15 @@ export default function MapsScreen({
         </Pressable>
 
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Peta Laboratorium</Text>
+          <Text style={styles.headerTitle}>
+            {mode === 'select'
+              ? 'Pilih Laboratorium'
+              : 'Peta Laboratorium'}
+          </Text>
           <Text style={styles.headerSubtitle}>
-            Lihat lokasi dan aktivitas laboratorium.
+            {mode === 'select'
+              ? 'Ketuk laboratorium, lalu pilih lokasi ini.'
+              : 'Lihat lokasi dan aktivitas laboratorium.'}
           </Text>
         </View>
       </View>

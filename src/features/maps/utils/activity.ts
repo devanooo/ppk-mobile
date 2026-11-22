@@ -132,7 +132,7 @@ export function pilihAktivitas(
   for (const sesi of daftarSesi) {
     const kelas = kelasById.get(sesi.kelasId);
 
-    if (!kelas || normalisasiLaboratorium(kelas.lab) !== labId) {
+    if (!kelas || normalisasiLaboratorium(sesi.labId ?? kelas.lab) !== labId) {
       continue;
     }
 
@@ -146,7 +146,7 @@ export function pilihAktivitas(
     aktivitas.push({
       sesi,
       namaKelas: kelas.nama,
-      lab: kelas.lab,
+      lab: sesi.labNama || kelas.lab,
       mulai,
       selesai,
       laboratorium: labId,

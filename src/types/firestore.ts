@@ -54,6 +54,12 @@ export interface SesiFirestore {
   jamSelesai: string;
   status: StatusSesiFirestore;
 
+  labId?: string;
+  labNama?: string;
+  labLatitude?: number;
+  labLongitude?: number;
+  labRadiusMeters?: number;
+
   dibukaPada?: Timestamp;
   ditutupPada?: Timestamp;
   dibuatPada: Timestamp;

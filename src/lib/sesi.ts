@@ -19,6 +19,14 @@ import { pesanDariGalat } from './izin-aturan';
 
 export type StatusSesi = 'belum-dibuka' | 'dibuka' | 'ditutup';
 
+export type DataLabSesi = {
+  labId?: string;
+  labNama?: string;
+  labLatitude?: number;
+  labLongitude?: number;
+  labRadiusMeters?: number;
+};
+
 export type SesiFirestore = {
   id: string;
   kelasId: string;
@@ -31,7 +39,7 @@ export type SesiFirestore = {
   dibuatPada: Date;
   dibukaPada?: Date;
   ditutupPada?: Date;
-};
+} & DataLabSesi;
 
 export type HasilMuatSesi<T> =
   | { ok: true; data: T }
@@ -49,10 +57,11 @@ export type DataWaktuSesi = {
   jamSelesai: string;
 };
 
-type DataFormSesi = DataWaktuSesi & {
-  kelasId: string;
-  asistenId: string;
-};
+type DataFormSesi = DataWaktuSesi &
+  DataLabSesi & {
+    kelasId: string;
+    asistenId: string;
+  };
 
 function ubahWaktu(waktu: unknown): Date | undefined {
   if (
@@ -63,6 +72,25 @@ function ubahWaktu(waktu: unknown): Date | undefined {
   }
 
   return undefined;
+}
+
+function ambilDataLab(data: DataLabSesi): DataLabSesi {
+  if (
+    !data.labId ||
+    typeof data.labLatitude !== 'number' ||
+    typeof data.labLongitude !== 'number' ||
+    typeof data.labRadiusMeters !== 'number'
+  ) {
+    return {};
+  }
+
+  return {
+    labId: data.labId,
+    labNama: data.labNama ?? data.labId,
+    labLatitude: data.labLatitude,
+    labLongitude: data.labLongitude,
+    labRadiusMeters: data.labRadiusMeters,
+  };
 }
 
 function keSesi(
@@ -81,6 +109,16 @@ function keSesi(
     dibuatPada: ubahWaktu(data.dibuatPada) ?? new Date(0),
     dibukaPada: ubahWaktu(data.dibukaPada),
     ditutupPada: ubahWaktu(data.ditutupPada),
+    labId: typeof data.labId === 'string' ? data.labId : undefined,
+    labNama: typeof data.labNama === 'string' ? data.labNama : undefined,
+    labLatitude:
+      typeof data.labLatitude === 'number' ? data.labLatitude : undefined,
+    labLongitude:
+      typeof data.labLongitude === 'number' ? data.labLongitude : undefined,
+    labRadiusMeters:
+      typeof data.labRadiusMeters === 'number'
+        ? data.labRadiusMeters
+        : undefined,
   };
 }
 
@@ -410,6 +448,7 @@ export async function buatSesi({
       jamSelesai: data.jamSelesai,
       status: 'belum-dibuka',
       dibuatPada: serverTimestamp(),
+      ...ambilDataLab(data),
     });
 
     return { ok: true, pesan: 'Sesi berhasil dibuat' };
@@ -427,6 +466,7 @@ export async function ubahSesi({
   tanggal,
   jamMulai,
   jamSelesai,
+  ...dataLab
 }: {
   db: Firestore;
   sesiId: string;
@@ -435,7 +475,7 @@ export async function ubahSesi({
   tanggal: string;
   jamMulai: string;
   jamSelesai: string;
-}): Promise<HasilAksiSesi> {
+} & DataLabSesi): Promise<HasilAksiSesi> {
   const validasi = validasiWaktuSesi({
     hari,
     tanggal,
@@ -469,6 +509,7 @@ export async function ubahSesi({
         tanggal,
         jamMulai,
         jamSelesai,
+        ...ambilDataLab(dataLab),
       });
     });
 

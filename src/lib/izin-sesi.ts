@@ -64,7 +64,7 @@ export function dengarkanSesiAsisten(
           const dataKelas = (dokumenKelas.data() ?? {}) as { nama?: string; lab?: string };
 
           namaKelas = dataKelas.nama ?? '';
-          lab = dataKelas.lab ?? '';
+          lab = data.labNama ? String(data.labNama) : (dataKelas.lab ?? '');
         }
 
         hasil.push({
@@ -196,7 +196,9 @@ export function dengarkanSesiPraktikan(
                   jamSelesai: String(data.jamSelesai ?? ''),
                   status: (data.status as SesiPraktikan['status']) ?? 'belum-dibuka',
                   namaKelas: dataKelas.nama ?? '',
-                  lab: dataKelas.lab ?? '',
+                  lab: data.labNama
+                    ? String(data.labNama)
+                    : (dataKelas.lab ?? ''),
                 });
               });
 

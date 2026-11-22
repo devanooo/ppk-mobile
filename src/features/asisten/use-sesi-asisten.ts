@@ -88,7 +88,7 @@ export function useSesiAsisten(
         return {
           ...item,
           namaKelas: kelas.nama,
-          lab: kelas.lab,
+          lab: item.labNama || kelas.lab,
           pesertaIds: kelas.pesertaIds,
         };
       })

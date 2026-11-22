@@ -275,7 +275,7 @@ export default function KelolaSesiRoute() {
           }
           renderItem={({ item }) => (
             <KartuSesi
-              lab={kelas.lab}
+              lab={item.lab}
               menghapus={menghapus}
               onEdit={() => bukaEdit(item)}
               onHapus={() => konfirmasiHapusSesi(item)}

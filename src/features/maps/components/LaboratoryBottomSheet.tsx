@@ -28,7 +28,7 @@ interface LaboratoryBottomSheetProps {
   labelLab: string;
   onRetryAktivitas: () => void;
   onClose: () => void;
-  onSelect?: (labId: string) => void;
+  onSelect?: (lab: Laboratory) => void;
 }
 
 export default function LaboratoryBottomSheet({
@@ -113,7 +113,7 @@ export default function LaboratoryBottomSheet({
           <AppButton
             className="mt-four"
             label="Pilih Lokasi Ini"
-            onPress={() => onSelect?.(laboratory.id)}
+            onPress={() => onSelect?.(laboratory)}
           />
         ) : null}
       </ScrollView>

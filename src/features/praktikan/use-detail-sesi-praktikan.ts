@@ -69,7 +69,7 @@ export function useDetailSesiPraktikan(
       setSesi({
         ...dataSesi,
         namaKelas,
-        lab,
+        lab: dataSesi.labNama || lab,
       });
       setStatus('siap');
       setPesanGalat(undefined);
