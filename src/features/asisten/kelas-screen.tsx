@@ -11,6 +11,7 @@ import {
   Screen,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useRuangBawahKonten } from '@/hooks/use-tab-bar-layout';
 import type { HasilAksi, Kelas } from '@/lib/kelas';
 
 import type { UmpanBalik } from './umpan-balik';
@@ -48,6 +49,7 @@ export function KelasAsistenScreen({
   onKelolaSesi,
   menghapus,
 }: KelasAsistenScreenProps) {
+  const ruangBawah = useRuangBawahKonten();
   const [tampilSemua, setTampilSemua] = useState(false);
   const [kelasAkanDihapus, setKelasAkanDihapus] = useState<Kelas | null>(null);
 
@@ -62,7 +64,7 @@ export function KelasAsistenScreen({
   }
 
   return (
-    <Screen padded={false}>
+    <Screen edges={['top', 'left', 'right']} padded={false}>
       <View
         className="w-full flex-1 self-center"
         style={{ maxWidth: MaxContentWidth }}
@@ -70,7 +72,8 @@ export function KelasAsistenScreen({
         <FlatList
           data={kelasTampil}
           keyExtractor={(item) => item.id}
-          contentContainerClassName="gap-twoHalf px-three pb-five"
+          contentContainerClassName="gap-twoHalf px-three"
+          contentContainerStyle={{ paddingBottom: ruangBawah }}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <View className="gap-three pt-three">

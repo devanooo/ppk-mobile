@@ -11,6 +11,7 @@ import {
   teksKosong,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useRuangBawahKonten } from '@/hooks/use-tab-bar-layout';
 import { useTheme } from '@/hooks/use-theme';
 
 import { formatTanggal } from './format-sesi';
@@ -47,6 +48,7 @@ export function KehadiranScreen({
   onBukaRiwayat
 }: KehadiranScreenProps) {
   const [filter, setFilter] = useState<PraktikumRiwayat | null>(null);
+  const ruangBawah = useRuangBawahKonten();
   const [filterTerbuka, setFilterTerbuka] = useState(false);
 
   const [filterStatus, setFilterStatus] =
@@ -110,7 +112,7 @@ export function KehadiranScreen({
   }
 
   return (
-    <Screen padded={false}>
+    <Screen edges={['top', 'left', 'right']} padded={false}>
       <View
         className="w-full flex-1 self-center"
         style={{ maxWidth: MaxContentWidth }}
@@ -118,7 +120,7 @@ export function KehadiranScreen({
         <FlatList
           data={riwayatTampil}
           keyExtractor={(item) => item.sesi.id}
-          contentContainerClassName="pb-five"
+          contentContainerStyle={{ paddingBottom: ruangBawah }}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <BagianAtas

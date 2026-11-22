@@ -2,6 +2,7 @@ import { ScrollView, Text, View } from 'react-native';
 
 import { AppHeader, Banner, Card, EmptyState, FilterSelect, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useRuangBawahKonten } from '@/hooks/use-tab-bar-layout';
 import type { Izin, StatusIzin } from '@/features/izin/types';
 import type { SesiPraktikan } from '@/lib/izin-sesi';
 
@@ -72,9 +73,14 @@ export function DaftarIzinAsisten({
   onTutupUmpanBalik,
   umpanBalik,
 }: DaftarIzinAsistenProps) {
+  const ruangBawah = useRuangBawahKonten();
+
   return (
-    <Screen padded={false}>
-      <ScrollView contentContainerClassName="pb-five" showsVerticalScrollIndicator={false}>
+    <Screen edges={['top', 'left', 'right']} padded={false}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: ruangBawah }}
+        showsVerticalScrollIndicator={false}
+      >
         <View className="w-full self-center px-three" style={{ maxWidth: MaxContentWidth }}>
           <AppHeader aksi={profil} className="pt-three" peran="asisten" />
 

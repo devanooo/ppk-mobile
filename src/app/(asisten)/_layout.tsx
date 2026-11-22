@@ -1,13 +1,29 @@
 import { Tabs } from 'expo-router';
+import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { SymbolView } from 'expo-symbols';
 
 import { FloatingTabBar } from '@/components/ui';
+import { useTabBarLayout } from '@/hooks/use-tab-bar-layout';
 
+/**
+ * Bar hanya tampil di layar utama tab. Layar detail memakai seluruh tinggi
+ * layar, jadi bar disembunyikan agar tombol aksi di bawah tidak tertutup pill.
+ */
 export default function AsistenLayout() {
+  const { layarUtama, sceneStyle } = useTabBarLayout();
+
+  function TabBarAsisten(props: BottomTabBarProps) {
+    if (!layarUtama) {
+      return null;
+    }
+
+    return <FloatingTabBar {...props} />;
+  }
+
   return (
     <Tabs
-      tabBar={(props) => <FloatingTabBar {...props} />}
-      screenOptions={{ headerShown: false }}
+      tabBar={(props) => <TabBarAsisten {...props} />}
+      screenOptions={{ headerShown: false, sceneStyle }}
     >
       <Tabs.Screen
         name="jadwal"

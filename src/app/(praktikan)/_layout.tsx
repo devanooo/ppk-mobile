@@ -1,28 +1,30 @@
-import { Tabs, usePathname } from 'expo-router';
+import { Tabs } from 'expo-router';
 import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { SymbolView } from 'expo-symbols';
 
 import { FloatingTabBar } from '@/components/ui';
+import { useTabBarLayout } from '@/hooks/use-tab-bar-layout';
 
 /**
- * Pemindai QR memakai seluruh layar: navbar disembunyikan agar panel kamera
- * tidak terpotong dan tidak ada tab yang bisa ditekan di tengah pemindaian.
+ * Bar hanya tampil di layar utama tab. Layar detail dan pemindai QR memakai
+ * seluruh tinggi layar, jadi bar disembunyikan agar tombol aksi di bawah dan
+ * panel kamera tidak tertutup pill.
  */
-function TabBarPraktikan(props: BottomTabBarProps) {
-  const pathname = usePathname();
+export default function PraktikanLayout() {
+  const { layarUtama, sceneStyle } = useTabBarLayout();
 
-  if (pathname.includes('pindai')) {
-    return null;
+  function TabBarPraktikan(props: BottomTabBarProps) {
+    if (!layarUtama) {
+      return null;
+    }
+
+    return <FloatingTabBar {...props} />;
   }
 
-  return <FloatingTabBar {...props} />;
-}
-
-export default function PraktikanLayout() {
   return (
     <Tabs
       tabBar={(props) => <TabBarPraktikan {...props} />}
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ headerShown: false, sceneStyle }}
     >
       <Tabs.Screen
         name="jadwal"

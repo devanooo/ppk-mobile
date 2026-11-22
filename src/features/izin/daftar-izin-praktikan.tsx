@@ -11,6 +11,7 @@ import {
   Screen,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useRuangBawahKonten } from '@/hooks/use-tab-bar-layout';
 import { KartuIzin } from '@/features/izin/kartu-izin';
 import { BATAS_SESI_PRAKTIKAN } from '@/features/izin/use-izin-praktikan';
 import type { Izin, StatusIzin } from '@/features/izin/types';
@@ -114,16 +115,18 @@ export function DaftarIzinPraktikan({
   idSedangKlasifikasi,
   umpanBalik,
 }: DaftarIzinPraktikanProps) {
+  const ruangBawah = useRuangBawahKonten();
   const sedangMemuat = status === 'memuat';
   const gagal = status === 'gagal';
   const adaFilter = filter !== 'semua' || filterKategori !== 'semua';
   const kosong = teksKosong(status, totalIzin, adaFilter, pesanGalat);
 
   return (
-    <Screen padded={false}>
+    <Screen edges={['top', 'left', 'right']} padded={false}>
       <View className="w-full flex-1 self-center" style={{ maxWidth: MaxContentWidth }}>
         <FlatList
-          contentContainerClassName="px-three pb-five"
+          contentContainerClassName="px-three"
+          contentContainerStyle={{ paddingBottom: ruangBawah }}
           data={daftarIzin}
           // ID dokumen izin = uid praktikan, jadi tidak unik lintas sesi.
           keyExtractor={(item) => `${item.sesiId}:${item.id}`}

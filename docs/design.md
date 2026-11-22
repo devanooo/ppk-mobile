@@ -38,7 +38,7 @@ Ciri yang diambil dari referensi:
 | Header | Wordmark, lonceng dengan titik notifikasi, dan pill peran. |
 | Baris meta | Setiap baris informasi penting didampingi ikon. |
 | Status | Badge berbasis teks. Warna hanya penguat, bukan satu-satunya pembeda. |
-| Navigasi | Tab mengambang. Label tab belum final. |
+| Navigasi | Tab mengambang berbentuk pill kaca, dengan kapsul abu di belakang ikon dan label tab aktif. Bar menimpa konten dan hanya tampil di layar utama tab; layar detail menyembunyikannya. Label tab belum final. |
 
 `[TERKONFIRMASI]` Hex navy `#172554`. Nilai ini dipakai pada `primary` mode terang dan pada `loginInk`.
 
@@ -159,7 +159,7 @@ Semua `[TERBUKA]`. Jangan dipakai sebelum masuk `tokens.js`.
 | `xl` | 24dp | Bottom sheet |
 | `pill` | 999dp | Tombol dan badge |
 
-Elevasi: satu shadow untuk dropdown profil dan bottom sheet saja. Kartu tidak memakai shadow. Arah navy tidak menambah shadow kartu.
+Elevasi: satu shadow untuk dropdown profil, bottom sheet, dan navbar mengambang. Kartu tidak memakai shadow. Arah navy tidak menambah shadow kartu.
 
 ## 5. Komponen
 
@@ -235,6 +235,7 @@ State tambahan: nonaktif dengan alasan, dan kondisi tanpa peran atau tanpa akses
 
 - Dilarang memakai warna hardcode atau arbitrary value.
 - Dilarang gradient dekoratif, glassmorphism, dan shadow pada kartu.
+- Pengecualian glassmorphism: hanya navbar mengambang yang boleh memakai kaca, karena satu-satunya elemen yang benar-benar mengapung di atas konten. Kartu, sheet, dropdown, dan tombol tetap solid. Keputusan pemilik produk, 2026-11-22.
 - Dilarang membuat tombol atau tautan yang tidak punya tujuan nyata.
 - Dilarang menduplikasi state sesi, presensi, atau autentikasi di layar. Sumber data tetap hook dan store.
 - Dilarang mengubah kosakata status atau label tab tanpa keputusan PM.
@@ -268,3 +269,4 @@ Dokumen lama dikutip per nomor baris dari kode. Setelah penyusunan ulang, rujuka
 | Sprint 1 | Dokumen arah desain disusun dari analisis Apple.com. |
 | Sprint 3, Phase 1.5 | Amandemen navy ditambahkan tanpa menghapus analisis lama, agar rujukan baris tetap sah. |
 | Sprint 3, D0 | Dokumen disusun ulang. Spesifikasi visual Apple dihapus, prinsip teknis dipertahankan, navy menjadi arah utama, TBD ditandai. |
+| Sprint 3, 2026-11-22 | Navbar mengambang memakai kaca native iOS 26 dengan fallback translusen; pengecualian sempit pada larangan glassmorphism. |
