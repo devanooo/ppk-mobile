@@ -13,6 +13,7 @@ import {
 
 import { AppButton, Banner, Screen, TextField } from '@/components/ui';
 import { Colors, MaxContentWidth } from '@/constants/theme';
+import { validasiNim } from '@/lib/validasi';
 import { useSession } from '@/store/session-store';
 import type { Peran } from '@/types';
 
@@ -86,9 +87,9 @@ export function RegisterScreen({
       errorBaru.nama = 'Nama lengkap wajib diisi.';
     }
 
-    if (!/^\d{14}$/.test(nomorInduk)) {
-      errorBaru.nomorInduk =
-        'NIM harus terdiri dari tepat 14 digit angka.';
+    const cekNomorInduk = validasiNim(nomorInduk, peran);
+    if (!cekNomorInduk.ok) {
+      errorBaru.nomorInduk = cekNomorInduk.pesan;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
