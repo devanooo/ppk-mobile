@@ -39,7 +39,8 @@ export function normalisasiLaboratorium(
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]/g, '')
-    .replace(/^lab/, '');
+    .replace(/^lab/, '')
+    .replace(/\d+$/, '');
 
   switch (kode) {
     case 'b':

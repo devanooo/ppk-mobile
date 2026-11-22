@@ -32,10 +32,6 @@ function formatTanggal(tanggal: string): string {
   }).format(date);
 }
 
-function formatJam(jam: string): string {
-  return jam.replace(':', '.');
-}
-
 function formatWaktuHadir(waktu: Date): string {
   return `${String(waktu.getHours()).padStart(2, '0')}.${String(
     waktu.getMinutes(),

@@ -13,6 +13,7 @@ import {
 import { Colors } from '@/constants/theme';
 
 type TextFieldVariant = 'default' | 'auth';
+type TextFieldTone = 'default' | 'muted';
 
 type TextFieldProps = {
   label: string;
@@ -25,6 +26,8 @@ type TextFieldProps = {
   inputMode?: TextInputProps['inputMode'];
   accessibilityLabel?: string;
   className?: string;
+  inputClassName?: string;
+  inputTone?: TextFieldTone;
   error?: string;
   maxLength?: number;
   onFocus?: () => void;
@@ -46,6 +49,8 @@ export function TextField({
   inputMode = 'text',
   accessibilityLabel,
   className = '',
+  inputClassName = '',
+  inputTone = 'default',
   error,
   maxLength,
   onFocus,
@@ -78,7 +83,9 @@ export function TextField({
             ? 'border-loginInk'
             : 'border-loginField'
       } ${tampilkanToggle ? 'pl-fieldPadding pr-six' : 'px-fieldPadding'}`
-    : `min-h-touch rounded-md border bg-backgroundElement text-body text-text ${
+    : `min-h-touch rounded-md border ${
+        inputTone === 'muted' ? 'bg-surfaceMuted' : 'bg-backgroundElement'
+      } text-body text-text ${
         error ? 'border-danger' : 'border-border'
       } ${tampilkanToggle ? 'pl-twoHalf pr-six' : 'px-twoHalf'}`;
 
@@ -108,7 +115,7 @@ export function TextField({
           selectionColor={gayaAuth ? palet.loginInk : undefined}
           style={gayaAuth ? { textAlignVertical: 'center' } : undefined}
           value={value}
-          className={gayaAuth ? `${kelasInput} border bg-loginField` : kelasInput}
+          className={`${gayaAuth ? `${kelasInput} border bg-loginField` : kelasInput} ${inputClassName}`}
         />
 
         {tampilkanToggle ? (
@@ -158,4 +165,4 @@ export function TextField({
   );
 }
 
-export type { TextFieldProps };
+export type { TextFieldProps, TextFieldTone, TextFieldVariant };
