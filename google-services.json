@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "225952102929",
+    "project_id": "praktikumku-dcfc0",
+    "storage_bucket": "praktikumku-dcfc0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:225952102929:android:ba9db6b4f9ae0d86564fb0",
+        "android_client_info": {
+          "package_name": "com.devanoooo.praktikumku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyLy9rZtynXG473MStIdXuDjTX0DQPpJ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
