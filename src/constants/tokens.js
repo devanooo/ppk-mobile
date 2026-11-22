@@ -41,6 +41,11 @@ const lightColors = {
   loginInk: '#172554',
   loginMuted: '#5f6880',
   loginField: '#f1f4f8',
+  /** Palette landing, tetap di kedua tema seperti `login*`. */
+  landingCanvas: '#0f172a',
+  landingMid: '#334e85',
+  landingAccent: '#f59e0b',
+  landingSurface: '#f8fafc',
 };
 
 const darkColors = {
@@ -65,6 +70,10 @@ const darkColors = {
   loginInk: '#172554',
   loginMuted: '#5f6880',
   loginField: '#f1f4f8',
+  landingCanvas: '#0f172a',
+  landingMid: '#334e85',
+  landingAccent: '#f59e0b',
+  landingSurface: '#f8fafc',
 };
 
 /**

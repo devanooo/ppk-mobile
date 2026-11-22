@@ -29,6 +29,10 @@
   --color-loginInk: 23 37 84;
   --color-loginMuted: 95 104 128;
   --color-loginField: 241 244 248;
+  --color-landingCanvas: 15 23 42;
+  --color-landingMid: 51 78 133;
+  --color-landingAccent: 245 158 11;
+  --color-landingSurface: 248 250 252;
 }
 
 @media (prefers-color-scheme: dark) {
