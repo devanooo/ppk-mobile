@@ -35,6 +35,12 @@ export default function DetailSesiPraktikanRoute() {
     <DetailSesiScreen
       onAjukanIzin={() => router.push('/(praktikan)/izin/ajukan')}
       onKembali={kembali}
+      onScanQr={() =>
+        router.push({
+          pathname: '/(praktikan)/jadwal/pindai',
+          params: { id: sesiId },
+        })
+      }
       profil={<MenuProfilPraktikan />}
       sesi={hasil.sesi}
       status={hasil.status}
