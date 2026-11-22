@@ -17,6 +17,7 @@ import {
 
 import { auth, db } from '@/lib/firebase';
 import { userConverter } from '@/lib/konversi';
+import { validasiNim } from '@/lib/validasi';
 
 import type { User, Peran } from '@/types';
 import type { UserFirestore } from '@/types/firestore';
@@ -151,12 +152,9 @@ export async function daftarAkun(
     };
   }
 
-  // Nomor induk 14 digit untuk praktikan maupun asisten.
-  if (!/^\d{14}$/.test(nomorInduk)) {
-    return {
-      ok: false,
-      pesan: 'NIM harus terdiri dari tepat 14 digit angka.',
-    };
+  const cekNomorInduk = validasiNim(nomorInduk, input.peran);
+  if (!cekNomorInduk.ok) {
+    return { ok: false, pesan: cekNomorInduk.pesan };
   }
 
   if (input.password.length < 6) {
