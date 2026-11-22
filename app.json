@@ -38,6 +38,13 @@
         }
       ],
       "@react-native-community/datetimepicker",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "PraktikumKU membutuhkan akses kamera untuk memindai QR Code presensi.",
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-notifications",
       [
         "expo-location",
