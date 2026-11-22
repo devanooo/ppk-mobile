@@ -34,7 +34,7 @@ export type Koordinat = {
 };
 
 export type HasilValidasiPresensi =
-  | { ok: true; lab: LabPresensi; jarakMeter: number }
+  | { ok: true; lab: LabPresensi; jarakMeter: number; qrExp: string }
   | { ok: false; alasan: AlasanTolak; pesan: string };
 
 /** Pesan penolakan, mengikuti tabel penanganan error docs/sprints/sprint-3.md §8.6. */
@@ -154,5 +154,5 @@ export function validasiPresensi(
     return tolak('DI_LUAR_RADIUS');
   }
 
-  return { ok: true, lab: input.lab, jarakMeter };
+  return { ok: true, lab: input.lab, jarakMeter, qrExp: dibaca.payload.exp };
 }
