@@ -1,12 +1,20 @@
-import { Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { View } from 'react-native';
 
-// TODO(logo): ganti placeholder dengan aset resmi PraktikumKU saat tersedia.
+/**
+ * File logo punya margin transparan bawaan sekitar 20% di tiap sisi, jadi
+ * gambarnya diperbesar melewati batas badge dan dipotong agar mark-nya
+ * memenuhi kotak. Tanpa ini logo tampak kecil di dalam badge.
+ */
 export function LandingLogo() {
   return (
-    <View className="h-touch w-touch items-center justify-center self-center rounded-authCard bg-loginBackground">
-      <Text accessibilityElementsHidden className="text-subtitle font-bold text-loginInk">
-        P
-      </Text>
+    <View className="h-touch w-touch items-center justify-center self-center overflow-hidden rounded-authCard bg-loginBackground">
+      <Image
+        accessibilityLabel="Logo PraktikumKU"
+        contentFit="contain"
+        source={require('@/assets/images/Logo-PraktikumKU.png')}
+        style={{ height: '150%', width: '150%' }}
+      />
     </View>
   );
 }

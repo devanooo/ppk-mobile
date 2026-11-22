@@ -7,9 +7,9 @@ import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 import { LandingHero } from './landing-hero';
 import { LandingLogo } from './landing-logo';
 
-const NAVY = Colors.light.loginInk;
-const MUTED = Colors.light.loginMuted;
-const AKSEN = Colors.light.warning;
+const INK = Colors.light.loginInk;
+const MID = Colors.light.landingMid;
+const AKSEN = Colors.light.landingAccent;
 const PUTIH = Colors.light.loginBackground;
 
 type LandingScreenProps = {
@@ -21,28 +21,28 @@ export function LandingScreen({ onMasuk, onDaftar }: LandingScreenProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 bg-loginInk">
+    <View className="flex-1 bg-landingCanvas">
       <ScrollView contentContainerClassName="grow" showsVerticalScrollIndicator={false}>
-        <View className="bg-loginInk pb-four" style={{ paddingTop: insets.top + Spacing.three }}>
+        <View className="bg-landingCanvas" style={{ paddingTop: insets.top + Spacing.three }}>
           <LandingLogo />
           <LandingHero className="mt-four" />
         </View>
 
         <View
-          className="flex-1 rounded-t-xl bg-loginBackground px-four pt-five"
+          className="flex-1 bg-landingSurface px-four pt-five"
           style={{ paddingBottom: insets.bottom + Spacing.five }}
         >
           <View className="w-full self-center" style={{ maxWidth: MaxContentWidth }}>
             <Text
               accessibilityRole="header"
               className="text-center text-display font-bold"
-              style={{ color: NAVY }}
+              style={{ color: INK }}
             >
               Praktikum
               <Text style={{ color: AKSEN }}>KU</Text>
             </Text>
 
-            <Text className="mt-two text-center text-body" style={{ color: MUTED }}>
+            <Text className="mt-two text-center text-body" style={{ color: MID }}>
               Lebih dari Sekadar Praktikum, Ini Tentang Perjalanan dan Dedikasi
             </Text>
 
@@ -67,17 +67,18 @@ export function LandingScreen({ onMasuk, onDaftar }: LandingScreenProps) {
             <Pressable
               accessibilityLabel="Daftar akun PraktikumKU"
               accessibilityRole="button"
-              className="mt-two min-h-button w-full flex-row items-center justify-center rounded-pill border border-loginInk bg-loginBackground px-four active:scale-95"
+              className="mt-two min-h-button w-full flex-row items-center justify-center rounded-pill border bg-landingSurface px-four active:scale-95"
               onPress={onDaftar}
+              style={{ borderColor: INK }}
             >
-              <Text className="text-authButton font-semibold" style={{ color: NAVY }}>
+              <Text className="text-authButton font-semibold" style={{ color: INK }}>
                 Daftar
               </Text>
               <View className="absolute right-four">
                 <SymbolView
                   name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }}
                   size={20}
-                  tintColor={NAVY}
+                  tintColor={INK}
                 />
               </View>
             </Pressable>
