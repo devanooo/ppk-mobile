@@ -1,7 +1,16 @@
-import { ScrollView, Text, View } from 'react-native';
+import { SymbolView } from 'expo-symbols';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppButton, Screen } from '@/components/ui';
-import { MaxContentWidth } from '@/constants/theme';
+import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+
+import { LandingHero } from './landing-hero';
+import { LandingLogo } from './landing-logo';
+
+const NAVY = Colors.light.loginInk;
+const MUTED = Colors.light.loginMuted;
+const AKSEN = Colors.light.warning;
+const PUTIH = Colors.light.loginBackground;
 
 type LandingScreenProps = {
   onMasuk: () => void;
@@ -9,44 +18,73 @@ type LandingScreenProps = {
 };
 
 export function LandingScreen({ onMasuk, onDaftar }: LandingScreenProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <Screen padded={false}>
-      <ScrollView
-        className="flex-1"
-        contentContainerClassName="grow px-three pb-three pt-three"
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="w-full self-center" style={{ maxWidth: MaxContentWidth }}>
-          <Text className="text-subtitle font-semibold text-text">PraktikumKU</Text>
+    <View className="flex-1 bg-loginInk">
+      <ScrollView contentContainerClassName="grow" showsVerticalScrollIndicator={false}>
+        <View className="bg-loginInk pb-four" style={{ paddingTop: insets.top + Spacing.three }}>
+          <LandingLogo />
+          <LandingHero className="mt-four" />
         </View>
 
         <View
-          className="my-auto w-full self-center py-four"
-          style={{ maxWidth: MaxContentWidth }}
+          className="flex-1 rounded-t-xl bg-loginBackground px-four pt-five"
+          style={{ paddingBottom: insets.bottom + Spacing.five }}
         >
-          <Text accessibilityRole="header" className="text-display font-semibold text-text">
-            Presensi praktikum, lebih mudah.
-          </Text>
-          <Text className="mt-three text-body text-textSecondary">
-            Lihat jadwal, kelola sesi, dan catat kehadiran dalam satu aplikasi.
-          </Text>
-        </View>
+          <View className="w-full self-center" style={{ maxWidth: MaxContentWidth }}>
+            <Text
+              accessibilityRole="header"
+              className="text-center text-display font-bold"
+              style={{ color: NAVY }}
+            >
+              Praktikum
+              <Text style={{ color: AKSEN }}>KU</Text>
+            </Text>
 
-        <View className="w-full self-center" style={{ maxWidth: MaxContentWidth }}>
-          <AppButton
-            accessibilityLabel="Masuk ke akun PraktikumKU"
-            label="Masuk"
-            onPress={onMasuk}
-          />
-          <AppButton
-            className="mt-two"
-            label="Buat Akun"
-            onPress={onDaftar}
-            variant="secondary"
-          />
+            <Text className="mt-two text-center text-body" style={{ color: MUTED }}>
+              Lebih dari Sekadar Praktikum, Ini Tentang Perjalanan dan Dedikasi
+            </Text>
+
+            <Pressable
+              accessibilityLabel="Masuk ke akun PraktikumKU"
+              accessibilityRole="button"
+              className="mt-five min-h-button w-full flex-row items-center justify-center rounded-pill bg-loginInk px-four active:scale-95"
+              onPress={onMasuk}
+            >
+              <Text className="text-authButton font-semibold" style={{ color: PUTIH }}>
+                Masuk
+              </Text>
+              <View className="absolute right-four">
+                <SymbolView
+                  name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }}
+                  size={20}
+                  tintColor={PUTIH}
+                />
+              </View>
+            </Pressable>
+
+            <Pressable
+              accessibilityLabel="Daftar akun PraktikumKU"
+              accessibilityRole="button"
+              className="mt-two min-h-button w-full flex-row items-center justify-center rounded-pill border border-loginInk bg-loginBackground px-four active:scale-95"
+              onPress={onDaftar}
+            >
+              <Text className="text-authButton font-semibold" style={{ color: NAVY }}>
+                Daftar
+              </Text>
+              <View className="absolute right-four">
+                <SymbolView
+                  name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }}
+                  size={20}
+                  tintColor={NAVY}
+                />
+              </View>
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
-    </Screen>
+    </View>
   );
 }
 
