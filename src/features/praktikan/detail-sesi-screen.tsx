@@ -24,11 +24,7 @@ type DetailSesiScreenProps = {
   status: StatusMuat;
   pesanGalat?: string;
   onKembali: () => void;
-  /**
-   * Dihubungkan ke route pemindai QR saat fitur itu tersedia. Selama belum
-   * ada, tombol scan tampil nonaktif dengan alasan yang terlihat.
-   */
-  onScanQr?: () => void;
+  onScanQr: () => void;
   onAjukanIzin?: () => void;
   profil?: ReactNode;
 };
@@ -109,7 +105,7 @@ function IsiDetail({
 }: {
   sesi: DetailSesiPraktikan;
   waktuHadir?: Date;
-  onScanQr?: () => void;
+  onScanQr: () => void;
   onAjukanIzin?: () => void;
 }) {
   const theme = useTheme();
@@ -197,16 +193,12 @@ function IsiDetail({
           <StatusHadir waktu={waktuHadir} />
         ) : (
           <View className="gap-twoHalf">
-            {onScanQr ? (
-              <AppButton
-                disabled={Boolean(alasanSesi)}
-                disabledReason={alasanSesi}
-                label="Scan QR untuk presensi"
-                onPress={onScanQr}
-              />
-            ) : (
-              <TombolScanNonaktif />
-            )}
+            <AppButton
+              disabled={Boolean(alasanSesi)}
+              disabledReason={alasanSesi}
+              label="Scan QR untuk presensi"
+              onPress={onScanQr}
+            />
 
             {onAjukanIzin ? (
               <AppButton
@@ -250,28 +242,6 @@ function BarisMeta({
           </Text>
         ) : null}
       </View>
-    </View>
-  );
-}
-
-function TombolScanNonaktif() {
-  return (
-    <View>
-      <View
-        accessible
-        accessibilityLabel="Scan QR untuk presensi. Fitur scan QR belum tersedia."
-        accessibilityRole="button"
-        accessibilityState={{ disabled: true }}
-        className="min-h-button items-center justify-center rounded-pill border border-border bg-backgroundElement"
-      >
-        <Text className="text-body font-semibold text-textSecondary">
-          Scan QR untuk presensi
-        </Text>
-      </View>
-
-      <Text className="mt-two text-center text-caption text-textSecondary">
-        Fitur scan QR belum tersedia
-      </Text>
     </View>
   );
 }

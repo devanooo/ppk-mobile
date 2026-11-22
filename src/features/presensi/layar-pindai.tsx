@@ -49,6 +49,8 @@ type LayarPindaiProps = {
   hasil: JenisHasil | null;
   onAksiHasil: () => void;
   onTutupHasil: () => void;
+  /** Transaksi presensi sedang berjalan; kamera sudah terkunci. */
+  menyimpan: boolean;
 };
 
 /** Strip status tepat di bawah panel kamera, mis. "Memindai QR Code...". */
@@ -179,17 +181,20 @@ export function LayarPindai({
   hasil,
   onAksiHasil,
   onTutupHasil,
+  menyimpan,
 }: LayarPindaiProps) {
   const tema = useTheme();
 
   const butuhKamera = !izinKamera && !memuatIzinKamera;
   const butuhLokasi = !izinLokasi && statusLokasi === 'tidak-aktif';
 
-  const strip = memuatIzinKamera
-    ? 'Memeriksa izin kamera...'
-    : butuhKamera
-      ? 'Akses kamera diperlukan'
-      : 'Memindai QR Code...';
+  const strip = menyimpan
+    ? 'Menyimpan presensi...'
+    : memuatIzinKamera
+      ? 'Memeriksa izin kamera...'
+      : butuhKamera
+        ? 'Akses kamera diperlukan'
+        : 'Memindai QR Code...';
 
   const judulInfo = butuhKamera
     ? 'Izin akses kamera'

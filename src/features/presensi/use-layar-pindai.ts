@@ -246,5 +246,6 @@ export function useLayarPindai(sesiId: string, praktikanId: string) {
     hasil,
     onAksiHasil: tutupHasil,
     onTutupHasil: tutupHasil,
+    menyimpan,
   };
 }
