@@ -72,6 +72,16 @@ const sukses = validasiPresensi(input(), DEPS);
 pastikan(sukses.ok, 'QR sah di dalam radius harus diterima');
 pastikan(sukses.ok && sukses.lab.id === LAB.id, 'lab hasil validasi ikut dikembalikan');
 pastikan(sukses.ok && sukses.jarakMeter === 0, 'jarak di titik pusat harus 0');
+// Bukti yang disimpan bersama presensi memakai masa berlaku QR yang benar-benar
+// dipakai, bukan waktu saat presensi dicatat.
+pastikan(
+  sukses.ok && sukses.qrExp === buatPayloadQr({ sesiId: 'sesi-1', sekarang: SEKARANG }).exp,
+  'qrExp pada hasil validasi sama dengan exp payload',
+);
+pastikan(
+  sukses.ok && !Number.isNaN(Date.parse(sukses.qrExp)),
+  'qrExp dapat dibaca sebagai tanggal',
+);
 
 // 2. QR tidak valid / bukan payload kita.
 pastikan(

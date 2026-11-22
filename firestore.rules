@@ -211,9 +211,28 @@ service cloud.firestore {
       // ==== sesi/{sesiId}/presensi ====
       // Create hanya praktikan pemilik, hanya saat sesi "dibuka", waktu wajib
       // timestamp server. Update dan delete ditolak.
+      //
+      // Bukti validasi radius (labId, jarakMeter, qrExp) opsional: layar
+      // pemindai mengirimnya setelah QR, status sesi, identitas, dan jarak
+      // lolos validasi (US-07 AC-10). Bila ada, nilainya harus masuk akal dan
+      // laboratoriumnya harus laboratorium sesi tersebut.
       match /presensi/{praktikanId} {
         function sesiInduk() {
           return get(/databases/$(database)/documents/sesi/$(sesiId)).data;
+        }
+
+        function tanpaBukti() {
+          return request.resource.data.keys().hasOnly(['praktikanId', 'waktu']);
+        }
+
+        function denganBukti() {
+          return request.resource.data.keys().hasOnly(
+              ['praktikanId', 'waktu', 'labId', 'jarakMeter', 'qrExp'])
+            && request.resource.data.labId is string
+            && request.resource.data.labId == sesiInduk().labId
+            && request.resource.data.jarakMeter is number
+            && request.resource.data.jarakMeter >= 0
+            && request.resource.data.qrExp is string;
         }
 
         allow read: if request.auth.uid == praktikanId
@@ -221,7 +240,7 @@ service cloud.firestore {
 
         allow create: if request.auth.uid == praktikanId
           && request.resource.data.keys().hasAll(['praktikanId', 'waktu'])
-          && request.resource.data.keys().hasOnly(['praktikanId', 'waktu'])
+          && (tanpaBukti() || denganBukti())
           && request.resource.data.praktikanId == praktikanId
           && request.resource.data.waktu == request.time
           && sesiInduk().status == 'dibuka'

@@ -113,15 +113,38 @@ export function dengarkanPresensiSaya(
   );
 }
 
-/** Mencatat presensi praktikan satu kali untuk satu sesi. */
+/**
+ * Bukti validasi yang ikut disimpan supaya radius laboratorium tidak hanya
+ * diperiksa di layar (NFR-05, US-07 AC-10). Nilainya berasal dari hasil
+ * `validasiPresensi` di klien: lab yang cocok, jarak terukur, dan masa berlaku
+ * QR yang dipakai.
+ */
+export type BuktiPresensi = {
+  labId: string;
+  jarakMeter: number;
+  qrExp: string;
+};
+
+/**
+ * Mencatat presensi praktikan satu kali untuk satu sesi.
+ *
+ * Seluruh ketentuan ditegakkan di sini, bukan hanya di layar (NFR-05): sesi ada
+ * dan `dibuka`, praktikan peserta kelas, dan belum ada presensi. Security Rules
+ * menegakkan hal yang sama.
+ *
+ * `bukti` opsional supaya pemanggil lama tetap jalan. Bila dikirim, dokumen
+ * presensi memuat lab, jarak, dan masa berlaku QR yang dipakai.
+ */
 export async function catatPresensi({
   db,
   sesiId,
   praktikanId,
+  bukti,
 }: {
   db: Firestore;
   sesiId: string;
   praktikanId: string;
+  bukti?: BuktiPresensi;
 }): Promise<HasilAksiPresensi> {
   try {
     await runTransaction(db, async (transaksi) => {
@@ -171,6 +194,13 @@ export async function catatPresensi({
       transaksi.set(rujukanPresensi, {
         praktikanId,
         waktu: serverTimestamp(),
+        ...(bukti
+          ? {
+              labId: bukti.labId,
+              jarakMeter: bukti.jarakMeter,
+              qrExp: bukti.qrExp,
+            }
+          : {}),
       });
     });
 

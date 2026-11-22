@@ -171,7 +171,16 @@ export function useLayarPindai(sesiId: string, praktikanId: string) {
       setMenyimpan(true);
 
       try {
-        const dicatat = await catatPresensi({ db, sesiId, praktikanId });
+        const dicatat = await catatPresensi({
+          db,
+          sesiId,
+          praktikanId,
+          bukti: {
+            labId: hasilValidasi.lab.id,
+            jarakMeter: hasilValidasi.jarakMeter,
+            qrExp: hasilValidasi.qrExp,
+          },
+        });
 
         setHasil(dicatat.ok ? 'berhasil' : 'gagal-simpan');
       } finally {
