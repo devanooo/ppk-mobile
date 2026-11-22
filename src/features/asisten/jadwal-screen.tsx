@@ -12,6 +12,7 @@ import {
   teksKosong,
 } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useRuangBawahKonten } from '@/hooks/use-tab-bar-layout';
 import {
   formatTanggalPanjang,
   geserTanggal,
@@ -44,6 +45,7 @@ export function JadwalAsistenScreen({
   profil,
 }: JadwalAsistenScreenProps) {
   const [tanggalPilihan, setTanggalPilihan] = useState<string>();
+  const ruangBawah = useRuangBawahKonten();
 
   const hariIni = useMemo(() => tanggalHariIni(), []);
   const mingguPerSesi = useMemo(() => hitungMinggu(sesi), [sesi]);
@@ -74,7 +76,7 @@ export function JadwalAsistenScreen({
   }, [sesi, tanggalDipilih]);
 
   return (
-    <Screen padded={false}>
+    <Screen edges={['top', 'left', 'right']} padded={false}>
       <View
         className="w-full flex-1 self-center"
         style={{ maxWidth: MaxContentWidth }}
@@ -82,7 +84,7 @@ export function JadwalAsistenScreen({
         <FlatList
           data={sesiTerpilih}
           keyExtractor={(item) => item.id}
-          contentContainerClassName="pb-five"
+          contentContainerStyle={{ paddingBottom: ruangBawah }}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <BagianAtas

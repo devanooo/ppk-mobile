@@ -4,6 +4,7 @@ import { FlatList, Text, View } from 'react-native';
 
 import { AppHeader, Card, EmptyState, Screen } from '@/components/ui';
 import { MaxContentWidth } from '@/constants/theme';
+import { useRuangBawahKonten } from '@/hooks/use-tab-bar-layout';
 import { MenuProfilAsisten } from '@/features/asisten/menu-profil-asisten';
 import { useKelasAsisten } from '@/features/asisten/use-kelas-asisten';
 import { useSesiAsisten } from '@/features/asisten/use-sesi-asisten';
@@ -12,6 +13,7 @@ import { useSession } from '@/store/session-store';
 
 export default function RekapIndexScreen() {
   const { user } = useSession();
+  const ruangBawah = useRuangBawahKonten();
   const asistenId = user?.peran === 'asisten' ? user.id : undefined;
 
   const { kelas, status, pesanGalat } = useKelasAsisten(db, asistenId);
@@ -28,7 +30,7 @@ export default function RekapIndexScreen() {
   }, [sesi]);
 
   return (
-    <Screen padded={false}>
+    <Screen edges={['top', 'left', 'right']} padded={false}>
       <View
         className="w-full flex-1 self-center"
         style={{ maxWidth: MaxContentWidth }}
@@ -36,7 +38,8 @@ export default function RekapIndexScreen() {
         <FlatList
           data={kelas}
           keyExtractor={(item) => item.id}
-          contentContainerClassName="gap-twoHalf px-three pb-five"
+          contentContainerClassName="gap-twoHalf px-three"
+          contentContainerStyle={{ paddingBottom: ruangBawah }}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             <View className="pt-three">
