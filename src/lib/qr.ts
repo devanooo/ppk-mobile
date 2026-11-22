@@ -11,8 +11,8 @@
 
 export const VERSI_QR = 1;
 
-/** Masa berlaku awal. Angka final menunggu keputusan PM-08. */
-export const MASA_BERLAKU_MENIT = 10;
+/** Masa berlaku QR: 15 menit, sesuai keputusan kelompok (PM-08). */
+export const MASA_BERLAKU_MENIT = 15;
 
 export type PayloadQr = {
   v: number;

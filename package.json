@@ -55,7 +55,8 @@
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "assert": "node src/lib/qr-logic.assert.mjs && node src/lib/validasi-logic.assert.mjs && node src/lib/ai-logic.assert.mjs && node --experimental-transform-types src/features/presensi/lokasi.assert.mjs && node src/features/presensi/aturan.assert.mjs && node src/features/presensi/identitas.assert.mjs"
   },
   "private": true
 }

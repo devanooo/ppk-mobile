@@ -24,22 +24,31 @@ function pastikan(kondisi, pesan) {
 const sekarang = new Date('2026-11-20T10:00:00.000Z');
 
 // 1. Payload baru terhubung ke sesi dan memakai masa berlaku default.
+// Ekspektasi dihitung dari MASA_BERLAKU_MENIT, bukan ditulis ulang, supaya
+// perubahan kebijakan cukup diubah di satu tempat.
+const kedaluwarsaDefault = new Date(
+  sekarang.getTime() + MASA_BERLAKU_MENIT * 60_000,
+).toISOString();
+
 const payload = buatPayloadQr({ sesiId: 'sesi-1', sekarang });
 pastikan(payload.v === VERSI_QR, 'versi payload harus versi terbaru');
 pastikan(payload.sesiId === 'sesi-1', 'sesiId harus tersimpan apa adanya');
 pastikan(
-  payload.exp === '2026-11-20T10:10:00.000Z',
+  payload.exp === kedaluwarsaDefault,
   `exp harus ${MASA_BERLAKU_MENIT} menit setelah dibuat`,
 );
+pastikan(payload.exp === '2026-11-20T10:15:00.000Z', 'masa berlaku default 15 menit');
 pastikan(periksaPayloadQr(payload, { sekarang }).ok, 'QR baru harus valid');
 
 // 2. Batas kedaluwarsa: tepat pada exp sudah ditolak, sesaat sebelum masih valid.
 pastikan(
-  periksaPayloadQr(payload, { sekarang: new Date('2026-11-20T10:09:59.000Z') }).ok,
+  periksaPayloadQr(payload, {
+    sekarang: new Date(Date.parse(kedaluwarsaDefault) - 1000),
+  }).ok,
   'QR harus valid satu detik sebelum kedaluwarsa',
 );
 const tepatKedaluwarsa = periksaPayloadQr(payload, {
-  sekarang: new Date('2026-11-20T10:10:00.000Z'),
+  sekarang: new Date(kedaluwarsaDefault),
 });
 pastikan(!tepatKedaluwarsa.ok, 'QR harus ditolak tepat pada waktu kedaluwarsa');
 pastikan(
