@@ -1,41 +1,61 @@
+
 # PraktikumKU
 
 Aplikasi catatan kehadiran praktikum untuk praktikan dan asisten.
 
-Aplikasi ini berjalan di **iOS, Android, dan Web** dari satu codebase Expo. Bagian di bawah ini mendokumentasikan Sprint 1. Rencana Sprint 2 (Firebase Auth, Cloud Firestore, izin dengan klasifikasi AI) ada di [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md), dan rencana Sprint 3 (presensi berbasis lokasi dan QR Code, Maps, push notification) ada di [`docs/sprints/sprint-3.md`](docs/sprints/sprint-3.md). Keduanya menggantikan klaim Sprint 1 yang bertentangan.
+Aplikasi ini berjalan di **iOS, Android, dan Web** dari satu codebase Expo.
 
-Sprint 1 berfokus pada UI dengan data dummy, state lokal, dan autentikasi dummy (belum ada database). Pengguna masuk lewat landing page dan login, lalu diarahkan ke antarmuka sesuai peran. Dua sudut pandang pengguna:
+Pengembangan aplikasi dilakukan melalui empat sprint:
 
-- **Praktikan**: lihat jadwal dan detail sesi, melakukan presensi saat sesi dibuka, melihat riwayat kehadiran sendiri.
-- **Asisten**: lihat jadwal, membuka dan menutup sesi, memantau kehadiran, melihat rekap peserta beserta waktu presensi.
+- **Sprint 1:** Pengembangan UI, navigasi, dan alur dasar aplikasi menggunakan data dummy.
+- **Sprint 2:** Integrasi Firebase Authentication, Cloud Firestore, dan pengajuan izin dengan klasifikasi AI.
+- **Sprint 3:** Pengembangan presensi berbasis lokasi dan QR Code, Maps, serta push notification.
+- **Sprint 4:** Integrasi data dinamis Firebase, pengelolaan akun berdasarkan role, seed data, dan Firestore Security Rules.
 
-## Akun demo
+Saat ini fokus pengembangan berada pada implementasi Sprint 4, yaitu memastikan autentikasi, pengelolaan data, dan hak akses pengguna terintegrasi dengan Firebase.
 
-| Username | Password | Peran |
+## Akun Demo Sprint 4
+
+Aplikasi menyediakan tiga jenis akun untuk pengujian berdasarkan role pengguna, yaitu Praktikan, Asprak, dan Aslab.
+
+Berikut akun yang dapat digunakan untuk mencoba aplikasi:
+
+### Praktikan
+
+**Jumlah akun:** 20 akun
+
+| Nama | Email | Password |
 |---|---|---|
-| `ahmad` | `praktikan123` | Praktikan |
-| `citra` | `praktikan123` | Praktikan |
-| `eko` | `praktikan123` | Praktikan |
-| `fani` | `praktikan123` | Praktikan |
-| `budi` | `asisten123` | Asisten |
-| `siti` | `asisten123` | Asisten |
+| Aditya Pratama | `aditya@praktikumku.test` | `praktikan123` |
 
-Ketik username dan password secara manual. Halaman login tidak menyediakan kartu pengisi otomatis. Kredensial hanya data dummy dan tidak dipakai untuk autentikasi nyata.
+### Asprak
 
-## Demo sprint 1
+**Jumlah akun:** 8 akun
 
-1. Buka aplikasi. Landing page tampil. Tekan **Masuk**.
-2. Login sebagai `budi` / `asisten123`. Aplikasi masuk ke tab asisten.
-3. Buka salah satu sesi berstatus *Belum dibuka*, lalu tekan **Buka sesi** dan konfirmasi. Status berubah menjadi *Dibuka* dengan waktu buka.
-4. Buka menu profil di header, pilih **Ganti peran (demo)** ke praktikan (Ahmad).
-5. Sesi tampil *Dibuka* tanpa reload. Tekan **Presensi**, konfirmasi di bottom sheet. Jam kehadiran tercatat.
-6. Coba presensi lagi pada sesi yang sama. Presensi ditolak dengan pesan jelas (AC-06).
-7. Ganti peran kembali ke asisten (Budi). Buka rekap sesi. Peserta dan waktu kehadiran tampil.
-8. Asisten menutup sesi. Status menjadi *Ditutup* dengan waktu tutup.
-9. Ganti peran ke praktikan (Ahmad). Coba presensi pada sesi yang sudah ditutup. Presensi ditolak dengan feedback jelas (AC-07).
-10. Buka profil, pilih **Keluar akun**, lalu konfirmasi. Landing page tampil. Login ulang sebagai `ahmad` / `praktikan123`. Sesi dan presensi yang dibuat sebelumnya masih ada selama aplikasi belum ditutup.
+| Nama | Email | Password |
+|---|---|---|
+| Raka Pradana | `raka@praktikumku.test` | `asprak123` |
 
-Konsistensi data lintas peran wajib saat berpindah peran dalam satu instance aplikasi (AC-12). Alur demo end-to-end diuji pada AC-15. Daftar acceptance criteria lengkap ada di [`docs/PRD.md`](docs/PRD.md).
+### Aslab
+
+**Jumlah akun:** 4 akun
+
+| Nama | Email | Password |
+|---|---|---|
+| Arman Setiawan | `arman@praktikumku.test` | `aslab123` |
+
+**Informasi akun:**
+
+- Login menggunakan email dan password melalui Firebase Authentication.
+- Setiap akun memiliki hak akses sesuai role masing-masing.
+- Total tersedia 32 akun testing.
+- Akun merupakan data sintetis untuk keperluan pengujian.
+
+**Firebase Development Project ID:** `praktikumku-dcfc0`
+
+Akun tambahan untuk setiap role dapat dilihat pada `data/seed-data.json`.
+
+> Catatan: Gunakan akun tersebut pada konfigurasi Firebase Development, bukan Production.
 
 ## Menjalankan
 
@@ -46,7 +66,9 @@ npm install
 npx expo start
 ```
 
-Lalu tekan `i` (iOS) atau `a` (Android). Untuk web: `npx expo start --web`. Proyek ini memakai npm (`package-lock.json`).
+Lalu tekan `i` (iOS) atau `a` (Android). Untuk web: `npx expo start --web`.
+
+Proyek ini memakai npm (`package-lock.json`).
 
 Perintah lain:
 
@@ -60,34 +82,79 @@ Menambah library lewat `npx expo install <paket>` dan dikoordinasikan dengan PM;
 
 ## Stack
 
-- Target platform: iOS, Android, dan Web (Expo Go, simulator, emulator, atau browser)
-- Expo SDK 58 + React Native 0.88, React 19
-- Expo Router (file-based routing, typed routes, `Stack.Protected` untuk auth guard)
-- TypeScript strict
-- NativeWind 4 (Tailwind CSS 3) untuk styling, token terpusat di `src/constants/tokens.js`
-- Sprint 1 tanpa database dan tanpa backend: autentikasi dummy in-memory, data dummy, dan React state/context. Sprint 2 menggantinya dengan Firebase Authentication dan Cloud Firestore (lihat `docs/sprints/sprint-2.md`)
-- Sprint 3 menambahkan Maps, geolocation, pemindaian dan pembuatan QR Code, serta push notification (rencana awal: `expo-location`, FCM, dan Cloud Functions). Library final ditentukan PM (PM-03 dan PM-04) dan dicatat di `docs/sprints/sprint-3.md`. Fitur kamera, lokasi, dan notifikasi diuji di Android dan iOS; Web hanya untuk fitur yang didukung library dan browser
+- Target platform: iOS, Android, dan Web.
+- Expo SDK 58 + React Native 0.88, React 19.
+- Expo Router (file-based routing, typed routes, `Stack.Protected` untuk auth guard).
+- TypeScript strict.
+- NativeWind 4 (Tailwind CSS 3) untuk styling, token terpusat di `src/constants/tokens.js`.
+- Firebase Authentication untuk autentikasi pengguna.
+- Cloud Firestore untuk penyimpanan dan sinkronisasi data.
+- Firebase Admin SDK untuk administrasi dan seed data.
+- Firebase Cloud Messaging untuk push notification.
+- Jest dan Firebase Emulator untuk pengujian Security Rules.
+
+### Ringkasan Pengembangan Sprint
+
+**Sprint 2 — Firebase Authentication & Cloud Firestore**
+
+Mengintegrasikan autentikasi pengguna dan penyimpanan data menggunakan Firebase. Sprint ini juga mencakup pengembangan pengajuan izin praktikan dengan klasifikasi AI.
+
+**Sprint 3 — Location, QR Code & Notification**
+
+Mengembangkan mekanisme presensi berbasis lokasi dan QR Code, integrasi Maps, serta push notification.
+
+**Sprint 4 — Firebase Dynamic Data & Security**
+
+Menjadi fokus implementasi saat ini, meliputi:
+
+- Integrasi Firebase Authentication untuk tiga role pengguna.
+- Pengelolaan data dinamis menggunakan Cloud Firestore.
+- Sinkronisasi profil pengguna, kelas, dan sesi praktikum.
+- Pengelolaan dataset seed untuk Development.
+- Firestore Security Rules berdasarkan autentikasi dan role.
+- Backup dan pengelolaan data Firebase Development.
+- Pengujian Security Rules menggunakan Firebase Emulator dan Jest.
 
 ## Struktur folder
 
-```
+```text
 src/
   app/                     # route saja (screen + _layout)
     _layout.tsx            # root Stack, provider, auth guard
     index.tsx              # landing page publik
-    login.tsx              # login dummy
+    login.tsx              # halaman login
     (praktikan)/           # tab praktikan
     (asisten)/             # tab asisten
   components/
     ui/                    # komponen reusable (Button, Card, Badge, EmptyState, BottomSheet, ProfileMenu, HomeButton, TextField)
   features/
-    auth/                  # komponen landing & login
-    praktikan/             # komponen & hook khusus praktikan
-    asisten/               # komponen & hook khusus asisten
+    auth/                  # komponen & hook autentikasi
+    praktikan/             # komponen & hook praktikan
+    asisten/               # komponen & hook asisten
   types/                   # tipe domain
-  data/                    # data dummy + credentials.ts
-  store/                   # state sesi, presensi, dan autentikasi (context)
-  constants/theme.ts       # token warna, font, spacing
+  data/                    # data aplikasi
+  store/                   # state dan pengelolaan data
+  constants/               # token desain
+
+data/
+  seed-data.json           # dataset seed Sprint 4
+
+scripts/
+  seed.js                  # Firebase seed importer
+  backup-development.js    # backup Firestore Development
+
+tests/
+  firestore.rules.test.js  # pengujian Firestore Security Rules
+
+docs/
+  database/                # dokumentasi database
+  references/              # referensi teknis
+  sprints/                 # dokumentasi setiap sprint
+
+firestore.rules             # Firestore Security Rules
+firebase.emulator.json      # konfigurasi Firebase Emulator
+README.md
+README-seed.md
 ```
 
 Non-route code tidak boleh ditaruh di `src/app/`.
@@ -102,14 +169,14 @@ Styling memakai **NativeWind 4** (Tailwind CSS 3). Komponen JSX memakai `classNa
 </View>
 ```
 
-- Arah visual mengikuti analisis Apple di [`docs/design.md`](docs/design.md), dengan adaptasi mobile yang dicatat di dokumen desain. Analisis web di dokumen itu hanya referensi visual; target aplikasi tetap iOS dan Android.
+- Arah visual mengikuti analisis Apple di [`docs/design.md`](docs/design.md), dengan adaptasi mobile yang dicatat di dokumen desain.
 - Token desain: [`src/constants/tokens.js`](src/constants/tokens.js), sumber tunggal, dibaca `tailwind.config.js` dan di-re-export oleh `src/constants/theme.ts`.
 - `src/global.css` diimpor sekali di `src/app/_layout.tsx`; berisi directive Tailwind + CSS variable warna untuk dark mode.
 - Dilarang hardcode warna dan dilarang arbitrary value (`p-[13px]`, `text-[#123456]`).
 
 ## Peran dalam tim
 
-Tabel ini adalah peran Sprint 1. Peran berputar tiap sprint; pembagian Sprint 2 ada di `docs/sprints/sprint-2.md` dan Sprint 3 di `docs/sprints/sprint-3.md` bagian 6.
+Pembagian peran dapat berubah pada setiap sprint sesuai kebutuhan pengembangan.
 
 | Kode | Peran | Area |
 |---|---|---|
@@ -122,15 +189,74 @@ Matriks ownership file ada di [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.m
 
 ## Dokumentasi
 
-- [`docs/PRD.md`](docs/PRD.md): kebutuhan, acceptance criteria, peta layar, demo script
-- [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.md): pembagian kerja & kontrak data
-- [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md): rencana Sprint 2 (Firebase dan izin dengan AI)
-- [`docs/sprints/sprint-3.md`](docs/sprints/sprint-3.md): rencana Sprint 3 (presensi lokasi dan QR, Maps, push notification)
-- [`docs/GIT-WORKFLOW.md`](docs/GIT-WORKFLOW.md): branch, commit, PR, review, merge
-- [`docs/design.md`](docs/design.md): referensi visual Apple dan catatan adaptasi mobile iOS/Android
-- [`AGENTS.md`](AGENTS.md): aturan kerja untuk developer & AI agent
+- [`docs/PRD.md`](docs/PRD.md): kebutuhan, acceptance criteria, peta layar, demo script.
+- [`docs/PEMBAGIAN-TUGAS.md`](docs/PEMBAGIAN-TUGAS.md): pembagian kerja & kontrak data.
+- [`docs/sprints/sprint-2.md`](docs/sprints/sprint-2.md): ringkasan pengembangan Firebase Authentication, Firestore, dan izin dengan AI.
+- [`docs/sprints/sprint-3.md`](docs/sprints/sprint-3.md): ringkasan presensi lokasi dan QR, Maps, serta push notification.
+- [`docs/sprints/sprint-4.md`](docs/sprints/sprint-4.md): implementasi Firebase dinamis, seed data, dan Security Rules.
+- [`docs/GIT-WORKFLOW.md`](docs/GIT-WORKFLOW.md): branch, commit, PR, review, merge.
+- [`docs/design.md`](docs/design.md): referensi visual Apple dan catatan adaptasi mobile iOS/Android.
+- [`docs/database/`](docs/database/): dokumentasi struktur dan migrasi Firestore.
+- [`README-seed.md`](README-seed.md): panduan seed dan backup Firebase Development.
+- [`AGENTS.md`](AGENTS.md): aturan kerja untuk developer & AI agent.
 
-## Non-goals sprint 1
+## Seed Data Sprint 4
 
-Backend/database, autentikasi nyata, registrasi, lupa password, persistensi login dan data setelah aplikasi ditutup, notifikasi push, presensi berbasis QR/lokasi, multi-semester, export laporan, serta aplikasi web/desktop. Daftar ini hanya berlaku untuk Sprint 1: backend, autentikasi, registrasi, dan persistensi dicabut oleh Sprint 2, sedangkan notifikasi push dan presensi berbasis QR/lokasi dicabut oleh Sprint 3.
- 
+Seed data digunakan untuk menyiapkan akun Firebase Authentication dan dokumen Firestore pada environment Development.
+
+Dataset mencakup:
+
+- 20 akun Praktikan.
+- 8 akun Asprak.
+- 4 akun Aslab.
+- 4 mata kuliah.
+- 4 kelas.
+- 4 laboratorium.
+- 8 sesi praktikum.
+
+Script seed tersedia pada `scripts/seed.js`.
+
+Fitur seed:
+
+- Validasi dataset sebelum import.
+- Pembuatan atau sinkronisasi akun Firebase Authentication.
+- Pembuatan dan pembaruan dokumen Firestore.
+- Penggunaan UID Authentication sebagai Document ID pada collection `users`.
+- Validasi NIM sebagai String dengan tepat 14 digit.
+- Pembersihan indeks `nomorInduk` yatim yang UID-nya tidak memiliki dokumen `users`.
+- Pembuatan otomatis field `dibuatPada` pada dokumen kelas baru.
+- Mempertahankan akun Authentication dan profil pengguna yang sudah tersedia.
+
+Script menggunakan mode dry-run secara default. Backup harus dilakukan sebelum menjalankan import.
+
+Panduan lengkap tersedia pada [`README-seed.md`](README-seed.md).
+
+## Firebase Security Rules
+
+Firestore Security Rules digunakan untuk membatasi akses berdasarkan autentikasi, role, dan relasi pengguna.
+
+Pengujian dilakukan menggunakan Firebase Emulator dan Jest.
+
+Skenario pengujian awal Sprint 4:
+
+1. Praktikan dapat membaca profil sendiri.
+2. Praktikan tidak dapat mengubah role sendiri.
+3. Akun tanpa profil tidak dapat membaca kelas.
+4. Praktikan terdaftar dapat membaca kelas.
+5. Praktikan di luar kelas tidak dapat membaca kelas.
+
+Hasil pengujian awal: **5/5 test passed**.
+
+Jalankan pengujian dengan:
+
+```powershell
+$env:RULES_FILE="firestore.rules"
+
+npx firebase emulators:exec --only firestore --project demo-praktikumku --config firebase.emulator.json "npx jest tests/firestore.rules.test.js --runInBand"
+```
+
+## Non-goals
+
+Fitur yang belum termasuk dalam cakupan implementasi Sprint 4 perlu mengikuti backlog dan acceptance criteria sprint terkait.
+
+Pengembangan selanjutnya harus mempertahankan kompatibilitas struktur database, hak akses, serta fitur yang telah dikembangkan pada sprint sebelumnya.
