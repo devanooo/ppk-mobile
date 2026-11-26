@@ -1,22 +1,26 @@
-# PRD: PraktikumKU, Sprint 1
+# PRD: PraktikumKU, Sprint 1–4
 
-> Dokumen ini berlaku untuk Sprint 1. Sprint 2 mencabut beberapa batasan di sini: dukungan web, backend/database, autentikasi nyata, registrasi, persistensi sesi, dan sinkronisasi lintas perangkat. Acuan Sprint 2 adalah [`docs/sprints/sprint-2.md`](sprints/sprint-2.md). Sprint 3 mencabut batasan notifikasi push serta presensi QR/lokasi, dan menambahkan Maps; acuannya [`docs/sprints/sprint-3.md`](sprints/sprint-3.md).
+> Dokumen ini merangkum requirement Sprint 1–4. Sprint 2 mencabut beberapa batasan Sprint 1: dukungan web, backend/database, autentikasi nyata, registrasi, persistensi sesi, dan sinkronisasi lintas perangkat. Acuan Sprint 2 adalah [`docs/sprints/sprint-2.md`](sprints/sprint-2.md). Sprint 3 mencabut batasan notifikasi push serta presensi QR/lokasi, dan menambahkan Maps; acuannya [`docs/sprints/sprint-3.md`](sprints/sprint-3.md). Sprint 4 menambahkan role Aslab, administrasi laboratorium, denda, pembayaran Midtrans Sandbox melalui backend, notifikasi tagihan/pembayaran, dan analisis sentimen AI untuk izin; acuannya [`docs/sprints/sprint-4.md`](sprints/sprint-4.md).
+>
+> Requirement Sprint 1–3 yang masih relevan dipertahankan. Bagian 15–23 berisi tambahan requirement Sprint 4 tanpa menghapus ketentuan sebelumnya. Bila ada pertentangan, dokumen sprint untuk pekerjaan sprint terkait yang berlaku, dan keputusan PM pada bagian 19 menjadi acuan bisnis Sprint 4.
 
 ## 1. Informasi produk dan tujuan sprint
 
 | Field | Isi |
 |---|---|
 | Produk | PraktikumKU |
-| Sprint | Sprint 1: UI, navigasi, auth dummy, dan alur inti |
-| Platform | React Native (Expo), iOS dan Android untuk Sprint 1. Sprint 2 menambahkan Web. Sprint 3 menambahkan kamera, lokasi, Maps, dan push notification dengan dukungan sesuai library per platform |
-| Data | Dummy, state in-memory (tanpa backend/database) |
-| Autentikasi | Dummy, username + password |
-| Status | Approved |
+| Sprint | Sprint 1: UI, navigasi, auth dummy, dan alur inti. Sprint 2: Firebase Authentication, Cloud Firestore, izin, dan klasifikasi AI. Sprint 3: presensi QR/lokasi, Maps, dan push notification. Sprint 4: role Aslab, administrasi laboratorium, denda, pembayaran, AI izin, dan notifikasi transaksi |
+| Platform | React Native (Expo), iOS, Android, dan Web. Sprint 1 hanya iOS/Android; Sprint 2 menambahkan Web; Sprint 3 menambahkan kamera, lokasi, Maps, dan push notification; Sprint 4 menambahkan pembayaran dan notifikasi transaksi dengan dukungan sesuai library, backend, dan platform |
+| Data | Sprint 1: dummy dan state in-memory. Sprint 2 dan seterusnya: Firebase Authentication dan Cloud Firestore. Sprint 4 menambahkan koleksi laboratorium, mata kuliah, kelas, tagihan, pembayaran, dan notifikasi |
+| Autentikasi | Sprint 1: dummy username + password. Sprint 2 dan seterusnya: Firebase Authentication dengan profil dan role di Firestore. Sprint 4 menambahkan role `aslab` di samping `praktikan` dan `asprak` |
+| Status | Approved untuk Sprint 1–3; Sprint 4 dalam perencanaan |
 | Pemilik | PM |
 
-**Tujuan sprint:** menghasilkan aplikasi yang dapat mendemonstrasikan pencatatan kehadiran praktikum dari dua perspektif, diawali landing page dan login dummy, dalam satu sesi aplikasi, tanpa backend.
+**Tujuan Sprint 1:** menghasilkan aplikasi yang dapat mendemonstrasikan pencatatan kehadiran praktikum dari dua perspektif, diawali landing page dan login dummy, dalam satu sesi aplikasi, tanpa backend.
 
-**Definisi sukses:** demo script bagian 12 dijalankan berurutan tanpa reload dan tanpa error konsol, termasuk login, logout, dan ganti peran.
+**Definisi sukses Sprint 1:** demo script bagian 12 dijalankan berurutan tanpa reload dan tanpa error konsol, termasuk login, logout, dan ganti peran.
+
+**Tujuan Sprint 4:** menyelesaikan pengelolaan laboratorium dan distribusi anggota oleh Aslab, operasional sesi/presensi/izin oleh Asprak, pengajuan izin oleh Praktikan dengan dukungan AI, perhitungan denda, pembayaran Midtrans Sandbox melalui backend, notifikasi, dan penyempurnaan navigasi. Definisi sukses Sprint 4 ada pada bagian 21 dan [`docs/sprints/sprint-4.md`](sprints/sprint-4.md) bagian 12.
 
 ## 2. Problem statement dan solusi
 
@@ -37,7 +41,11 @@
 
 **Non-goals**
 
-Daftar ini berlaku untuk Sprint 1 dan sebagian dicabut oleh Sprint 2 (lihat `docs/sprints/sprint-2.md` bagian 3): backend/database, autentikasi dan otorisasi nyata, registrasi akun, persistensi sesi setelah aplikasi ditutup, sinkronisasi lintas perangkat, pengelolaan data master, serta aplikasi web. Sprint 3 mencabut dua batasan lain: notifikasi push dan presensi QR/lokasi (lihat `docs/sprints/sprint-3.md` bagian 3). Sisa non-goals tetap berlaku: lupa password, manajemen akun oleh admin, export laporan, multi-semester, riwayat audit perubahan status, membuka ulang sesi yang sudah ditutup, penutupan sesi otomatis berdasarkan waktu, serta aplikasi desktop.
+Daftar ini berlaku untuk Sprint 1 dan sebagian dicabut oleh Sprint 2 (lihat `docs/sprints/sprint-2.md` bagian 3): backend/database, autentikasi dan otorisasi nyata, registrasi akun, persistensi sesi setelah aplikasi ditutup, sinkronisasi lintas perangkat, pengelolaan data master, serta aplikasi web. Sprint 3 mencabut dua batasan lain: notifikasi push dan presensi QR/lokasi (lihat `docs/sprints/sprint-3.md` bagian 3).
+
+Sprint 4 mencabut batasan pengelolaan laboratorium, distribusi anggota, role Aslab, denda, pembayaran, dan analisis sentimen AI untuk izin. Reset password baru dikoordinasikan dengan developer Auth pada Sprint 4 sebagai pekerjaan P2; keberhasilan implementasinya belum menjadi jaminan sampai task terkait selesai. Non-goals Sprint 4 yang tetap berlaku: pembayaran uang nyata di luar Midtrans Sandbox, keputusan izin otomatis oleh AI, reset data production, penyimpanan Secret Key Midtrans atau credential rahasia di aplikasi React Native, backend Midtrans dan detail API AI yang belum dikonfirmasi pengajar (TBD), serta perubahan requirement Sprint 1–3 di luar PDF Sprint 4.
+
+Sisa non-goals yang masih berlaku: manajemen akun oleh admin, export laporan, multi-semester, riwayat audit perubahan status, membuka ulang sesi yang sudah ditutup, penutupan sesi otomatis berdasarkan waktu, serta aplikasi desktop.
 
 ## 4. Pengguna dan user stories
 
@@ -509,4 +517,524 @@ Seluruh langkah berjalan tanpa reload (AC-15). Penolakan presensi ganda diuji pa
 
 **Backlog setelah Sprint 2:** verifikasi pendaftaran asisten, perubahan peran akun, lupa password, rekap per semester + export CSV, notifikasi pengingat jadwal, membuka ulang sesi, dan penutupan otomatis berdasarkan jadwal. Backend, database, autentikasi, dan registrasi sudah menjadi scope Sprint 2, lihat `docs/sprints/sprint-2.md`. Presensi berbasis QR dan lokasi, Maps, serta push notification (pembukaan sesi, perubahan jadwal, keputusan izin) sudah menjadi scope Sprint 3, lihat `docs/sprints/sprint-3.md`.
 Sprint 3 juga mencakup penyempurnaan UI/UX pada seluruh halaman aplikasi untuk meningkatkan konsistensi tampilan dan pengalaman pengguna. Perubahan antarmuka tetap perlu dikoordinasikan dengan pemilik fitur terkait agar tidak mengganggu implementasi fungsionalitas masing-masing halaman.
+
+## 15. Cakupan Sprint 4
+
+Sprint 4 menambahkan role Aslab dan memisahkan kewenangan administratif dari operasional Asprak. Requirement resmi diambil dari `docs/references/PEMBAGIAN JOBDESC SPRINT 4 — PRAKTIKUMKU.pdf`. Rincian 87 task induk, PIC, prioritas, dependency, output, dan acceptance criteria per task ada di [`docs/sprints/sprint-4.md`](sprints/sprint-4.md) bagian 10.
+
+**In scope Sprint 4:**
+
+1. Role Aslab, hak akses, Security Rules, dan pemisahan kewenangan dengan Asprak.
+2. CRUD laboratorium, bulk/single insert laboratorium berdasarkan mata kuliah, bulk/single insert praktikan dan Asprak, template unduhan, halaman review, dan perpindahan anggota antarlaboratorium.
+3. Informasi laboratorium: nama, lokasi, koordinat, radius, cakupan lokasi presensi, dan batas keterlambatan.
+4. Dashboard Aslab: jumlah laboratorium dan praktikan, status kegiatan, jadwal, riwayat kegiatan, riwayat keuangan, dan filter hari/minggu/bulan.
+5. Operasional Asprak: daftar kelas/jadwal/sesi, buka/tutup sesi, sinkronisasi real-time, dan pemantauan presensi.
+6. Izin: kategori izin/alpha/sakit, alur dari sesi terpilih, pemeriksaan oleh Asprak, hasil AI, keputusan, dan sinkronisasi real-time.
+7. Integrasi izin disetujui dengan `excused absence` dan pembebasan denda tanpa mengubah status menjadi hadir.
+8. Perhitungan keterlambatan, tagihan otomatis idempotent, relasi tagihan, dan riwayat keuangan.
+9. Midtrans Sandbox melalui backend, callback/webhook, verifikasi, status transaksi, dan pembaruan status tagihan.
+10. Halaman tagihan, rincian nominal, riwayat transaksi/pembayaran, dan persistensi riwayat.
+11. Notifikasi tagihan baru, pembayaran berhasil, pembayaran gagal, deep link, dan kondisi foreground/background/terminated.
+12. Navbar Praktikan dan Asprak lima halaman, pemindahan Map Praktikan, serta penyempurnaan UI.
+13. Seed idempotent, NIM String 14 digit, backup sebelum reset development, dan larangan reset production.
+14. Pembaruan dokumen sprint, PRD, desain, database, dan alur aplikasi.
+
+**Out of scope Sprint 4:**
+
+1. Reset data pada environment production.
+2. Penyimpanan Secret Key Midtrans atau credential rahasia di aplikasi React Native.
+3. Pembayaran uang nyata di luar Midtrans Sandbox.
+4. Keputusan izin otomatis oleh AI.
+5. Backend Midtrans dan detail API AI yang belum dikonfirmasi pengajar; statusnya TBD.
+6. Perubahan requirement Sprint 1–3 yang tidak tercantum pada PDF Sprint 4.
+
+## 16. Perubahan role dan role matrix
+
+### 16.1 Perubahan role
+
+| Perubahan | Keterangan |
+|---|---|
+| Role baru `aslab` | Aslab bertanggung jawab atas pengelolaan laboratorium dan distribusi anggota. |
+| `asisten` menjadi `asprak` | Istilah asisten pada Sprint 1–3 dipetakan ke Asprak. Konsistensi tipe, koleksi, UI, dan Security Rules wajib dijaga. |
+| Kewenangan administratif pindah ke Aslab | CRUD kelas, edit/hapus kelas, pengelolaan peserta, distribusi anggota, dan pengelolaan laboratorium bukan kewenangan Asprak. Ketentuan ini menggantikan pembagian kelas pada Sprint 2 untuk pekerjaan Sprint 4. |
+| Asprak tetap operasional | Asprak hanya bertanggung jawab atas operasional sesi, presensi, dan pemeriksaan izin. |
+| Praktikan tetap | Praktikan mengajukan izin, melakukan presensi, melihat dan membayar denda. |
+
+### 16.2 Role matrix
+
+| Kemampuan | Praktikan | Asprak | Aslab |
+|---|---|---|---|
+| Melihat jadwal dan sesi terkait | Ya | Ya | Ya, laboratorium yang dikelola |
+| Presensi QR/lokasi | Ya | Tidak | Tidak |
+| Mengajukan izin | Ya | Tidak | Tidak |
+| Memeriksa dan memutuskan izin | Tidak | Ya | Tidak |
+| Melihat hasil analisis AI izin | Tidak | Ya, sebagai informasi pendukung | TBD |
+| Membuka dan menutup sesi | Tidak | Ya | Tidak |
+| Memantau dan mengelola presensi | Tidak | Ya | Tidak |
+| Melihat dan membayar tagihan denda | Ya, milik sendiri | Tidak | Tidak |
+| Melihat riwayat keuangan hasil denda | Tidak | Tidak | Ya |
+| CRUD laboratorium | Tidak | Tidak | Ya |
+| CRUD kelas, edit/hapus kelas | Tidak | Tidak | Ya |
+| Bulk/single insert laboratorium, praktikan, Asprak | Tidak | Tidak | Ya |
+| Distribusi dan perpindahan anggota | Tidak | Tidak | Ya |
+| Dashboard seluruh laboratorium | Tidak | Tidak | Ya |
+| Mengatur koordinat, radius, cakupan lokasi, batas keterlambatan | Tidak | Tidak | Ya |
+| Mengatur konfigurasi jam minimal/maksimal sesi | TBD | TBD | TBD |
+| Mengubah status kehadiran menjadi hadir | Tidak | Tidak | Tidak |
+| Mengubah status kehadiran karena pembayaran | Tidak | Tidak | Tidak |
+
+Sel "Tidak" berarti aksi tidak tersedia di UI dan wajib ditolak Firestore Security Rules. Sel "TBD" tidak boleh diimplementasikan sebelum disepakati PM.
+
+## 17. User stories Sprint 4
+
+| ID | User story | Role |
+|---|---|---|
+| US-S4-01 | Sebagai Aslab, saya ingin memiliki role, hak akses, dan tampilan khusus, supaya saya dapat mengelola laboratorium tanpa bercampur dengan kewenangan Asprak | Aslab |
+| US-S4-02 | Sebagai Aslab, saya ingin membuat, membaca, mengubah, dan menghapus laboratorium, supaya data laboratorium selalu akurat | Aslab |
+| US-S4-03 | Sebagai Aslab, saya ingin melakukan bulk/single insert laboratorium berdasarkan mata kuliah, supaya laboratorium dapat disiapkan lebih cepat | Aslab |
+| US-S4-04 | Sebagai Aslab, saya ingin melakukan bulk/single insert praktikan dan Asprak ke laboratorium tertentu, supaya anggota laboratorium dapat didistribusikan | Aslab |
+| US-S4-05 | Sebagai Aslab, saya ingin mengunduh template bulk insert, supaya format unggahan sesuai kontrak data | Aslab |
+| US-S4-06 | Sebagai Aslab, saya ingin meninjau hasil bulk insert dan menerima, menolak, mengubah, atau melengkapi data, supaya hanya data valid yang tersimpan | Aslab |
+| US-S4-07 | Sebagai Aslab, saya ingin memindahkan praktikan dan Asprak antarlaboratorium, supaya distribusi anggota dapat diperbarui | Aslab |
+| US-S4-08 | Sebagai Aslab, saya ingin mengelola nama, lokasi, koordinat, radius, cakupan lokasi, dan batas keterlambatan, supaya presensi sesuai ketentuan | Aslab |
+| US-S4-09 | Sebagai Aslab, saya ingin melihat dashboard seluruh laboratorium yang saya kelola, supaya saya dapat memantau kegiatan | Aslab |
+| US-S4-10 | Sebagai Aslab, saya ingin melihat riwayat keuangan hasil denda, supaya kondisi keuangan laboratorium terpantau | Aslab |
+| US-S4-11 | Sebagai Aslab, saya ingin memfilter dashboard berdasarkan hari, minggu, dan bulan, supaya data dapat dilihat sesuai periode | Aslab |
+| US-S4-12 | Sebagai Asprak, saya ingin melihat kelas, jadwal, dan sesi yang menjadi tanggung jawab saya, supaya saya fokus pada sesi yang tepat | Asprak |
+| US-S4-13 | Sebagai Asprak, saya ingin membuka dan menutup sesi, supaya presensi hanya berlangsung selama kegiatan | Asprak |
+| US-S4-14 | Sebagai Asprak, saya ingin perubahan status sesi tersinkronisasi real-time, supaya Praktikan melihat status terbaru | Asprak |
+| US-S4-15 | Sebagai Asprak, saya ingin memantau dan mengelola presensi, supaya kehadiran tercatat benar | Asprak |
+| US-S4-16 | Sebagai Asprak, saya ingin memeriksa alasan izin beserta hasil analisis AI, supaya keputusan memiliki informasi pendukung | Asprak |
+| US-S4-17 | Sebagai Asprak, saya ingin menerima atau menolak izin dan melihat statusnya tersinkronisasi, supaya Praktikan segera mengetahui keputusan | Asprak |
+| US-S4-18 | Sebagai Praktikan, saya ingin izin yang disetujui menjadi `excused absence` dan bebas denda tanpa dianggap hadir, supaya status kehadiran sesuai kondisi | Praktikan |
+| US-S4-19 | Sebagai Praktikan, saya ingin sistem menghitung keterlambatan dan membuat satu tagihan per kejadian, supaya denda adil dan tidak ganda | Praktikan |
+| US-S4-20 | Sebagai Praktikan, saya ingin melihat tagihan dan membayar melalui Midtrans Sandbox, supaya denda dapat diselesaikan | Praktikan |
+| US-S4-21 | Sebagai Praktikan, saya ingin riwayat transaksi dan pembayaran tetap tersedia setelah aplikasi dibuka ulang, supaya saya punya bukti pembayaran | Praktikan |
+| US-S4-22 | Sebagai pengguna, saya ingin menerima dan membuka notifikasi tagihan/pembayaran yang relevan, supaya saya mengetahui tindakan yang diperlukan | Semua role terkait |
+| US-S4-23 | Sebagai pengguna, saya ingin navbar lima halaman dan Map pada praktikum terkait, supaya navigasi sesuai kebutuhan role | Praktikan, Asprak |
+| US-S4-24 | Sebagai PM, saya ingin seed idempotent, NIM 14 digit, backup sebelum reset development, dan Security Rules yang diuji, supaya data dan akses aman | PM |
+| US-S4-25 | Sebagai pengguna, saya ingin tampilan modul Sprint 4 konsisten dan mudah digunakan, supaya pekerjaan tidak terganggu oleh UI yang tidak konsisten | Semua role |
+
+## 18. Functional requirements Sprint 4
+
+| ID | Requirement | Prioritas | User story |
+|---|---|---|---|
+| FR-S4-01 | Sistem menyediakan role Aslab beserta hak akses, tampilan, dan route khusus Aslab | P0 | US-S4-01 |
+| FR-S4-02 | Aslab dapat melakukan CRUD data laboratorium | P0 | US-S4-02 |
+| FR-S4-03 | Aslab dapat melakukan bulk/single insert laboratorium berdasarkan mata kuliah | P0 | US-S4-03 |
+| FR-S4-04 | Aslab dapat melakukan bulk/single insert data praktikan ke laboratorium tertentu | P0 | US-S4-04 |
+| FR-S4-05 | Aslab dapat melakukan bulk/single insert data Asprak ke laboratorium tertentu | P0 | US-S4-04 |
+| FR-S4-06 | Sistem menyediakan downloadable file template untuk setiap fitur bulk insert | P0 | US-S4-05 |
+| FR-S4-07 | Aslab dapat meninjau hasil bulk insert dan melakukan accept, deny, update, serta melengkapi data kosong | P0 | US-S4-06 |
+| FR-S4-08 | Aslab dapat memindahkan praktikan dan Asprak antarlaboratorium | P0 | US-S4-07 |
+| FR-S4-09 | Aslab dapat mengelola informasi laboratorium: nama, lokasi, koordinat, dan radius validasi presensi | P0 | US-S4-08 |
+| FR-S4-10 | Aslab dapat mengonfigurasi cakupan lokasi presensi dan batas keterlambatan waktu | P0 | US-S4-08 |
+| FR-S4-11 | Aslab memiliki dashboard untuk memantau seluruh laboratorium yang dikelola | P0 | US-S4-09 |
+| FR-S4-12 | Dashboard menampilkan jumlah laboratorium dan praktikan | P0 | US-S4-09 |
+| FR-S4-13 | Dashboard menampilkan status kegiatan praktikum per laboratorium beserta lokasi dan waktu pelaksanaan | P0 | US-S4-09 |
+| FR-S4-14 | Dashboard menampilkan jadwal praktikum yang sedang berlangsung dan yang akan datang | P0 | US-S4-09 |
+| FR-S4-15 | Dashboard menampilkan riwayat kegiatan laboratorium | P0 | US-S4-09 |
+| FR-S4-16 | Dashboard menampilkan riwayat keuangan hasil denda dari struktur Firestore bersama, tanpa sumber data keuangan terpisah | P0 | US-S4-10 |
+| FR-S4-17 | Dashboard menyediakan filter berdasarkan hari, minggu, dan bulan | P0 | US-S4-11 |
+| FR-S4-18 | Asprak dapat melihat daftar kelas, jadwal, dan sesi yang menjadi tanggung jawabnya | P0 | US-S4-12 |
+| FR-S4-19 | Asprak dapat membuka sesi praktikum ketika kegiatan dimulai | P0 | US-S4-13 |
+| FR-S4-20 | Asprak dapat menutup sesi praktikum setelah kegiatan selesai | P0 | US-S4-13 |
+| FR-S4-21 | Perubahan status sesi tersinkronisasi real-time dengan aplikasi Praktikan | P0 | US-S4-14 |
+| FR-S4-22 | Asprak dapat memantau dan mengelola presensi praktikan | P0 | US-S4-15 |
+| FR-S4-23 | Asprak memiliki halaman pemeriksaan pengajuan izin | P0 | US-S4-16 |
+| FR-S4-24 | Halaman pemeriksaan izin menampilkan alasan dan hasil analisis sentimen AI yang disimpan di Firestore | P0 | US-S4-16 |
+| FR-S4-25 | Asprak dapat menerima dan menolak pengajuan izin | P0 | US-S4-17 |
+| FR-S4-26 | Status pengajuan izin tersinkronisasi real-time dengan aplikasi Praktikan | P0 | US-S4-17 |
+| FR-S4-27 | Izin disetujui diintegrasikan dengan `excused absence` dan pembebasan denda keterlambatan tanpa mengubah status menjadi hadir | P0 | US-S4-18 |
+| FR-S4-28 | Sistem menghitung keterlambatan berdasarkan waktu presensi dan grace period | P0 | US-S4-19 |
+| FR-S4-29 | Sistem membuat tagihan denda otomatis berdasarkan kejadian keterlambatan | P0 | US-S4-19 |
+| FR-S4-30 | Satu kejadian keterlambatan hanya menghasilkan satu tagihan denda | P0 | US-S4-19 |
+| FR-S4-31 | Tagihan terhubung dengan praktikan, sesi, catatan presensi, dan laboratorium | P0 | US-S4-19 |
+| FR-S4-32 | Tagihan dan pembayaran tersimpan pada struktur Firestore bersama dan dapat dipakai Dashboard Aslab | P0 | US-S4-10, US-S4-19 |
+| FR-S4-33 | Midtrans diintegrasikan pada Sandbox melalui backend | P0 | US-S4-20 |
+| FR-S4-34 | Sistem membuat transaksi pembayaran melalui backend | P0 | US-S4-20 |
+| FR-S4-35 | Sistem mengimplementasikan callback/webhook dan verifikasi transaksi melalui backend | P0 | US-S4-20 |
+| FR-S4-36 | Sistem mengelola status transaksi pembayaran `pending`, `success`, dan `failed` | P0 | US-S4-20 |
+| FR-S4-37 | Sistem memperbarui status tagihan berdasarkan verifikasi backend | P0 | US-S4-20 |
+| FR-S4-38 | Praktikan dapat melihat daftar tagihan dan rincian nominal denda | P0 | US-S4-20 |
+| FR-S4-39 | Praktikan dapat melihat riwayat transaksi dan pembayaran | P0 | US-S4-21 |
+| FR-S4-40 | Riwayat pembayaran tetap tersedia setelah aplikasi ditutup dan dibuka kembali | P0 | US-S4-21 |
+| FR-S4-41 | Sistem mengirim notifikasi tagihan denda baru | P0 | US-S4-22 |
+| FR-S4-42 | Sistem mengirim notifikasi pembayaran berhasil | P0 | US-S4-22 |
+| FR-S4-43 | Sistem mengirim notifikasi pembayaran gagal atau yang membutuhkan penyelesaian lanjutan | P0 | US-S4-22 |
+| FR-S4-44 | Tombol notifikasi dapat diklik | P1 | US-S4-22 |
+| FR-S4-45 | Notifikasi mengarahkan pengguna ke halaman relevan sesuai jenisnya | P1 | US-S4-22 |
+| FR-S4-46 | Data transaksi dan status pembayaran tersinkronisasi dengan Firestore | P1 | US-S4-20 |
+| FR-S4-47 | Integrasi notifikasi berjalan pada foreground, background, dan terminated | P1 | US-S4-22 |
+| FR-S4-48 | Navbar Praktikan memiliki lima halaman: Jadwal, Riwayat, Presensi QR, Izin, Denda | P1 | US-S4-23 |
+| FR-S4-49 | Navbar Asisten memiliki lima halaman: Jadwal, Kelas, Map, Rekap, Izin | P1 | US-S4-23 |
+| FR-S4-50 | Alur pengajuan izin dari sesi tertentu langsung membuka form dengan sesi terpilih | P1 | US-S4-16 |
+| FR-S4-51 | Aturan jam minimal dan maksimal sesi praktikum dapat dibuka sesuai konfigurasi | P1 | US-S4-13 |
+| FR-S4-52 | Validasi waktu buka dan tutup sesi terintegrasi real-time dengan Firestore | P1 | US-S4-13 |
+| FR-S4-53 | Kategori pengajuan izin terdiri dari izin, alpha, dan sakit | P1 | US-S4-16 |
+| FR-S4-54 | Map Praktikan dipindahkan dari halaman utama ke halaman praktikum terkait | P1 | US-S4-23 |
+| FR-S4-55 | Map Praktikan menampilkan lokasi laboratorium sesuai praktikum dan mendukung validasi lokasi presensi | P1 | US-S4-23 |
+| FR-S4-56 | Tampilan notifikasi Android disempurnakan | P2 | US-S4-25 |
+| FR-S4-57 | Logo PraktikumKU ditambahkan pada notifikasi | P2 | US-S4-25 |
+| FR-S4-58 | Visual dan konsistensi UI modul Aslab, Asprak, Praktikan, denda, pembayaran, dan notifikasi disempurnakan | P2 | US-S4-25 |
+| FR-S4-59 | Seed Aslab, Asprak, dan Praktikan idempotent serta konsisten antara Firebase Authentication dan profil Firestore | P0 | US-S4-24 |
+| FR-S4-60 | NIM menggunakan String dengan validasi tepat 14 digit angka | P0 | US-S4-24 |
+| FR-S4-61 | Backup Firestore dilakukan sebelum reset data dummy development; reset production dilarang | P0 | US-S4-24 |
+| FR-S4-62 | Matriks hak akses ditegakkan di Firestore Security Rules dan diuji bersama | P0 | US-S4-24 |
+| FR-S4-63 | Dokumentasi sprint, PRD, desain, struktur database, relasi, dan alur diperbarui | P0–P1 | US-S4-24 |
+| FR-S4-64 | Reset password dikoordinasikan dengan developer Auth | P2 | US-S4-24 |
+
+## 19. Business rules Sprint 4
+
+| ID | Aturan bisnis |
+|---|---|
+| BR-S4-01 | Aslab bertanggung jawab atas pengelolaan laboratorium dan distribusi anggota. |
+| BR-S4-02 | Asprak bertanggung jawab atas operasional sesi, presensi, dan pemeriksaan izin. |
+| BR-S4-03 | CRUD kelas, edit/hapus kelas, pengelolaan peserta, distribusi anggota, dan pengelolaan laboratorium bukan kewenangan Asprak. |
+| BR-S4-04 | Satu akun hanya memiliki satu role: `praktikan`, `asprak`, atau `aslab`. |
+| BR-S4-05 | Hak akses wajib ditegakkan di Firestore Security Rules, bukan hanya melalui UI. |
+| BR-S4-06 | NIM menggunakan tipe data String dengan validasi tepat 14 digit angka. |
+| BR-S4-07 | Seed harus idempotent; seed ulang tidak boleh membuat akun atau dokumen ganda. |
+| BR-S4-08 | Backup Firestore wajib dilakukan sebelum reset data dummy development. |
+| BR-S4-09 | Reset data tidak boleh dilakukan pada environment production. |
+| BR-S4-10 | Presensi hanya tercatat bila sesi dibuka dan seluruh validasi QR/lokasi/peserta/non-duplikat terpenuhi. |
+| BR-S4-11 | Keterlambatan dihitung dari selisih waktu presensi terhadap batas waktu dan grace period. |
+| BR-S4-12 | Satu kejadian keterlambatan hanya menghasilkan satu tagihan denda; proses ulang tidak boleh membuat tagihan kedua. |
+| BR-S4-13 | Tagihan denda harus terhubung dengan praktikan, sesi, catatan presensi, dan laboratorium. |
+| BR-S4-14 | Izin yang disetujui berstatus `excused absence` dan dibebaskan dari denda keterlambatan. |
+| BR-S4-15 | Izin yang disetujui tidak mengubah status kehadiran menjadi hadir. |
+| BR-S4-16 | Izin yang disetujui tidak boleh menghasilkan tagihan denda baru untuk sesi terkait. |
+| BR-S4-17 | Pembayaran denda tidak mengubah status kehadiran Praktikan. |
+| BR-S4-18 | Status tagihan mengikuti hasil verifikasi backend, bukan status dari client. |
+| BR-S4-19 | Status transaksi pembayaran hanya `pending`, `success`, dan `failed`; status lain dipetakan sesuai kontrak backend. |
+| BR-S4-20 | Midtrans hanya diintegrasikan pada Sandbox untuk Sprint 4. |
+| BR-S4-21 | Secret Key Midtrans tidak boleh berada di aplikasi React Native; alur wajib client–backend–payment gateway. |
+| BR-S4-22 | Hasil AI hanya informasi pendukung Asprak, bukan keputusan otomatis. |
+| BR-S4-23 | Kegagalan AI tidak boleh menghambat pengajuan izin. |
+| BR-S4-24 | `EXPO_PUBLIC_AI_API_KEY` di aplikasi dicatat sebagai security gap; credential rahasia harus melalui backend. |
+| BR-S4-25 | Jam minimal dan maksimal sesi dapat dibuka mengikuti konfigurasi dan divalidasi terhadap Firestore. |
+| BR-S4-26 | Kategori pengajuan izin hanya izin, alpha, dan sakit. |
+| BR-S4-27 | Asprak tidak dapat memindahkan peserta, mengubah kelas, atau mengelola laboratorium. |
+| BR-S4-28 | Aslab dapat memindahkan praktikan dan Asprak antarlaboratorium tanpa duplikasi keanggotaan. |
+| BR-S4-29 | Bulk insert harus melalui review; data yang ditolak atau belum lengkap tidak masuk koleksi utama. |
+| BR-S4-30 | Notifikasi tidak boleh dikirim berulang untuk kejadian yang sama; kegagalan notifikasi tidak membatalkan perubahan data utama. |
+
+## 20. Alur utama Sprint 4
+
+### 20.1 Aslab
+
+Aslab login, membuka Dashboard Aslab, lalu mengelola laboratorium: CRUD laboratorium, bulk/single insert laboratorium berdasarkan mata kuliah, bulk/single insert praktikan dan Asprak, mengunduh template, meninjau hasil bulk insert, dan memindahkan anggota antarlaboratorium. Aslab mengatur nama, lokasi, koordinat, radius, cakupan lokasi, dan batas keterlambatan. Dashboard menampilkan jumlah laboratorium/praktikan, status kegiatan, jadwal berlangsung/berikutnya, riwayat kegiatan, riwayat keuangan, dan filter hari/minggu/bulan.
+
+### 20.2 Asprak
+
+Asprak login, melihat kelas/jadwal/sesi yang menjadi tanggung jawabnya, membuka sesi pada jam yang diizinkan, memantau presensi, memeriksa pengajuan izin beserta alasan dan hasil AI, lalu menerima atau menolak. Status sesi dan izin tersinkronisasi real-time dengan Praktikan. Asprak menutup sesi setelah kegiatan selesai.
+
+### 20.3 Praktikan: presensi dan izin
+
+Praktikan melakukan presensi melalui QR/lokasi Sprint 3. Waktu presensi dicatat. Sistem menghitung keterlambatan berdasarkan grace period. Praktikan dapat mengajukan izin dari sesi tertentu; form terbuka dengan sesi terpilih dan kategori izin/alpha/sakit. Alasan dikirim ke AI bila tersedia. Setelah Asprak menyetujui, status menjadi `excused absence`, bebas denda, dan bukan hadir.
+
+### 20.4 Denda dan pembayaran
+
+Kejadian keterlambatan menghasilkan tepat satu tagihan yang terhubung ke praktikan, sesi, presensi, dan laboratorium. Praktikan melihat tagihan dan rincian nominal, memulai pembayaran, lalu aplikasi meminta backend membuat transaksi Midtrans Sandbox. Backend menerima callback/webhook, memverifikasi, dan memperbarui status transaksi serta tagihan. Praktikan melihat status dan riwayat. Status kehadiran tidak berubah karena pembayaran.
+
+### 20.5 AI
+
+Pengajuan izin disimpan, lalu alasan dikirim ke API AI melalui backend bila memakai credential rahasia. Respons disimpan bersama pengajuan izin. Bila AI gagal atau timeout, pengajuan tetap tersimpan dengan status klasifikasi gagal. Asprak melihat hasil AI sebagai informasi pendukung dan tetap memutuskan secara manual.
+
+### 20.6 Notifikasi
+
+Tagihan baru, pembayaran berhasil, dan pembayaran gagal menghasilkan notifikasi kepada Praktikan terkait. Notifikasi dapat diklik dan membuka halaman denda, tagihan, atau riwayat pembayaran yang relevan. Notifikasi ditangani pada foreground, background, dan terminated sesuai dukungan platform. Event yang sama tidak menghasilkan notifikasi ganda.
+
+## 21. Acceptance criteria Sprint 4
+
+**AC-S4-01: Role Aslab dan auth guard**
+
+1. Login sebagai Aslab berhasil dan diarahkan ke beranda Aslab.
+2. Praktikan dan Asprak tidak dapat membuka route Aslab; akses ditolak dan diarahkan ke beranda sesuai role.
+3. Aslab tidak dapat membuka route operasional Asprak yang bukan kewenangannya.
+4. Menu yang tampil sesuai role matrix.
+
+**AC-S4-02: Security Rules**
+
+1. Praktikan tidak dapat mengubah status izin, presensi, tagihan, atau pembayaran.
+2. Asprak tidak dapat melakukan CRUD kelas/laboratorium dan tidak dapat mengubah sesi Asprak lain.
+3. Aslab tidak dapat mengubah data laboratorium di luar yang dikelolanya.
+4. Seluruh pengujian akses tanpa hak ditolak di Firestore, bukan hanya di UI.
+5. Hasil review dan pengujian Security Rules bersama Dehar tercatat.
+
+**AC-S4-03: Laboratorium dan konfigurasi**
+
+1. Aslab dapat membuat, membaca, mengubah, dan menghapus laboratorium.
+2. Nama, lokasi, koordinat, radius, cakupan lokasi, dan batas keterlambatan dapat disimpan dan dibaca kembali.
+3. Input koordinat/radius tidak valid ditolak dengan pesan jelas.
+4. Data laboratorium terbaca oleh modul Map dan validasi presensi.
+
+**AC-S4-04: Bulk insert**
+
+1. Aslab dapat mengunduh template laboratorium, praktikan, dan Asprak.
+2. Single insert dan bulk insert berhasil untuk data valid.
+3. Baris tidak valid ditolak dan ditandai pada halaman review.
+4. Aslab dapat menerima, menolak, mengubah, dan melengkapi data kosong.
+5. Hanya baris yang diterima yang masuk koleksi utama.
+6. Bulk insert dengan NIM bukan 14 digit ditolak.
+
+**AC-S4-05: Perpindahan anggota**
+
+1. Aslab memindahkan praktikan ke laboratorium tujuan.
+2. Keanggotaan lama diperbarui dan tidak ada duplikasi.
+3. Aslab memindahkan Asprak ke laboratorium tujuan dengan hasil yang sama.
+4. Anggota yang dipindah tidak lagi muncul pada laboratorium asal.
+
+**AC-S4-06: Dashboard Aslab**
+
+1. Dashboard hanya menampilkan laboratorium yang dikelola.
+2. Jumlah laboratorium dan praktikan sesuai data.
+3. Status kegiatan, lokasi, dan waktu pelaksanaan tampil.
+4. Jadwal berlangsung dan berikutnya tampil.
+5. Riwayat kegiatan tampil.
+6. Riwayat keuangan menampilkan data tagihan/pembayaran dari koleksi bersama; tidak ada koleksi keuangan terpisah.
+7. Filter hari, minggu, dan bulan mengubah data yang tampil.
+8. State memuat, kosong, dan gagal tampil sesuai kondisi.
+
+**AC-S4-07: Seed dan NIM**
+
+1. Seed membuat akun Aslab, Asprak, dan Praktikan beserta profil Firestore.
+2. Menjalankan seed dua kali tidak membuat akun atau dokumen ganda.
+3. Jumlah akun Authentication sama dengan dokumen profil.
+4. NIM disimpan sebagai String dan hanya menerima tepat 14 digit angka.
+
+**AC-S4-08: Backup dan reset**
+
+1. Backup Firestore tersedia sebelum reset.
+2. Environment target terverifikasi development.
+3. Reset data dummy development berhasil.
+4. Seed dimuat setelah reset.
+5. Tidak ada operasi reset pada production; percobaan ke production dibatalkan dan dicatat.
+
+**AC-S4-09: Sesi Asprak**
+
+1. Asprak hanya melihat kelas/jadwal/sesi yang menjadi tanggung jawabnya.
+2. Asprak membuka sesi `belum-dibuka`; status dan waktu buka tersimpan.
+3. Asprak menutup sesi `dibuka`; status dan waktu tutup tersimpan.
+4. Sesi `ditutup` tidak dapat ditutup ulang atau dibuka kembali.
+5. Perubahan status terlihat di aplikasi Praktikan tanpa reload.
+
+**AC-S4-10: Jam sesi**
+
+1. Buka sesi sebelum jam minimal ditolak dengan alasan.
+2. Buka sesi setelah jam maksimal ditolak dengan alasan.
+3. Buka sesi dalam rentang yang diizinkan berhasil.
+4. Perubahan konfigurasi waktu di Firestore langsung memengaruhi validasi.
+5. Validasi dilakukan saat aksi, bukan hanya dengan menonaktifkan tombol.
+
+**AC-S4-11: Pemantauan presensi**
+
+1. Asprak melihat daftar presensi sesi yang diampu.
+2. Jumlah hadir dan total peserta tampil.
+3. Perubahan presensi tampil real-time.
+4. State kosong dan gagal tampil.
+
+**AC-S4-12: Izin dan AI**
+
+1. Praktikan memilih izin dari sesi tertentu; form terbuka dengan sesi terpilih.
+2. Kategori izin, alpha, dan sakit tersedia dan wajib dipilih.
+3. Pengajuan tersimpan di Firestore.
+4. Alasan dikirim ke API AI bila kontrak tersedia.
+5. Hasil AI tersimpan bersama pengajuan dan ditampilkan kepada Asprak dengan label informasi pendukung.
+6. Bila AI gagal/timeout, pengajuan tetap tersimpan dan status klasifikasi gagal.
+7. AI tidak mengubah status izin secara otomatis.
+
+**AC-S4-13: Keputusan izin dan excused absence**
+
+1. Asprak menerima satu izin dan menolak satu izin.
+2. Keputusan tersimpan dan terlihat real-time di aplikasi Praktikan.
+3. Izin yang disetujui menjadi `excused absence`.
+4. Status tidak berubah menjadi hadir.
+5. Tidak ada tagihan denda keterlambatan untuk sesi yang izinnya disetujui.
+6. Izin yang ditolak tidak menghasilkan `excused absence`.
+
+**AC-S4-14: Keterlambatan dan tagihan**
+
+1. Presensi tepat waktu atau dalam grace period tidak menghasilkan tagihan.
+2. Presensi terlambat di luar grace period menghasilkan tagihan.
+3. Tagihan memuat praktikan, sesi, presensi, laboratorium, nominal, dan alasan.
+4. Memproses ulang kejadian yang sama tidak membuat tagihan kedua.
+5. Tagihan dapat dibaca Dashboard Aslab.
+
+**AC-S4-15: Pembayaran Midtrans**
+
+1. Praktikan melihat daftar tagihan dan rincian nominal.
+2. Praktikan memulai pembayaran; aplikasi meminta transaksi ke backend.
+3. Secret Key Midtrans tidak ditemukan di aplikasi.
+4. Transaksi Sandbox dibuat dan status awal `pending`.
+5. Callback/webhook diterima dan diverifikasi backend.
+6. Transaksi berhasil mengubah status transaksi menjadi `success` dan status tagihan sesuai kontrak.
+7. Transaksi gagal menjadi `failed` dan tagihan tidak ditandai lunas.
+8. Status dari client tidak dapat menandai pembayaran berhasil tanpa verifikasi backend.
+
+**AC-S4-16: Pembayaran tidak mengubah kehadiran**
+
+1. Catat status kehadiran Praktikan sebelum pembayaran.
+2. Lakukan pembayaran berhasil.
+3. Status kehadiran tetap sama.
+4. `excused absence` tetap `excused absence`; status terlambat/hadir tidak berubah.
+
+**AC-S4-17: Riwayat pembayaran**
+
+1. Praktikan membuka riwayat transaksi dan pembayaran.
+2. Riwayat menampilkan nominal, status, dan waktu.
+3. Tutup dan buka kembali aplikasi.
+4. Riwayat tetap tersedia karena dibaca dari Firestore.
+
+**AC-S4-18: Notifikasi**
+
+1. Tagihan baru menghasilkan notifikasi kepada Praktikan terkait.
+2. Pembayaran berhasil menghasilkan notifikasi.
+3. Pembayaran gagal menghasilkan notifikasi.
+4. Tombol notifikasi dapat diklik dan membuka halaman relevan.
+5. Notifikasi berjalan pada foreground, background, dan terminated sesuai dukungan platform.
+6. Kejadian yang sama tidak menghasilkan notifikasi ganda.
+7. Kegagalan notifikasi tidak membatalkan perubahan data utama.
+
+**AC-S4-19: Navigasi dan Map**
+
+1. Navbar Praktikan memiliki lima halaman: Jadwal, Riwayat, Presensi QR, Izin, Denda.
+2. Navbar Asprak memiliki lima halaman: Jadwal, Kelas, Map, Rekap, Izin.
+3. Setiap tab membuka halaman yang ada.
+4. Map Praktikan tidak lagi menjadi halaman utama.
+5. Map dibuka dari praktikum terkait dan menampilkan laboratorium yang sesuai.
+6. Data radius tetap mendukung validasi presensi.
+
+**AC-S4-20: UI dan aksesibilitas**
+
+1. Tampilan modul Sprint 4 mengikuti design system dan token.
+2. Target sentuh minimal 44x44 pt.
+3. Status tidak hanya dibedakan melalui warna.
+4. Tombol nonaktif memiliki alasan yang terlihat.
+5. Empty state tersedia untuk daftar kosong yang relevan.
+
+**AC-S4-21: Regresi Sprint 1–3**
+
+1. Login/logout dan auth guard tetap berjalan.
+2. Jadwal, detail sesi, presensi QR/lokasi, rekap, izin, dan notifikasi Sprint 3 tetap berjalan.
+3. Perubahan role dan navigasi tidak memutus alur lama yang masih relevan.
+4. Tidak ada error konsol pada alur demo.
+
+**AC-S4-22: Dokumentasi**
+
+1. `docs/sprints/sprint-4.md` memuat seluruh bagian wajib dan 87 task induk.
+2. `docs/PRD.md` memuat requirement Sprint 4 dan tetap mempertahankan requirement Sprint 1–3.
+3. Kedua dokumen saling merujuk.
+4. Hanya file dokumentasi target yang berubah untuk pekerjaan dokumentasi.
+
+**AC-S4-23: Demo end-to-end**
+
+1. Demo A (Aslab) berjalan sesuai bagian 11.2 `sprint-4.md`.
+2. Demo B (Asprak/sesi/izin) berjalan.
+3. Demo C (Praktikan/izin/excused absence) berjalan.
+4. Demo D (denda/pembayaran) berjalan.
+5. Demo E (notifikasi/navigasi) berjalan.
+6. Seluruh langkah berhasil tanpa bug kritis yang menghambat demo.
+
+## 22. Data, dependency, dan risiko teknis Sprint 4
+
+### 22.1 Data dan integrasi
+
+Struktur Firestore rinci ada di [`docs/sprints/sprint-4.md`](sprints/sprint-4.md) bagian 9. Ringkasan koleksi Sprint 4:
+
+| Koleksi | Isi utama |
+|---|---|
+| `users` | Profil, `nomorInduk` String, role `praktikan`/`asprak`/`aslab` |
+| `laboratorium` | Nama, lokasi, koordinat, radius, cakupan lokasi, batas keterlambatan |
+| `mataKuliah` | Nama dan kode mata kuliah |
+| `kelas` | Mata kuliah, laboratorium, Aslab, Asprak, peserta |
+| `sesi` | Kelas, laboratorium, Asprak, waktu, status buka/tutup |
+| `sesi/{id}/presensi` | Waktu, status kehadiran, keterlambatan |
+| `sesi/{id}/izin` | Alasan, kategori, status, hasil analisis AI |
+| `tagihan` | Praktikan, sesi, presensi, laboratorium, nominal, status |
+| `pembayaran` | Tagihan, order, status transaksi, verifikasi |
+| `notifikasi` | Penerima, tipe, referensi, status baca |
+
+Ketentuan integrasi:
+
+1. Schema dan relasi wajib disepakati Anggi dan Dehar pada hari pertama.
+2. Tagihan dan pembayaran wajib menyimpan `laboratoriumId` agar Dashboard Aslab tidak membuat sumber keuangan terpisah.
+3. Midtrans memakai alur client–backend–payment gateway. Secret Key hanya di backend.
+4. API AI dipanggil melalui backend bila memakai credential rahasia. `EXPO_PUBLIC_AI_API_KEY` dicatat sebagai security gap.
+5. Hasil AI disimpan bersama izin dan hanya menjadi informasi pendukung.
+6. Seed memakai penanda idempotensi dan diverifikasi terhadap Firebase Authentication.
+7. Backup Firestore wajib sebelum reset development; production dilarang direset.
+
+### 22.2 Dependency eksternal
+
+| Dependency | Status | Dampak bila belum tersedia |
+|---|---|---|
+| Firebase Auth dan Firestore | Tersedia dari Sprint 2 | Seluruh fitur Sprint 4 terblokir |
+| Midtrans Sandbox | Sebagian TBD | Pembayaran tidak dapat diuji end-to-end |
+| Backend payment (Cloud Functions/server) | TBD | Transaksi, callback, verifikasi tidak dapat diimplementasikan |
+| API AI (endpoint, auth, request, response) | TBD | Analisis sentimen memakai fallback/mock; hasil asli tidak tersedia |
+| File model AI | TBD | Perlu preprocessing/inference tambahan |
+| Push notification | TBD | Notifikasi tagihan/pembayaran tidak dapat diuji lintas kondisi |
+| Map/lokasi/QR | Tersedia dari Sprint 3 | Presensi dan Map terdampak |
+| Developer Auth | TBD | Reset password belum dapat diselesaikan |
+
+### 22.3 Risiko teknis
+
+| Risiko | Mitigasi |
+|---|---|
+| Backend Midtrans belum ditentukan | Konfirmasi pengajar sebelum integrasi; antarmuka backend disiapkan; status TBD dicatat |
+| Secret Key Midtrans bocor ke bundel | Secret hanya di backend; review PR; periksa variabel `EXPO_PUBLIC_*` |
+| `EXPO_PUBLIC_AI_API_KEY` diekstrak dari bundel | Catat sebagai security gap; pindahkan ke backend bila credential rahasia |
+| Detail API AI belum tersedia | Mock/fallback; pengajuan izin tetap berjalan |
+| Tagihan ganda | Idempotensi per kejadian; uji proses ulang |
+| Callback palsu atau status client dipercaya | Verifikasi backend; client hanya membaca Firestore |
+| Reset development mengenai production | Verifikasi environment, backup wajib, prosedur berlapis |
+| Seed tidak idempotent | Penanda seed/ID tetap; uji seed ulang |
+| Kewenangan kelas pindah ke Aslab | Perbarui rules dan UI; uji akses Asprak |
+| Security Rules tidak dapat query lintas koleksi | Validasi tambahan di lapisan data; dokumentasikan batasan |
+| Bulk insert besar | Batasi batch; proses bertahap; review sebelum simpan |
+| Notifikasi duplikat | Idempotensi event dan kunci kejadian |
+| Notifikasi terminated tidak berjalan | Uji tiga kondisi; catat keterbatasan platform |
+| Zona waktu tidak konsisten | Sepakati zona waktu dan format tanggal/waktu |
+| Koordinat/radius belum final | Gunakan data Sprint 3; konfirmasi sebelum demo |
+| Waktu sprint terbatas | Prioritaskan P0; pantau progres harian; P2 dapat ditunda |
+
+### 22.4 TBD Sprint 4
+
+| Item | Status | Dampak |
+|---|---|---|
+| Periode Sprint 4 | TBD | Perencanaan waktu |
+| Backend Midtrans: Cloud Functions atau server terpisah | TBD | Implementasi pembayaran |
+| Endpoint backend, request/response, signature verification | TBD | Integrasi pembayaran |
+| Callback HTTPS untuk development | TBD | Pengujian webhook |
+| Endpoint API AI, autentikasi, request, response | TBD | Integrasi AI |
+| Kategori/format hasil AI | TBD | Pemetaan field hasil |
+| API atau file model AI | TBD | Preprocessing/inference |
+| Batas waktu dan kuota AI | TBD | Timeout dan biaya |
+| Mekanisme push notification | TBD | Notifikasi transaksi |
+| Format template bulk insert | TBD | Bulk insert |
+| Penanda seed idempotent | TBD | Seed ulang |
+| Format kode mata kuliah | TBD | Bulk insert laboratorium |
+| Nominal denda dan grace period | TBD | Perhitungan denda |
+| Status tagihan final dan pemetaan status Midtrans | TBD | Sinkronisasi tagihan |
+| Nilai status kehadiran final | TBD | `excused absence`, alpha, terlambat |
+| Field `laboratoriumIds` pada `users` | TBD | Relasi anggota dan rules |
+| Kewenangan Aslab membaca izin/hasil AI | TBD | Role matrix dan rules |
+| Riwayat perpindahan anggota | TBD | Jejak distribusi |
+| Nama berkas desain | TBD | Pembaruan desain |
+| Developer Auth dan reset password | TBD | Reset password |
+| Dukungan Web untuk Midtrans, notifikasi, AI | TBD | Pengujian platform |
+| Migrasi istilah `asisten` ke `asprak` | TBD | Konsistensi data dan rules |
+
+## 23. Referensi
+
+1. [`docs/sprints/sprint-2.md`](sprints/sprint-2.md) — Firebase Authentication, Cloud Firestore, izin, dan klasifikasi AI.
+2. [`docs/sprints/sprint-3.md`](sprints/sprint-3.md) — presensi QR/lokasi, Maps, dan push notification.
+3. [`docs/sprints/sprint-4.md`](sprints/sprint-4.md) — scope, role, 87 task induk, data, testing, dan risiko Sprint 4.
+4. [`docs/references/PEMBAGIAN JOBDESC SPRINT 4 — PRAKTIKUMKU.pdf`](references/PEMBAGIAN%20JOBDESC%20SPRINT%204%20%E2%80%94%20PRAKTIKUMKU.pdf) — sumber resmi jobdesc dan requirement Sprint 4.
+5. [`docs/GIT-WORKFLOW.md`](GIT-WORKFLOW.md) — branch, commit, PR, dan review.
+6. [`AGENTS.md`](../AGENTS.md) — aturan implementasi dan ownership.
+
+**Catatan sumber:** repository hanya menyediakan satu berkas PDF referensi Sprint 4. Berkas requirement resmi terpisah dan berkas perbaikan sprint sebelumnya yang terpisah tidak ditemukan. Requirement yang tidak tercantum pada PDF ditandai TBD dan tidak diasumsikan.
+
  

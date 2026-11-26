@@ -1,15 +1,20 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
-# dependencies
+# ==========================================
+# DEPENDENCIES
+# ==========================================
 node_modules/
 
-# Expo
+# ==========================================
+# EXPO
+# ==========================================
 .expo/
 dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# ==========================================
+# NATIVE BUILD
+# ==========================================
 .kotlin/
 *.orig.*
 *.jks
@@ -18,35 +23,78 @@ expo-env.d.ts
 *.key
 *.mobileprovision
 
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-*.pem
-
-# local env files
-.env
-.env*.local
-
-# typescript
-*.tsbuildinfo
-
-example
-
-# generated native folders
+# Generated native folders
 /ios
 /android
 
-# local agent config, keep shared skills tracked
+# ==========================================
+# METRO
+# ==========================================
+.metro-health-check*
+
+# ==========================================
+# DEBUG & LOGS
+# ==========================================
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+*.log
+
+# ==========================================
+# OPERATING SYSTEM
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# ENVIRONMENT VARIABLES
+# ==========================================
+.env
+.env.*
+!.env.example
+!.env.seed.example
+*.local
+
+# ==========================================
+# TYPESCRIPT
+# ==========================================
+*.tsbuildinfo
+
+# ==========================================
+# FIREBASE
+# ==========================================
+
+# Firebase Service Account credentials (PRIVATE)
+service-account*.json
+*serviceAccount*.json
+*-firebase-adminsdk-*.json
+
+# Seed configuration and local UID mapping
+.env.seed
+seed-uid-map.local.json
+
+# Local backups
+backups/
+
+# ==========================================
+# FIREBASE EMULATOR
+# ==========================================
+firestore-debug.log
+ui-debug.log
+firebase-debug.log
+firebase-debug.*.log
+
+# ==========================================
+# LOCAL CONFIGURATION & AGENTS
+# ==========================================
 .opencode/*
 !.opencode/skills/
 !.opencode/skills/**
 
-*-firebase-adminsdk-*.json
 .commandcode/
+
+# ==========================================
+# TEMPORARY FILES
+# ==========================================
+*.tmp
+*.temp

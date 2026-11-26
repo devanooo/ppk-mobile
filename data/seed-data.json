@@ -1,0 +1,554 @@
+{
+  "meta": {
+    "dataset": "PraktikumKU Sprint 4 development seed",
+    "version": 3,
+    "purpose": "Data sintetis untuk review dan import setelah Firestore Rules serta importer diselaraskan.",
+    "counts": {
+      "praktikan": 20,
+      "asprak": 8,
+      "aslab": 4,
+      "mataKuliah": 4,
+      "kelas": 4,
+      "sesi": 8,
+      "relasiMataKuliahLabs": 8
+    },
+    "nimFormat": "240601 + angkatan(2 digit) + 1 + kode(20/30/40) + urutan(3 digit) = 14 digit",
+    "roleCompatibility": {
+      "praktikan": "peran = praktikan",
+      "asprak": "peran = asprak; akun dibuat melalui Firebase Admin SDK",
+      "aslab": "peran = aslab; akun dibuat melalui Firebase Admin SDK"
+    },
+    "rulesLimitations": [
+      "Firestore Rules Sprint 4 mendukung role praktikan, asprak, dan aslab.",
+      "Dokumen users menggunakan UID Firebase Authentication sebagai document ID.",
+      "ID akun seed seperti asprak_001 dan aslab_001 wajib dipetakan ke UID Firebase Authentication oleh importer.",
+      "Field email dan password hanya digunakan untuk Firebase Authentication, bukan disimpan di dokumen users.",
+      "Dokumen labs adalah data existing; importer hanya memverifikasi keberadaan dan membaca snapshot lokasi aktual.",
+      "Subcollection presensi dan izin historis tidak dihapus atau ditimpa; dataset ini tidak membuat dokumen presensi atau izin."
+    ],
+    "existingCollectionsPolicy": "Menggunakan collection labs, kelas, users, nomorInduk, dan sesi yang telah ada. Tidak membuat collection laboratorium baru. Tidak menghapus data historis.",
+    "important": "Dataset hasil audit v3. Gunakan importer Sprint 4 yang memetakan seluruh seed ID ke UID Auth, menulis penugasanAsprak dengan document ID UID Asprak, dan menyalin snapshot lokasi dari dokumen labs aktual."
+  },
+  "labs": [
+    {
+      "id": "lab_b",
+      "name": "Lab B",
+      "code": "LAB_B"
+    },
+    {
+      "id": "lab_c",
+      "name": "Lab C",
+      "code": "LAB_C"
+    },
+    {
+      "id": "lab_d",
+      "name": "Lab D",
+      "code": "LAB_D"
+    },
+    {
+      "id": "lab_ap",
+      "name": "Lab AP",
+      "code": "LAB_AP"
+    }
+  ],
+  "mataKuliah": [
+    {
+      "id": "seed_mk_dasar_pemrograman",
+      "kode": null,
+      "nama": "Dasar Pemrograman",
+      "aslabId": "aslab_001"
+    },
+    {
+      "id": "seed_mk_struktur_data",
+      "kode": null,
+      "nama": "Struktur Data",
+      "aslabId": "aslab_002"
+    },
+    {
+      "id": "seed_mk_sistem_operasi",
+      "kode": null,
+      "nama": "Sistem Operasi",
+      "aslabId": "aslab_003"
+    },
+    {
+      "id": "seed_mk_analisis_strategi_algoritma",
+      "kode": null,
+      "nama": "Analisis dan Strategi Algoritma",
+      "aslabId": "aslab_004"
+    }
+  ],
+  "users": {
+    "praktikan": [
+      {
+        "id": "praktikan_001",
+        "nama": "Aditya Pratama",
+        "nomorInduk": "24060124120001",
+        "peran": "praktikan",
+        "email": "aditya@praktikumku.test"
+      },
+      {
+        "id": "praktikan_002",
+        "nama": "Nabila Lestari",
+        "nomorInduk": "24060124120002",
+        "peran": "praktikan",
+        "email": "nabila@praktikumku.test"
+      },
+      {
+        "id": "praktikan_003",
+        "nama": "Rizky Saputra",
+        "nomorInduk": "24060124120003",
+        "peran": "praktikan",
+        "email": "rizky@praktikumku.test"
+      },
+      {
+        "id": "praktikan_004",
+        "nama": "Putri Permata",
+        "nomorInduk": "24060124120004",
+        "peran": "praktikan",
+        "email": "putri@praktikumku.test"
+      },
+      {
+        "id": "praktikan_005",
+        "nama": "Fajar Wijaya",
+        "nomorInduk": "24060124120005",
+        "peran": "praktikan",
+        "email": "fajar@praktikumku.test"
+      },
+      {
+        "id": "praktikan_006",
+        "nama": "Dinda Azzahra",
+        "nomorInduk": "24060124120006",
+        "peran": "praktikan",
+        "email": "dinda@praktikumku.test"
+      },
+      {
+        "id": "praktikan_007",
+        "nama": "Rafi Ramadhan",
+        "nomorInduk": "24060124120007",
+        "peran": "praktikan",
+        "email": "rafi@praktikumku.test"
+      },
+      {
+        "id": "praktikan_008",
+        "nama": "Intan Puspita",
+        "nomorInduk": "24060124120008",
+        "peran": "praktikan",
+        "email": "intan@praktikumku.test"
+      },
+      {
+        "id": "praktikan_009",
+        "nama": "Bagas Kurniawan",
+        "nomorInduk": "24060124120009",
+        "peran": "praktikan",
+        "email": "bagas@praktikumku.test"
+      },
+      {
+        "id": "praktikan_010",
+        "nama": "Aulia Safitri",
+        "nomorInduk": "24060124120010",
+        "peran": "praktikan",
+        "email": "aulia@praktikumku.test"
+      },
+      {
+        "id": "praktikan_011",
+        "nama": "Farhan Firmansyah",
+        "nomorInduk": "24060125130011",
+        "peran": "praktikan",
+        "email": "farhan@praktikumku.test"
+      },
+      {
+        "id": "praktikan_012",
+        "nama": "Nadia Maharani",
+        "nomorInduk": "24060125130012",
+        "peran": "praktikan",
+        "email": "nadia@praktikumku.test"
+      },
+      {
+        "id": "praktikan_013",
+        "nama": "Ilham Maulana",
+        "nomorInduk": "24060125130013",
+        "peran": "praktikan",
+        "email": "ilham@praktikumku.test"
+      },
+      {
+        "id": "praktikan_014",
+        "nama": "Salsa Anggraini",
+        "nomorInduk": "24060125130014",
+        "peran": "praktikan",
+        "email": "salsa@praktikumku.test"
+      },
+      {
+        "id": "praktikan_015",
+        "nama": "Dimas Setiawan",
+        "nomorInduk": "24060125130015",
+        "peran": "praktikan",
+        "email": "dimas@praktikumku.test"
+      },
+      {
+        "id": "praktikan_016",
+        "nama": "Citra Wulandari",
+        "nomorInduk": "24060125130016",
+        "peran": "praktikan",
+        "email": "citra@praktikumku.test"
+      },
+      {
+        "id": "praktikan_017",
+        "nama": "Reza Hidayat",
+        "nomorInduk": "24060125130017",
+        "peran": "praktikan",
+        "email": "reza@praktikumku.test"
+      },
+      {
+        "id": "praktikan_018",
+        "nama": "Tiara Oktaviani",
+        "nomorInduk": "24060125130018",
+        "peran": "praktikan",
+        "email": "tiara@praktikumku.test"
+      },
+      {
+        "id": "praktikan_019",
+        "nama": "Yoga Nugroho",
+        "nomorInduk": "24060125130019",
+        "peran": "praktikan",
+        "email": "yoga@praktikumku.test"
+      },
+      {
+        "id": "praktikan_020",
+        "nama": "Anisa Rahmawati",
+        "nomorInduk": "24060125130020",
+        "peran": "praktikan",
+        "email": "anisa@praktikumku.test"
+      }
+    ],
+    "asprak": [
+      {
+        "id": "asprak_001",
+        "nama": "Raka Pradana",
+        "nomorInduk": "24060123120001",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_001",
+        "email": "raka@praktikumku.test"
+      },
+      {
+        "id": "asprak_002",
+        "nama": "Maya Kirana",
+        "nomorInduk": "24060123120002",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_001",
+        "email": "maya@praktikumku.test"
+      },
+      {
+        "id": "asprak_003",
+        "nama": "Daffa Akbar",
+        "nomorInduk": "24060123120003",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_002",
+        "email": "daffa@praktikumku.test"
+      },
+      {
+        "id": "asprak_004",
+        "nama": "Nisa Amelia",
+        "nomorInduk": "24060123120004",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_002",
+        "email": "nisa@praktikumku.test"
+      },
+      {
+        "id": "asprak_005",
+        "nama": "Fikri Ramadhan",
+        "nomorInduk": "24060122130005",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_003",
+        "email": "fikri@praktikumku.test"
+      },
+      {
+        "id": "asprak_006",
+        "nama": "Alya Putri",
+        "nomorInduk": "24060122130006",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_003",
+        "email": "alya@praktikumku.test"
+      },
+      {
+        "id": "asprak_007",
+        "nama": "Rangga Saputra",
+        "nomorInduk": "24060122130007",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_004",
+        "email": "rangga@praktikumku.test"
+      },
+      {
+        "id": "asprak_008",
+        "nama": "Nadine Zahra",
+        "nomorInduk": "24060122130008",
+        "peran": "asprak",
+        "kelasId": "seed_kelas_004",
+        "email": "nadine@praktikumku.test"
+      }
+    ],
+    "aslab": [
+      {
+        "id": "aslab_001",
+        "nama": "Arman Setiawan",
+        "nomorInduk": "24060122140001",
+        "peran": "aslab",
+        "mataKuliahId": "seed_mk_dasar_pemrograman",
+        "email": "arman@praktikumku.test"
+      },
+      {
+        "id": "aslab_002",
+        "nama": "Dewi Kartika",
+        "nomorInduk": "24060122140002",
+        "peran": "aslab",
+        "mataKuliahId": "seed_mk_struktur_data",
+        "email": "dewi@praktikumku.test"
+      },
+      {
+        "id": "aslab_003",
+        "nama": "Bima Prakoso",
+        "nomorInduk": "24060121140003",
+        "peran": "aslab",
+        "mataKuliahId": "seed_mk_sistem_operasi",
+        "email": "bima@praktikumku.test"
+      },
+      {
+        "id": "aslab_004",
+        "nama": "Sinta Maharani",
+        "nomorInduk": "24060121140004",
+        "peran": "aslab",
+        "mataKuliahId": "seed_mk_analisis_strategi_algoritma",
+        "email": "sinta@praktikumku.test"
+      }
+    ]
+  },
+  "kelas": [
+    {
+      "id": "seed_kelas_001",
+      "nama": "Dasar Pemrograman - Kelas A",
+      "mataKuliahId": "seed_mk_dasar_pemrograman",
+      "labId": "lab_b",
+      "lab": "Lab B",
+      "aslabId": "aslab_001",
+      "asistenId": "asprak_001",
+      "pesertaIds": [
+        "praktikan_001",
+        "praktikan_002",
+        "praktikan_003",
+        "praktikan_004",
+        "praktikan_005"
+      ],
+      "penugasanAsprak": [
+        "asprak_001",
+        "asprak_002"
+      ],
+      "sesiIds": [
+        "seed_sesi_001_01",
+        "seed_sesi_001_02"
+      ]
+    },
+    {
+      "id": "seed_kelas_002",
+      "nama": "Struktur Data - Kelas B",
+      "mataKuliahId": "seed_mk_struktur_data",
+      "labId": "lab_c",
+      "lab": "Lab C",
+      "aslabId": "aslab_002",
+      "asistenId": "asprak_003",
+      "pesertaIds": [
+        "praktikan_006",
+        "praktikan_007",
+        "praktikan_008",
+        "praktikan_009",
+        "praktikan_010"
+      ],
+      "penugasanAsprak": [
+        "asprak_003",
+        "asprak_004"
+      ],
+      "sesiIds": [
+        "seed_sesi_002_01",
+        "seed_sesi_002_02"
+      ]
+    },
+    {
+      "id": "seed_kelas_003",
+      "nama": "Sistem Operasi - Kelas C",
+      "mataKuliahId": "seed_mk_sistem_operasi",
+      "labId": "lab_d",
+      "lab": "Lab D",
+      "aslabId": "aslab_003",
+      "asistenId": "asprak_005",
+      "pesertaIds": [
+        "praktikan_011",
+        "praktikan_012",
+        "praktikan_013",
+        "praktikan_014",
+        "praktikan_015"
+      ],
+      "penugasanAsprak": [
+        "asprak_005",
+        "asprak_006"
+      ],
+      "sesiIds": [
+        "seed_sesi_003_01",
+        "seed_sesi_003_02"
+      ]
+    },
+    {
+      "id": "seed_kelas_004",
+      "nama": "Analisis dan Strategi Algoritma - Kelas D",
+      "mataKuliahId": "seed_mk_analisis_strategi_algoritma",
+      "labId": "lab_ap",
+      "lab": "Lab AP",
+      "aslabId": "aslab_004",
+      "asistenId": "asprak_007",
+      "pesertaIds": [
+        "praktikan_016",
+        "praktikan_017",
+        "praktikan_018",
+        "praktikan_019",
+        "praktikan_020"
+      ],
+      "penugasanAsprak": [
+        "asprak_007",
+        "asprak_008"
+      ],
+      "sesiIds": [
+        "seed_sesi_004_01",
+        "seed_sesi_004_02"
+      ]
+    }
+  ],
+  "sesi": [
+    {
+      "id": "seed_sesi_001_01",
+      "kelasId": "seed_kelas_001",
+      "asistenId": "asprak_001",
+      "tanggal": "2026-12-02",
+      "hari": "Rabu",
+      "jamMulai": "08:00",
+      "jamSelesai": "10:00",
+      "status": "belum-dibuka",
+      "labId": "lab_b",
+      "labNama": "Lab B"
+    },
+    {
+      "id": "seed_sesi_001_02",
+      "kelasId": "seed_kelas_001",
+      "asistenId": "asprak_001",
+      "tanggal": "2026-12-09",
+      "hari": "Rabu",
+      "jamMulai": "10:00",
+      "jamSelesai": "12:00",
+      "status": "belum-dibuka",
+      "labId": "lab_b",
+      "labNama": "Lab B"
+    },
+    {
+      "id": "seed_sesi_002_01",
+      "kelasId": "seed_kelas_002",
+      "asistenId": "asprak_003",
+      "tanggal": "2026-12-02",
+      "hari": "Rabu",
+      "jamMulai": "08:00",
+      "jamSelesai": "10:00",
+      "status": "belum-dibuka",
+      "labId": "lab_c",
+      "labNama": "Lab C"
+    },
+    {
+      "id": "seed_sesi_002_02",
+      "kelasId": "seed_kelas_002",
+      "asistenId": "asprak_003",
+      "tanggal": "2026-12-09",
+      "hari": "Rabu",
+      "jamMulai": "10:00",
+      "jamSelesai": "12:00",
+      "status": "belum-dibuka",
+      "labId": "lab_c",
+      "labNama": "Lab C"
+    },
+    {
+      "id": "seed_sesi_003_01",
+      "kelasId": "seed_kelas_003",
+      "asistenId": "asprak_005",
+      "tanggal": "2026-12-02",
+      "hari": "Rabu",
+      "jamMulai": "08:00",
+      "jamSelesai": "10:00",
+      "status": "belum-dibuka",
+      "labId": "lab_d",
+      "labNama": "Lab D"
+    },
+    {
+      "id": "seed_sesi_003_02",
+      "kelasId": "seed_kelas_003",
+      "asistenId": "asprak_005",
+      "tanggal": "2026-12-09",
+      "hari": "Rabu",
+      "jamMulai": "10:00",
+      "jamSelesai": "12:00",
+      "status": "belum-dibuka",
+      "labId": "lab_d",
+      "labNama": "Lab D"
+    },
+    {
+      "id": "seed_sesi_004_01",
+      "kelasId": "seed_kelas_004",
+      "asistenId": "asprak_007",
+      "tanggal": "2026-12-02",
+      "hari": "Rabu",
+      "jamMulai": "08:00",
+      "jamSelesai": "10:00",
+      "status": "belum-dibuka",
+      "labId": "lab_ap",
+      "labNama": "Lab AP"
+    },
+    {
+      "id": "seed_sesi_004_02",
+      "kelasId": "seed_kelas_004",
+      "asistenId": "asprak_007",
+      "tanggal": "2026-12-09",
+      "hari": "Rabu",
+      "jamMulai": "10:00",
+      "jamSelesai": "12:00",
+      "status": "belum-dibuka",
+      "labId": "lab_ap",
+      "labNama": "Lab AP"
+    }
+  ],
+  "relasiMataKuliahLabs": [
+    {
+      "mataKuliahId": "seed_mk_dasar_pemrograman",
+      "labId": "lab_b"
+    },
+    {
+      "mataKuliahId": "seed_mk_dasar_pemrograman",
+      "labId": "lab_c"
+    },
+    {
+      "mataKuliahId": "seed_mk_struktur_data",
+      "labId": "lab_c"
+    },
+    {
+      "mataKuliahId": "seed_mk_struktur_data",
+      "labId": "lab_d"
+    },
+    {
+      "mataKuliahId": "seed_mk_sistem_operasi",
+      "labId": "lab_d"
+    },
+    {
+      "mataKuliahId": "seed_mk_sistem_operasi",
+      "labId": "lab_ap"
+    },
+    {
+      "mataKuliahId": "seed_mk_analisis_strategi_algoritma",
+      "labId": "lab_ap"
+    },
+    {
+      "mataKuliahId": "seed_mk_analisis_strategi_algoritma",
+      "labId": "lab_b"
+    }
+  ]
+}
