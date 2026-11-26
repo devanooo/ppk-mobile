@@ -1,3 +1,4 @@
+
 {
   "cli": {
     "version": ">= 25.3.0",
@@ -7,14 +8,23 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "environment": "development",
+      "android": {
+        "buildType": "apk"
+      },
       "ios": {
         "simulator": true
       }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
+      "environment": "production",
       "autoIncrement": true
     }
   },

@@ -7,6 +7,7 @@
     "@expo/ui": "~58.0.21",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "9.2.1",
+    "dotenv": "^18.0.10",
     "expo": "~58.0.16",
     "expo-camera": "~58.0.14",
     "expo-constants": "~58.0.12",
@@ -24,7 +25,6 @@
     "expo-symbols": "~58.0.4",
     "expo-system-ui": "~58.0.6",
     "expo-web-browser": "~58.0.6",
-    "firebase": "^13.2.0",
     "nativewind": "4.2.7",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -40,11 +40,15 @@
     "react-native-worklets": "0.13.0"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
     "@types/react": "~19.3.0",
     "babel-preset-expo": "^58.0.18",
     "eslint": "^9.0.0",
     "eslint-config-expo": "~58.0.4",
+    "firebase": "^13.4.0",
     "firebase-admin": "^14.5.1",
+    "firebase-tools": "^15.37.0",
+    "jest": "^30.5.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^3.4.19",
     "typescript": "~6.0.3"
@@ -53,8 +57,8 @@
     "start": "expo start",
     "seed": "node scripts/seed.mjs",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "lint": "expo lint",
     "assert": "node src/lib/qr-logic.assert.mjs && node src/lib/validasi-logic.assert.mjs && node src/lib/ai-logic.assert.mjs && node --experimental-transform-types src/features/presensi/lokasi.assert.mjs && node src/features/presensi/aturan.assert.mjs && node src/features/presensi/identitas.assert.mjs"
   },
